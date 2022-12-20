@@ -11,7 +11,7 @@
   <genPackages prefix="SwhModel" basePackage="fr.inria.diverse" disposableProviderFactory="true"
       ecorePackage="swhModel.ecore#/">
     <genClasses ecoreClass="swhModel.ecore#//Graph">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Graph/origin"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Graph/origins"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Graph/timestamp"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//Node">
@@ -19,27 +19,29 @@
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//Origin">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Origin/originUrl"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Origin/originvisit"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Origin/originVisits"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//OriginVisit">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//OriginVisit/timestamp"/>
       <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//OriginVisit/snapshot"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//Snapshot">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Snapshot/snapshotbranch"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Snapshot/branches"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//SnapshotBranch">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//SnapshotBranch/name"/>
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//SnapshotBranch/snapshotchild"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//SnapshotBranch/child"/>
+      <genOperations ecoreOperation="swhModel.ecore#//SnapshotBranch/getRevision"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//SnapshotChild"/>
     <genClasses ecoreClass="swhModel.ecore#//Revision">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Revision/directorychild"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Revision/tree"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/message"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/author"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/timestamp"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/commiter"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/commiterTimestamp"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Revision/parent"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//DirectoryChild"/>
     <genClasses ecoreClass="swhModel.ecore#//Content">
@@ -47,10 +49,10 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Content/status"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//Directory">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Directory/directoryentry"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Directory/entries"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//DirectoryEntry">
-      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//DirectoryEntry/directorychild"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//DirectoryEntry/child"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//DirectoryEntry/name"/>
     </genClasses>
     <genClasses ecoreClass="swhModel.ecore#//Release">

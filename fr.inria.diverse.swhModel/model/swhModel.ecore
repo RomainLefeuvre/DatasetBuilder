@@ -2,7 +2,7 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="swhModel" nsURI="http://www.example.org/swhModel" nsPrefix="swhModel">
   <eClassifiers xsi:type="ecore:EClass" name="Graph">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="origin" upperBound="-1"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="origins" upperBound="-1"
         eType="#//Origin"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//DateTime"/>
   </eClassifiers>
@@ -11,29 +11,31 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Origin" eSuperTypes="#//Node">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="originUrl" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="originvisit" upperBound="-1"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="originVisits" upperBound="-1"
         eType="#//OriginVisit" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="OriginVisit">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//DateTime"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Long"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="snapshot" eType="#//Snapshot"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Snapshot" eSuperTypes="#//Node">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="snapshotbranch" upperBound="-1"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="branches" upperBound="-1"
         eType="#//SnapshotBranch" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SnapshotBranch">
+    <eOperations name="getRevision" lowerBound="1" eType="#//Revision"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="snapshotchild" eType="#//SnapshotChild"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="child" eType="#//SnapshotChild"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="SnapshotChild" abstract="true" eSuperTypes="#//Node"/>
   <eClassifiers xsi:type="ecore:EClass" name="Revision" eSuperTypes="#//SnapshotChild #//DirectoryChild">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="directorychild" eType="#//DirectoryChild"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tree" eType="#//DirectoryChild"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="message" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="author" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//DateTime"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Long"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="commiter" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="commiterTimestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Date"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parent" eType="#//Revision"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DirectoryChild" abstract="true" eSuperTypes="#//Node"/>
   <eClassifiers xsi:type="ecore:EClass" name="Content" eSuperTypes="#//DirectoryChild">
@@ -41,18 +43,18 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="status" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Directory" eSuperTypes="#//DirectoryChild">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="directoryentry" upperBound="-1"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entries" upperBound="-1"
         eType="#//DirectoryEntry" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="DirectoryEntry">
-    <eStructuralFeatures xsi:type="ecore:EReference" name="directorychild" eType="#//DirectoryChild"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="child" eType="#//DirectoryChild"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Release" eSuperTypes="#//SnapshotChild">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="message" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="author" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//DateTime"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="timestamp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Long"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="revision" eType="#//Revision"/>
   </eClassifiers>
 </ecore:EPackage>
