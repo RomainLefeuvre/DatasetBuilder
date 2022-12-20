@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel"
+    modelDirectory="/fr.inria.diverse.swhModel/src-gen" creationIcons="false"
+    editDirectory="/fr.inria.diverse.swhModel.edit/src-gen" editorDirectory="/fr.inria.diverse.swhModel.editor/src-gen"
+    modelPluginID="fr.inria.diverse.swhModel" modelName="SwhModel" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    codeFormatting="true" importerID="org.eclipse.emf.importer.ecore" complianceLevel="5.0"
+    copyrightFields="false" operationReflection="true" importOrganizing="true">
+  <foreignModel>swhModel.ecore</foreignModel>
+  <testsDirectory xsi:nil="true"/>
+  <genPackages prefix="SwhModel" basePackage="fr.inria.diverse" disposableProviderFactory="true"
+      ecorePackage="swhModel.ecore#/">
+    <genClasses ecoreClass="swhModel.ecore#//Graph">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Graph/origin"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Graph/timestamp"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//Node">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Node/swhid"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//Origin">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Origin/originUrl"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Origin/originvisit"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//OriginVisit">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//OriginVisit/timestamp"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//OriginVisit/snapshot"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//Snapshot">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Snapshot/snapshotbranch"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//SnapshotBranch">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//SnapshotBranch/name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//SnapshotBranch/snapshotchild"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//SnapshotChild"/>
+    <genClasses ecoreClass="swhModel.ecore#//Revision">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Revision/directorychild"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/message"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/author"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/timestamp"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/commiter"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Revision/commiterTimestamp"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//DirectoryChild"/>
+    <genClasses ecoreClass="swhModel.ecore#//Content">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Content/length"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Content/status"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//Directory">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference swhModel.ecore#//Directory/directoryentry"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//DirectoryEntry">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//DirectoryEntry/directorychild"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//DirectoryEntry/name"/>
+    </genClasses>
+    <genClasses ecoreClass="swhModel.ecore#//Release">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Release/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Release/message"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Release/author"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute swhModel.ecore#//Release/timestamp"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference swhModel.ecore#//Release/revision"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
