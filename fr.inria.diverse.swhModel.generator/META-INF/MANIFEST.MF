@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Generator
+Bundle-SymbolicName: fr.inria.diverse.swhModel.generator
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: fr.inria.diverse.swhModel.generator
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.eclipse.xtend.lib;bundle-version="2.25.0",
+ fr.inria.diverse.k3.al.annotationprocessor.plugin;bundle-version="3.3.0",
+ org.eclipse.emf.ecore;bundle-version="2.25.0",
+ fr.inria.diverse.swhModel.ocl;bundle-version="1.17.0",
+ org.eclipse.emf.ecore.xmi;bundle-version="2.16.0"
