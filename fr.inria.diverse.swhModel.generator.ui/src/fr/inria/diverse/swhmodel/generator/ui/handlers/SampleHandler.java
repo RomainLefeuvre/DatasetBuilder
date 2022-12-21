@@ -1,4 +1,4 @@
-package fr.inria.diverse.swhmodel.generator.handlers;
+package fr.inria.diverse.swhmodel.generator.ui.handlers;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -12,7 +12,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import fr.inria.diverse.swhModel.generator.EPackageAspect;
 import fr.inria.diverse.swhModel.generator.aspects.Pivot_ModelAspect;
 
 import org.eclipse.jface.dialogs.MessageDialog;

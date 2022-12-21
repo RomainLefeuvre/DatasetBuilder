@@ -16,7 +16,7 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="fr.inria.diverse.swhmodel.generator.handlers.SampleHandler"
+            class="fr.inria.diverse.swhmodel.generator.ui.handlers.SampleHandler"
             commandId="fr.inria.diverse.swhModel.generator.commands.sampleCommand">
       </handler>
    </extension>
