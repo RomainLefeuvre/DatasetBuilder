@@ -27,6 +27,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ocl.pivot.Model;
+import org.eclipse.ocl.pivot.resource.ASResource;
+import org.eclipse.ocl.xtext.base.utilities.BaseCSResource;
 
 public class SWHGeneratorHandler extends AbstractHandler {
 
@@ -53,22 +55,24 @@ public class SWHGeneratorHandler extends AbstractHandler {
 		}
 		
 		if(selectedIFile != null) {
+			Model selectedPivotModel;
+			
 			URI uri = URI.createPlatformResourceURI(selectedIFile.getFullPath().toString(), true);
+			ResourceSet resSet = new  ResourceSetImpl();
+			Resource res = resSet.getResource(uri, true);
+			if (res instanceof BaseCSResource) {
+				ASResource asResource = ((BaseCSResource)res).getASResource();
+				selectedPivotModel = asResource.getModel();
+			}
+			else {
+				selectedPivotModel = (Model) res.getContents().get(0);
+			}
 			
 			Job job = new Job("Generate query for SWH OCL file " + selectedIFile.getName() ) {
 				protected IStatus run(IProgressMonitor monitor) {
 					SubMonitor submonitor = SubMonitor.convert(monitor, 100);
 					
-					ResourceSet resSet = new  ResourceSetImpl();
-					Resource res = resSet.getResource(uri, true);
-					//res.getContents().get(0).eClass().eResource().getURI()
-					//EcoreUtil.resolveAll(res)
-					EObject o = res.getContents().get(0);
-					System.out.println(o);
-					Model m = (Model) o;
-					
-					
-					Pivot_ModelAspect.generate(m);
+					Pivot_ModelAspect.generate(selectedPivotModel);
 					
 					submonitor.done();
 					return Status.OK_STATUS;
