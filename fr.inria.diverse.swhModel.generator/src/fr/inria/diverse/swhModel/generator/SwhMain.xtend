@@ -16,6 +16,10 @@ import org.eclipse.ocl.pivot.Model
 import fr.inria.diverse.swhModel.generator.aspects.Pivot_ModelAspect
 
 import static extension fr.inria.diverse.swhModel.generator.aspects.Pivot_ModelAspect.*
+import org.eclipse.ocl.xtext.base.utilities.BaseCSResource
+import org.eclipse.ocl.pivot.resource.ASResource
+import org.eclipse.ocl.pivot.utilities.PivotStandaloneSetup
+import org.eclipse.ocl.xtext.completeocl.CompleteOCLStandaloneSetup
 
 class SwhMain{ 
 
@@ -29,19 +33,28 @@ class SwhMain{
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", fact);
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl())
 		
+		PivotStandaloneSetup.doSetup();
+		CompleteOCLStandaloneSetup.doSetup();
+		
+		
 		SwhModelPackage.eINSTANCE.eClass();
 		
 		var rs = new ResourceSetImpl()
 		var uri = URI.createURI(modelPath);
 		var res = rs.getResource(uri, true);
 		
+		
+		var Model selectedPivotModel
+		if (res instanceof BaseCSResource) {
+			var ASResource asResource = (res as BaseCSResource).getASResource();
+			selectedPivotModel = asResource.getModel();
+		}
+		else {
+			selectedPivotModel = res.getContents().get(0) as Model;
+		}
 
-		val EObject o = res.getContents().get(0);
-		System.out.println(o);
-		val Model m = o as Model;
 		
-		
-		m.generate
+		selectedPivotModel.generate
 		//Pivot_ModelAspect.generate(m);
 
 		// apply transformation
@@ -57,7 +70,8 @@ class SwhMain{
 
 	def static void main(String[] args) {
 		println('Hello Kermeta on top of Xtend! (please create a My.ecore file to test this sample program)')
-		new SwhMain().run("tests/resources/swhModelQuery_01/swhModelQuery.ocl.oclas", "My_annotated.ecore")
+		//new SwhMain().run("tests/resources/swhModelQuery_01/swhModelQuery.oclas", "My_annotated.ecore")
+		new SwhMain().run("tests/resources/swhModelQuery_01/swhModelQuery.ocl", "My_annotated.ecore")
 		println('file written (please refresh project to see it)')
 	}
 	
