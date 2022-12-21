@@ -25,7 +25,7 @@ class SwhMain{
 		var res = rs.getResource(uri, true);
 
 		// apply transformation
-		res.contents.filter(EPackage).forEach[ pack | pack.annotate]
+		//res.contents.filter(EPackage).forEach[ pack | pack.annotate]
 		
 		// save the modified model in a new file
 		val resSet2 = new  ResourceSetImpl()

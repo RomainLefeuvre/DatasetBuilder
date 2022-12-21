@@ -1,4 +1,4 @@
-package packageName;
+package fr.inria.diverse.swhModel.generator;
 
 import fr.inria.diverse.k3.al.annotationprocessor.Aspect
 import fr.inria.diverse.k3.al.annotationprocessor.OverrideAspectMethod
@@ -10,10 +10,10 @@ import org.eclipse.emf.ecore.EModelElement
 import org.eclipse.emf.ecore.EAnnotation
 import org.eclipse.emf.ecore.EcoreFactory
 
-import static extension packageName.EPackageAspect.*
-import static extension packageName.EClassAspect.*
-import static extension packageName.EClassifierAspect.*
-import static extension packageName.EModelElementAspect.*
+import static extension fr.inria.diverse.swhModel.generator.EPackageAspect.*
+import static extension fr.inria.diverse.swhModel.generator.EClassAspect.*
+import static extension fr.inria.diverse.swhModel.generator.EClassifierAspect.*
+import static extension fr.inria.diverse.swhModel.generator.EModelElementAspect.*
 
 /*
  * 
@@ -52,7 +52,7 @@ class EClassAspect extends EClassifierAspect{
 	public def String flat(String tabStr){
 		// use a template String
 		// note: in case of strange characters here, make sure to configure your project to use utf8
-val returnedString = '''«tabStr»class «_self.name» : «FOR eSuperClass : _self.ESuperTypes»«eSuperClass.flat( tabStr + "\t")»«ENDFOR»'''
+		val returnedString = '''«tabStr»class «_self.name» : «FOR eSuperClass : _self.ESuperTypes»«eSuperClass.flat( tabStr + "\t")»«ENDFOR»'''
 				return returnedString.toString
 	}
 }

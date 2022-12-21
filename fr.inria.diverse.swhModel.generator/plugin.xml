@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="fr.inria.diverse.swhModel.generator.commands.category"
+            name="Sample Category">
+      </category>
+      <command
+            categoryId="fr.inria.diverse.swhModel.generator.commands.category"
+            id="fr.inria.diverse.swhModel.generator.commands.sampleCommand"
+            name="Sample Command">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="fr.inria.diverse.swhmodel.generator.handlers.SampleHandler"
+            commandId="fr.inria.diverse.swhModel.generator.commands.sampleCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="fr.inria.diverse.swhModel.generator.commands.sampleCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+6">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="fr.inria.diverse.swhModel.generator.menus.sampleMenu"
+               label="Sample Menu"
+               mnemonic="M">
+            <command
+                  commandId="fr.inria.diverse.swhModel.generator.commands.sampleCommand"
+                  id="fr.inria.diverse.swhModel.generator.menus.sampleCommand"
+                  mnemonic="S">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="fr.inria.diverse.swhModel.generator.toolbars.sampleToolbar">
+            <command
+                  commandId="fr.inria.diverse.swhModel.generator.commands.sampleCommand"
+                  icon="icons/sample.png"
+                  id="fr.inria.diverse.swhModel.generator.toolbars.sampleCommand"
+                  tooltip="Say hello world">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+
+</plugin>
