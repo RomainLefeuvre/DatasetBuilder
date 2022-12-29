@@ -10,6 +10,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="swhid" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Origin" eSuperTypes="#//Node">
+    <eOperations name="getLastSnapshot()" eType="#//Snapshot"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="originUrl" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="originVisits" upperBound="-1"
         eType="#//OriginVisit" containment="true"/>

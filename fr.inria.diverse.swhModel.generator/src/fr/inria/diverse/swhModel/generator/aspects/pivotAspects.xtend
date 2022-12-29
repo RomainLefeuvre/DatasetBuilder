@@ -262,6 +262,218 @@ import org.eclipse.ocl.pivot.utilities.MorePivotable
 import org.eclipse.ocl.pivot.utilities.Nameable
 import org.eclipse.ocl.pivot.utilities.Pivotable
 import org.eclipse.ocl.utilities.Visitable
+import org.eclipse.ocl.pivot.internal.OperationImpl
+import org.eclipse.ocl.expressions.impl.OCLExpressionImpl
+import java.util.Map
+import org.eclipse.xtend.lib.annotations.Accessors
+
+@Aspect(className=Model)
+class Pivot_ModelAspect extends NamespaceAspect {
+	def String generate(){
+		'''
+		«FOR p :  _self.ownedPackages»  
+		   «p.generate()»
+		«ENDFOR»
+		'''
+	}
+}
+
+
+
+@Aspect(className=Package)
+class PackageAspect extends NamespaceAspect {
+	def String generate(){
+		'''
+		«FOR ownedClass :  _self.ownedClasses»  
+		   «ownedClass.generate()»
+		«ENDFOR»
+		'''
+		}
+}
+
+@Aspect(className=Class)
+class ClassAspect extends TypeAspect {
+	/*
+	* BE CAREFUL :
+	*
+	* This class has more than one superclass
+	* please specify which parent you want with the 'super' expected calling
+	*
+	*/
+	def String generate(){
+		'''
+		import fr.inria.diverse.Graph;
+		import fr.inria.diverse.LambdaExplorer;
+		import fr.inria.diverse.model.Origin;
+		import fr.inria.diverse.tools.Configuration;
+		import org.apache.logging.log4j.LogManager;
+		import org.apache.logging.log4j.Logger;
+		import org.softwareheritage.graph.SwhType;
+		import org.softwareheritage.graph.SwhUnidirectionalGraph;
+		import java.io.IOException;
+		import java.util.*;
+		
+		public class GraphQuery {
+		    static Logger logger = LogManager.getLogger(GraphQuery.class);
+		    private Graph g;
+		
+		    public GraphQuery() throws IOException {
+		        g = new Graph();
+		        g.loadGraph();
+		    }
+		    
+		«FOR operation :  _self.ownedOperations»        
+		«operation.generate(new Context())»
+		«ENDFOR»
+			
+		    public static void main(String[] args) throws IOException, InterruptedException {
+		        Configuration.init();
+		        Set<Long> queryResult = new GraphQuery().runQuery();
+		        ToolBox.exportObjectToJson(queryResult, Configuration.getInstance().getExportPath() + "/query/results");
+		    }	
+		}
+		'''
+		//«»	
+		}
+}
+@Aspect(className=Operation)
+class OperationAspect extends FeatureAspect {
+	/*
+	* BE CAREFUL :
+	*
+	* This class has more than one superclass
+	* please specify which parent you want with the 'super' expected calling
+	*
+	*/
+	def String generate(Context context){
+				//val test = _self.own
+		    switch _self.name {
+			      case 'query' :{
+			      	//ToDo Find a better way to obtain the child element
+			      	val ExpressionInOCL expr =_self.eContents.get(0) as ExpressionInOCL
+'''
+public Set<Long> runQuery() throws IOException, InterruptedException {
+	Set<Long> results = new HashSet<>(
+	«expr.generate(context)»
+	return results;			    
+}
+'''
+			      }
+			      default :{
+			      	print("Not a query")
+			      } 
+			 }
+		}
+
+
+}
+
+@Aspect(className=ExpressionInOCL)
+class ExpressionInOCLAspect extends LanguageExpressionAspect {
+		def String generate(Context c){
+			return _self.ownedBody.generate(c)
+		}
+}
+
+@Aspect(className=OCLExpression)
+abstract class OCLExpressionAspect extends TypedElementAspect {
+def String generate(Context context){
+	
+		throw new Exception("Not implemented ")	
+	}
+}
+
+@Aspect(className=IteratorExp)
+class IteratorExpAspect extends LoopExpAspect {
+	def String generate(Context context){
+		val iteratorVariable = _self.ownedIterators.get(0).name
+		context.iteratorVariable = iteratorVariable;
+		val propertyToSearchIn =_self.ownedSource.generate(context)
+		
+		//Get the iterator variable
+		switch _self.name{
+			case "select":{
+'''		
+List<Long> selectResult = new LambdaExplorer<Long, Long>(g, «propertyToSearchIn») {
+    @Override
+	public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+	    Origin «iteratorVariable» = new Origin(currentElement, graphCopy);
+	    boolean predicateResult = «_self.ownedBody.generate(context)»;
+	    if (predicateResult) {
+	    	result.add(currentElement);
+	    }
+	}
+}.explore();
+results.addAll(selectResult);
+'''
+			}
+			case "exists":{
+				'''
+				«propertyToSearchIn».stream().anyMatch(«iteratorVariable» ->
+				
+				);
+				'''
+			}
+		}
+	}
+}
+
+
+
+
+@Aspect(className=PropertyCallExp)
+class PropertyCallExpAspect extends NavigationCallExpAspect {
+	/*
+	* BE CAREFUL :
+	*
+	* This class has more than one superclass
+	* please specify which parent you want with the 'super' expected calling
+	*
+	*/
+	def String generate(Context context){
+		val sourceAttribute = _self.ownedSource.generate(context)
+		switch sourceAttribute{
+			case 'self':{
+				val getter = "get"+_self.name.toFirstUpper+"()"
+				'''this.g.«getter»'''
+			} default:{
+				val getter = "get"+_self.name.toFirstUpper+"()"
+				'''«sourceAttribute».«getter»'''			
+			}
+		}
+	}
+}
+
+@Aspect(className=VariableExp)
+class VariableExpAspect extends OCLExpressionAspect {
+	/*
+	* BE CAREFUL :
+	*
+	* This class has more than one superclass
+	* please specify which parent you want with the 'super' expected calling
+	*
+	*/
+	def String generate(Context context){
+		return _self.name
+	}
+
+
+}
+
+@Aspect(className=ParameterVariable)
+class ParameterVariableAspect extends VariableAspect {
+def String generate(){
+		
+		switch _self.name{
+			case 'origins':{
+				
+			}
+	}
+}
+
+}
+
+
 
 @Aspect(className=Annotation)
 class AnnotationAspect extends NamedElementAspect {
@@ -308,18 +520,7 @@ class CallOperationActionAspect extends NamedElementAspect {
 
 }
 
-@Aspect(className=Class)
-class ClassAspect extends TypeAspect {
-	/*
-	* BE CAREFUL :
-	*
-	* This class has more than one superclass
-	* please specify which parent you want with the 'super' expected calling
-	*
-	*/
 
-
-}
 
 @Aspect(className=CollectionItem)
 class CollectionItemAspect extends CollectionLiteralPartAspect {
@@ -457,10 +658,7 @@ class EnumerationLiteralAspect extends InstanceSpecificationAspect {
 
 }
 
-@Aspect(className=ExpressionInOCL)
-class ExpressionInOCLAspect extends LanguageExpressionAspect {
 
-}
 
 @Aspect(className=Feature)
 abstract class FeatureAspect extends TypedElementAspect {
@@ -530,18 +728,6 @@ class IterationAspect extends OperationAspect {
 
 }
 
-@Aspect(className=IteratorExp)
-class IteratorExpAspect extends LoopExpAspect {
-	/*
-	* BE CAREFUL :
-	*
-	* This class has more than one superclass
-	* please specify which parent you want with the 'super' expected calling
-	*
-	*/
-
-
-}
 
 @Aspect(className=IteratorVariable)
 class IteratorVariableAspect extends VariableAspect {
@@ -608,13 +794,6 @@ class MessageTypeAspect extends ClassAspect {
 
 }
 
-@Aspect(className=Model)
-class Pivot_ModelAspect extends NamespaceAspect {
-	def String generate(){
-		println(_self.toString)
-		return _self.toString
-	}
-}
 
 @Aspect(className=MorePivotable)
 abstract class MorePivotableAspect {
@@ -651,23 +830,8 @@ abstract class NumericLiteralExpAspect extends PrimitiveLiteralExpAspect {
 
 }
 
-@Aspect(className=OCLExpression)
-abstract class OCLExpressionAspect extends TypedElementAspect {
-
-}
-
-@Aspect(className=Operation)
-class OperationAspect extends FeatureAspect {
-	/*
-	* BE CAREFUL :
-	*
-	* This class has more than one superclass
-	* please specify which parent you want with the 'super' expected calling
-	*
-	*/
 
 
-}
 
 @Aspect(className=OperationCallExp)
 class OperationCallExpAspect extends FeatureCallExpAspect {
@@ -697,20 +861,14 @@ class OrphanCompletePackageAspect extends CompletePackageAspect {
 
 }
 
-@Aspect(className=Package)
-class PackageAspect extends NamespaceAspect {
 
-}
 
 @Aspect(className=Parameter)
 class ParameterAspect extends VariableDeclarationAspect {
 
 }
 
-@Aspect(className=ParameterVariable)
-class ParameterVariableAspect extends VariableAspect {
 
-}
 
 @Aspect(className=Pivotable)
 abstract class PivotableAspect {
@@ -752,18 +910,7 @@ class PropertyAspect extends FeatureAspect {
 
 }
 
-@Aspect(className=PropertyCallExp)
-class PropertyCallExpAspect extends NavigationCallExpAspect {
-	/*
-	* BE CAREFUL :
-	*
-	* This class has more than one superclass
-	* please specify which parent you want with the 'super' expected calling
-	*
-	*/
 
-
-}
 
 @Aspect(className=Pseudostate)
 class PseudostateAspect extends VertexAspect {
@@ -971,18 +1118,6 @@ abstract class VariableDeclarationAspect extends TypedElementAspect {
 
 }
 
-@Aspect(className=VariableExp)
-class VariableExpAspect extends OCLExpressionAspect {
-	/*
-	* BE CAREFUL :
-	*
-	* This class has more than one superclass
-	* please specify which parent you want with the 'super' expected calling
-	*
-	*/
-
-
-}
 
 @Aspect(className=Vertex)
 abstract class VertexAspect extends NamedElementAspect {
@@ -1003,6 +1138,22 @@ class VoidTypeAspect extends ClassAspect {
 class WildcardTypeAspect extends ClassAspect {
 
 }
-
+@Accessors
+class Context{
+	String indent
+	String iteratorVariable
+	new(String indent){
+		this.indent=indent
+	}
+	new(){
+		this.indent=""
+	}
+	def Context addIndentAndCopy(String indentToAdd){
+		val result = new Context(this.indent+indentToAdd)
+		result.iteratorVariable = this.iteratorVariable
+		return result;
+	}
+	
+}
 
 

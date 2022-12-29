@@ -1,0 +1,15 @@
+	// BeginInjectInto fr.inria.diverse.swhModel.generator.aspects.OCLExpressionAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.PropertyCallExpAspect
+		if (_self instanceof org.eclipse.ocl.pivot.PropertyCallExp){
+			result = fr.inria.diverse.swhModel.generator.aspects.PropertyCallExpAspect.generate((org.eclipse.ocl.pivot.PropertyCallExp)_self,context);
+		} else
+		// EndInjectInto fr.inria.diverse.swhModel.generator.aspects.OCLExpressionAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.PropertyCallExpAspect
+	// BeginInjectInto fr.inria.diverse.swhModel.generator.aspects.OCLExpressionAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.VariableExpAspect
+		if (_self instanceof org.eclipse.ocl.pivot.VariableExp){
+			result = fr.inria.diverse.swhModel.generator.aspects.VariableExpAspect.generate((org.eclipse.ocl.pivot.VariableExp)_self,context);
+		} else
+		// EndInjectInto fr.inria.diverse.swhModel.generator.aspects.OCLExpressionAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.VariableExpAspect
+	// BeginInjectInto fr.inria.diverse.swhModel.generator.aspects.OCLExpressionAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.IteratorExpAspect
+		if (_self instanceof org.eclipse.ocl.pivot.IteratorExp){
+			result = fr.inria.diverse.swhModel.generator.aspects.IteratorExpAspect.generate((org.eclipse.ocl.pivot.IteratorExp)_self,context);
+		} else
+		// EndInjectInto fr.inria.diverse.swhModel.generator.aspects.OCLExpressionAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.IteratorExpAspect

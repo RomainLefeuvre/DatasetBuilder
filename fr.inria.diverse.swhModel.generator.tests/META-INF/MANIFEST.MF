@@ -7,7 +7,12 @@ Automatic-Module-Name: fr.inria.diverse.swhModel.generator.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: fr.inria.diverse.swhModel.generator;bundle-version="1.0.0",
  org.eclipse.ocl.xtext.completeocl;bundle-version="1.17.0",
- org.eclipse.xtext.xbase.testing;bundle-version="2.27.0",
- org.eclipse.xtext.testing;bundle-version="2.27.0",
+ org.eclipse.xtext.xbase.testing;bundle-version="2.25.0",
+ org.eclipse.xtext.testing;bundle-version="2.25.0",
  org.junit.jupiter.api;bundle-version="5.8.1",
- fr.inria.diverse.swhModel;bundle-version="0.1.0"
+ fr.inria.diverse.swhModel;bundle-version="0.1.0",
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro,
+ org.apache.log4j;bundle-version="1.2.15"

@@ -31,17 +31,26 @@ def : query():Set(Origin) = origins->select(
 					getRevision()->closure(parent)-> size() >100
 				)
 		
-	)/*and
-	 let lastsnapshot:Snapshot = originVisits->sortedBy(timestamp).last().snapshot in (
-	 	lastsnapshot.branches->exists(
-					name= 'main'				)
-	 	
-	 )*/
+	)
+	/*The Last Revision of the main branch contain an Android Manifest 
+	and
+	getLastSnapshot()->exists(
+				snapshot.branches->exists(
+					name= 'main' and
+					getRevision().tree->closure(entries).exists(name== "AndroidManfiest.xml")
+					)
+		
+	)*/
 	
 )
 
 context SnapshotBranch::getRevision(): Revision
 post: result = if child->oclIsKindOf(Revision) then  child->oclAsType(Revision) else child->oclAsType(Release).revision endif
-
+/*and
+	 let lastsnapshot:Snapshot = originVisits->sortedBy(timestamp).last().snapshot in (
+	 	lastsnapshot.branches->exists(
+					name= 'main'				)
+	 	
+	 )*/
 
 endpackage

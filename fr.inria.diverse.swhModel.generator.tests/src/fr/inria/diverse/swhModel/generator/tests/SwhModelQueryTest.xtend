@@ -79,19 +79,20 @@ class SwhModelQueryTest {
 	
 	@Test
 	def void test_swhModelQuery_ocl_01() {
-		val m = loadTestCaseModel("testfiles/test001/swhModelQuery.ocl")
+		val m = loadTestCaseModel("testfiles/test000/swhModelQuery.ocl")
 		assertNotNull(m)
 		// launch the generation
-		m.generate
+		val test=m.generate
+		print(test)
 		// TODO do some nicer assertion for example compare to an expected result
 	}
 	
 	@Test
 	def void test_swhModelQuery_oclas_01() {
-		val m = loadTestCaseModel("testfiles/test001/swhModelQuery.ocl.oclas")
+		val m = loadTestCaseModel("testfiles/test000/swhModelQuery.ocl.oclas")
 		assertNotNull(m)
 		// launch the generation
-		m.generate
+		//print(m.generate)
 		// TODO do some nicer assertion for example compare to an expected result
 	}
 	
