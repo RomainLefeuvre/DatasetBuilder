@@ -271,9 +271,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class Pivot_ModelAspect extends NamespaceAspect {
 	def String generate(){
 		'''
-		«FOR p :  _self.ownedPackages»  
-		   «p.generate()»
-		«ENDFOR»
+		«_self.ownedPackages.get(0).generate()»
 		'''
 	}
 }
@@ -310,6 +308,7 @@ class ClassAspect extends TypeAspect {
 		import org.apache.logging.log4j.Logger;
 		import org.softwareheritage.graph.SwhType;
 		import org.softwareheritage.graph.SwhUnidirectionalGraph;
+		import fr.inria.diverse.tools.ToolBox;
 		import java.io.IOException;
 		import java.util.*;
 		
@@ -351,13 +350,13 @@ class OperationAspect extends FeatureAspect {
 			      case 'query' :{
 			      	//ToDo Find a better way to obtain the child element
 			      	val ExpressionInOCL expr =_self.eContents.get(0) as ExpressionInOCL
-'''
-public Set<Long> runQuery() throws IOException, InterruptedException {
-	Set<Long> results = new HashSet<>(
-	«expr.generate(context)»
-	return results;			    
-}
-'''
+					'''
+					public Set<Long> runQuery() throws IOException, InterruptedException {
+						Set<Long> results = new HashSet<>();
+						«expr.generate(context)»
+						return results;			    
+					}
+					'''
 			      }
 			      default :{
 			      	print("Not a query")
@@ -393,33 +392,28 @@ class IteratorExpAspect extends LoopExpAspect {
 		//Get the iterator variable
 		switch _self.name{
 			case "select":{
-'''		
-List<Long> selectResult = new LambdaExplorer<Long, Long>(g, «propertyToSearchIn») {
-    @Override
-	public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
-	    Origin «iteratorVariable» = new Origin(currentElement, graphCopy);
-	    boolean predicateResult = «_self.ownedBody.generate(context)»;
-	    if (predicateResult) {
-	    	result.add(currentElement);
-	    }
-	}
-}.explore();
-results.addAll(selectResult);
-'''
+			'''		
+			List<Long> selectResult = new LambdaExplorer<Long, Long>(g, «propertyToSearchIn») {
+			    @Override
+				public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+				    Origin «iteratorVariable» = new Origin(currentElement, graphCopy);
+				    boolean predicateResult = «_self.ownedBody.generate(context)»;
+				    if (predicateResult) {
+				    	result.add(currentElement);
+				    }
+				}
+			}.explore();
+			results.addAll(selectResult);
+			'''
 			}
 			case "exists":{
 				'''
 				«propertyToSearchIn».stream().anyMatch(«iteratorVariable» ->
-				
-				);
-				'''
+					«_self.ownedBody.generate(context)»)'''
 			}
 		}
 	}
 }
-
-
-
 
 @Aspect(className=PropertyCallExp)
 class PropertyCallExpAspect extends NavigationCallExpAspect {
@@ -460,6 +454,26 @@ class VariableExpAspect extends OCLExpressionAspect {
 
 }
 
+@Aspect(className=OperationCallExp)
+class OperationCallExpAspect extends FeatureCallExpAspect {
+	/*
+	* BE CAREFUL :
+	*
+	* This class has more than one superclass
+	* please specify which parent you want with the 'super' expected calling
+	*
+	*/
+	def String generate(Context context){
+			switch(_self.name){
+				case'=':{
+					val value =_self.ownedArguments.get(0) as OCLExpression
+					'''«_self.ownedSource.generate(context)».equals(«value.generate(context)»)'''
+				}
+			}
+		}
+
+}
+
 @Aspect(className=ParameterVariable)
 class ParameterVariableAspect extends VariableAspect {
 def String generate(){
@@ -473,7 +487,12 @@ def String generate(){
 
 }
 
-
+@Aspect(className=StringLiteralExp)
+class StringLiteralExpAspect extends PrimitiveLiteralExpAspect {
+	def String generate(Context context){
+		'''"«_self.stringSymbol»"'''
+	}
+}
 
 @Aspect(className=Annotation)
 class AnnotationAspect extends NamedElementAspect {
@@ -761,6 +780,9 @@ class LibraryAspect extends PackageAspect {
 
 @Aspect(className=LiteralExp)
 abstract class LiteralExpAspect extends OCLExpressionAspect {
+	def String generate(Context context){
+		return _self.name
+	}
 
 }
 
@@ -830,22 +852,6 @@ abstract class NumericLiteralExpAspect extends PrimitiveLiteralExpAspect {
 
 }
 
-
-
-
-@Aspect(className=OperationCallExp)
-class OperationCallExpAspect extends FeatureCallExpAspect {
-	/*
-	* BE CAREFUL :
-	*
-	* This class has more than one superclass
-	* please specify which parent you want with the 'super' expected calling
-	*
-	*/
-
-
-}
-
 @Aspect(className=OppositePropertyCallExp)
 class OppositePropertyCallExpAspect extends NavigationCallExpAspect {
 
@@ -887,7 +893,9 @@ class PrimitiveCompletePackageAspect extends CompletePackageAspect {
 
 @Aspect(className=PrimitiveLiteralExp)
 abstract class PrimitiveLiteralExpAspect extends LiteralExpAspect {
-
+def String generate(Context context){
+	return _self.name
+}
 }
 
 @Aspect(className=PrimitiveType)
@@ -1015,10 +1023,7 @@ class StereotypeExtenderAspect extends ElementAspect {
 
 }
 
-@Aspect(className=StringLiteralExp)
-class StringLiteralExpAspect extends PrimitiveLiteralExpAspect {
 
-}
 
 @Aspect(className=TemplateBinding)
 class TemplateBindingAspect extends ElementAspect {

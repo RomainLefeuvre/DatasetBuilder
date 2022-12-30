@@ -12,7 +12,7 @@
   <ownedPackages xmi:id=",B98," name="swhModel" URI="http://www.example.org/swhModel">
     <ownedClasses xmi:id="2xgR0" name="Graph">
       <ownedOperations xmi:id="bmp7D" name="query" type="#3JTCa">
-        <bodyExpression xsi:type="pivot:ExpressionInOCL" type="#KMKP+" body="self.origins->select(&#xA;&#x9;o:Origin|o.originVisits->exists(&#xA;&#x9;&#x9;&#x9;&#x9;originVisit:OriginVisit|originVisit.snapshot.branches->exists(&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;name= 'refs/heads/master')&#xA;)&#x9;&#xA;)&#xA;&#xA;&#xA;">
+        <bodyExpression xsi:type="pivot:ExpressionInOCL" type="#KMKP+" body="self.origins->select(&#xA;&#x9;o:Origin|o.originVisits->exists(&#xA;&#x9;&#x9;&#x9;&#x9;originVisit:OriginVisit|originVisit.snapshot.branches->exists(b:SnapshotBranch|&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;b.name= 'refs/heads/master')&#xA;&#x9;&#x9;&#x9;&#x9;&#xA;)&#xA;)&#xA;&#xA;&#xA;">
           <ownedBody xsi:type="pivot:IteratorExp" name="select" type="#KMKP+" referredIteration="&_1;#1ky8V">
             <ownedSource xsi:type="pivot:PropertyCallExp" name="origins" type="#KMKP+" referredProperty="&_0;#DFEmg">
               <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#2xgR0" referredVariable="#fMr+Z"/>
@@ -29,12 +29,11 @@
                 </ownedSource>
                 <ownedBody xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#7L5cn">
                   <ownedSource xsi:type="pivot:PropertyCallExp" name="name" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ" referredProperty="&_0;#ZdOmx">
-                    <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#wFiIb"/>
+                    <ownedSource xsi:type="pivot:VariableExp" name="b" type="pivot:Class &_0;#uv4jo" referredVariable="#EuhIb"/>
                   </ownedSource>
                   <ownedArguments xsi:type="pivot:StringLiteralExp" type="pivot:PrimitiveType &_1;#AlwVZ" stringSymbol="refs/heads/master"/>
                 </ownedBody>
-                <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="wFiIb" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true"
-                    representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
+                <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="EuhIb" name="b" type="pivot:Class &_0;#uv4jo" representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
               </ownedBody>
               <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="MYkth" name="originVisit" type="pivot:Class &_0;#tjxK6" representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
             </ownedBody>

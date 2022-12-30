@@ -32,6 +32,8 @@ import org.eclipse.emf.ecore.EcorePackage
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+import java.nio.file.Files
+import java.nio.file.Paths
 
 @TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(OrderAnnotation)
@@ -78,23 +80,24 @@ class SwhModelQueryTest {
 	
 	
 	@Test
-	def void test_swhModelQuery_ocl_01() {
+	def void test_swhModelQuery_ocl_00() {
 		val m = loadTestCaseModel("testfiles/test000/swhModelQuery.ocl")
 		assertNotNull(m)
 		// launch the generation
-		val test=m.generate
-		print(test)
-		// TODO do some nicer assertion for example compare to an expected result
+		val result=m.generate
+		val expectedResult = Files.readString(Paths.get("testfiles/test000/GraphQuery.java"));
+		assertEquals(expectedResult,result)
 	}
-	
 	@Test
-	def void test_swhModelQuery_oclas_01() {
+	def void test_swhModelQuery_oclas_00() {
 		val m = loadTestCaseModel("testfiles/test000/swhModelQuery.ocl.oclas")
 		assertNotNull(m)
 		// launch the generation
-		//print(m.generate)
-		// TODO do some nicer assertion for example compare to an expected result
+		val result=m.generate
+		val expectedResult = Files.readString(Paths.get("testfiles/test000/GraphQuery.java"));
+		assertEquals(expectedResult,result)
 	}
+	
 	
 
 }
