@@ -80,62 +80,58 @@ class SwhModelQueryTest {
 	
 	//Minimal test
 	@Test
-	def void test_swhModelQuery_ocl_00() {
-		val m = loadTestCaseModel("testfiles/test000/swhModelQuery.ocl")
-		assertNotNull(m)
-		// launch the generation
-		val result=m.generate		
-		val expectedResult = Files.readString(Paths.get("testfiles/test000/GraphQuery.java"));
-		assertEquals(expectedResult,result)
+	def void test_swhModelQuery_ocl_000() {
+		genericTest(0,false)
 	}
 	@Test
-	def void test_swhModelQuery_oclas_00() {
-		val m = loadTestCaseModel("testfiles/test000/swhModelQuery.ocl.oclas")
-		assertNotNull(m)
-		// launch the generation
-		val result=m.generate
-		val expectedResult = Files.readString(Paths.get("testfiles/test000/GraphQuery.java"));
-		assertEquals(expectedResult,result)
+	def void test_swhModelQuery_oclas_000() {
+		genericTest(0,true)
+		
 	}
 	
 	//Minimal test without explicit iterator variable
 	@Test
-	def void test_swhModelQuery_ocl_01() {
-		val m = loadTestCaseModel("testfiles/test001/swhModelQuery.ocl")
-		assertNotNull(m)
-		// launch the generation
-		val result=m.generate				
-		val expectedResult = Files.readString(Paths.get("testfiles/test001/GraphQuery.java"));
-		assertEquals(expectedResult,result)
+	def void test_swhModelQuery_ocl_001() {
+		genericTest(1,false)
+
 	}
 	@Test
-	def void test_swhModelQuery_oclas_01() {
-		val m = loadTestCaseModel("testfiles/test001/swhModelQuery.ocl.oclas")
-		assertNotNull(m)
-		// launch the generation
-		val result=m.generate
-		val expectedResult = Files.readString(Paths.get("testfiles/test001/GraphQuery.java"));
-		assertEquals(expectedResult,result)
+	def void test_swhModelQuery_oclas_001() {
+		genericTest(1,true)
+
 	}
 	
-		//Or/and Test
+	//Or/and Test
 	@Test
-	def void test_swhModelQuery_ocl_02() {
-		val m = loadTestCaseModel("testfiles/test002/swhModelQuery.ocl")
-		assertNotNull(m)
-		// launch the generation
-		val result=m.generate	
-		val expectedResult = Files.readString(Paths.get("testfiles/test002/GraphQuery.java"));
-		assertEquals(expectedResult,result)
+	def void test_swhModelQuery_ocl_002() {
+		genericTest(2,false)
+
 	}
 	@Test
-	def void test_swhModelQuery_oclas_02() {
-		val m = loadTestCaseModel("testfiles/test002/swhModelQuery.ocl.oclas")
+	def void test_swhModelQuery_oclas_002() {
+		genericTest(2,true)
+	}
+	
+	//model method call
+	@Test
+	def void test_swhModelQuery_ocl_003() {
+		genericTest(3,false)
+	}
+	/**
+	 * Perform a basic test comparing computed and expected file result
+	 * 	asInput : wether it take as input the abstract syntax file or the concrete syntax
+	 *  testNb: the test number in 3 digit
+	 */
+	def String genericTest(int nb,Boolean asInput){
+		val String testNb = String.format("%03d", nb);
+	
+		val m = loadTestCaseModel('''testfiles/test«testNb»/swhModelQuery.ocl«asInput?".oclas":""»''')
 		assertNotNull(m)
-		// launch the generation
-		val result=m.generate
-		val expectedResult = Files.readString(Paths.get("testfiles/test002/GraphQuery.java"));
+		 //launch the generation
+		val result=m.generate	
+		val expectedResult = Files.readString(Paths.get("testfiles/test"+testNb+"/GraphQuery.java"));
 		assertEquals(expectedResult,result)
+		result
 	}
 
 	def static writeString(String path,String stringToWrite){

@@ -412,6 +412,7 @@ class IteratorExpAspect extends LoopExpAspect {
 			'''
 			}
 			case "exists":{
+				print("easy guy ...")
 				'''
 				«propertyToSearchIn».stream().anyMatch(«iteratorVariable» ->
 					«_self.ownedBody.generate(context)»
@@ -474,23 +475,28 @@ class OperationCallExpAspect extends FeatureCallExpAspect {
 	*
 	*/
 	def String generate(Context context){
-			val value =_self.ownedArguments.get(0) as OCLExpression
 			switch(_self.name){
 				case'=':{
+					val value =_self.ownedArguments.get(0) as OCLExpression		
 					'''«_self.ownedSource.generate(context)».equals(«value.generate(context)»)'''
 				}
 				case'or':{
+					val value =_self.ownedArguments.get(0) as OCLExpression
 					'''
 					(«_self.ownedSource.generate(context)» || 
 						«value.generate(context)»)
                     '''
-					
 				}case'and':{
+				    val value =_self.ownedArguments.get(0) as OCLExpression
 					'''
 					(«_self.ownedSource.generate(context)» && 
 						«value.generate(context)»)
-                    '''
-					
+                    '''	
+				}default:{
+					//Function call
+					'''
+					«_self.ownedSource.generate(context)».«_self.name»()
+					'''
 				}
 			}
 		}
