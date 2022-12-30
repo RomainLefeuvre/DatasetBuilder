@@ -385,9 +385,14 @@ def String generate(Context context){
 @Aspect(className=IteratorExp)
 class IteratorExpAspect extends LoopExpAspect {
 	def String generate(Context context){
-		val iteratorVariable = _self.ownedIterators.get(0).name
-		context.iteratorVariable = iteratorVariable;
 		val propertyToSearchIn =_self.ownedSource.generate(context)
+		
+		var iteratorVariable = _self.ownedIterators.get(0).name
+		if(iteratorVariable.equals("1_")){
+			var source=_self.ownedSource.name
+			iteratorVariable=source.substring(0,source.length-1)
+		}
+		context.iteratorVariable = iteratorVariable;
 		
 		//Get the iterator variable
 		switch _self.name{
@@ -426,12 +431,16 @@ class PropertyCallExpAspect extends NavigationCallExpAspect {
 	*/
 	def String generate(Context context){
 		val sourceAttribute = _self.ownedSource.generate(context)
+		val getter = "get"+_self.name.toFirstUpper+"()"
 		switch sourceAttribute{
 			case 'self':{
-				val getter = "get"+_self.name.toFirstUpper+"()"
 				'''this.g.«getter»'''
-			} default:{
-				val getter = "get"+_self.name.toFirstUpper+"()"
+			} case '1_':{
+				//If we got '1_' we suppose that it refer to the iterator variable
+				//Let's take as source the closer iterator variable saved in the context
+				'''«context.iteratorVariable».«getter»'''
+			}
+			default:{
 				'''«sourceAttribute».«getter»'''			
 			}
 		}

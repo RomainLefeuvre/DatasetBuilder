@@ -98,6 +98,25 @@ class SwhModelQueryTest {
 		assertEquals(expectedResult,result)
 	}
 	
-	
+		@Test
+	def void test_swhModelQuery_ocl_01() {
+		val m = loadTestCaseModel("testfiles/test001/swhModelQuery.ocl")
+		assertNotNull(m)
+		// launch the generation
+		val result=m.generate
+		Files.writeString(Paths.get("testfiles/test001/GraphQuery.java"),result);
+		
+		val expectedResult = Files.readString(Paths.get("testfiles/test001/GraphQuery.java"));
+		assertEquals(expectedResult,result)
+	}
+	@Test
+	def void test_swhModelQuery_oclas_01() {
+		val m = loadTestCaseModel("testfiles/test001/swhModelQuery.ocl.oclas")
+		assertNotNull(m)
+		// launch the generation
+		val result=m.generate
+		val expectedResult = Files.readString(Paths.get("testfiles/test001/GraphQuery.java"));
+		assertEquals(expectedResult,result)
+	}
 
 }

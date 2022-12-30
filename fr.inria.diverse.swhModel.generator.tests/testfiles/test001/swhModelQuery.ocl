@@ -16,32 +16,12 @@ package swhModel
 
 
 context Graph
-def : query():Set(Origin) = origins->select(
-	/*All the revision have been created since 2015*/
-	originVisits->forAll(
-				snapshot.branches->forAll(
-					getRevision()->closure(parent)->forAll(timestamp='2015L')
-					)
-				)
-	and
-	/*The main branch contain at least 1000 revisions */
+def : query():Set(Origin) = self.origins->select(
 	originVisits->exists(
-				snapshot.branches->exists(
-					name= 'main' and
-					getRevision()->closure(parent)-> size() >100
-				)
-		
-	)/*and
-	 let lastsnapshot:Snapshot = originVisits->sortedBy(timestamp).last().snapshot in (
-	 	lastsnapshot.branches->exists(
-					name= 'main'				)
-	 	
-	 )*/
-	
+				snapshot.branches->exists(name= 'refs/heads/master')
+				
+	)
 )
-
-context SnapshotBranch::getRevision(): Revision
-post: result = if child->oclIsKindOf(Revision) then  child->oclAsType(Revision) else child->oclAsType(Release).revision endif
 
 
 endpackage
