@@ -24,10 +24,13 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
 	List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins()) {
 	    @Override
 		public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
-		    Origin origin = new Origin(currentElement, graphCopy);
-		    boolean predicateResult = origin.getOriginVisits().stream().anyMatch(originVisit ->
-		    	originVisit.getSnapshot().getBranches().stream().anyMatch(branche ->
-		    		branche.getName().equals("refs/heads/master")
+		    Origin o = new Origin(currentElement, graphCopy);
+		    boolean predicateResult = o.getOriginVisits().stream().anyMatch(originVisit ->
+		    	originVisit.getSnapshot().getBranches().stream().anyMatch(b ->
+		    		((b.getName().equals("refs/heads/master") || 
+		    			b.getName().equals("refs/heads/main"))
+		    		 && 
+		    			b.getChild().getSwhid().equals("test"))
 		    	)
 		    );
 		    if (predicateResult) {

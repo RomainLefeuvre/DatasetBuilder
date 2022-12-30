@@ -27,7 +27,9 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
 		    Origin o = new Origin(currentElement, graphCopy);
 		    boolean predicateResult = o.getOriginVisits().stream().anyMatch(originVisit ->
 		    	originVisit.getSnapshot().getBranches().stream().anyMatch(b ->
-		    		b.getName().equals("refs/heads/master")));
+		    		b.getName().equals("refs/heads/master")
+		    	)
+		    );
 		    if (predicateResult) {
 		    	result.add(currentElement);
 		    }

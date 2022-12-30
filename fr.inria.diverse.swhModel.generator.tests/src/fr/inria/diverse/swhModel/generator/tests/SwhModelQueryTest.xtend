@@ -78,13 +78,13 @@ class SwhModelQueryTest {
 		
 	}
 	
-	
+	//Minimal test
 	@Test
 	def void test_swhModelQuery_ocl_00() {
 		val m = loadTestCaseModel("testfiles/test000/swhModelQuery.ocl")
 		assertNotNull(m)
 		// launch the generation
-		val result=m.generate
+		val result=m.generate		
 		val expectedResult = Files.readString(Paths.get("testfiles/test000/GraphQuery.java"));
 		assertEquals(expectedResult,result)
 	}
@@ -98,14 +98,13 @@ class SwhModelQueryTest {
 		assertEquals(expectedResult,result)
 	}
 	
-		@Test
+	//Minimal test without explicit iterator variable
+	@Test
 	def void test_swhModelQuery_ocl_01() {
 		val m = loadTestCaseModel("testfiles/test001/swhModelQuery.ocl")
 		assertNotNull(m)
 		// launch the generation
-		val result=m.generate
-		Files.writeString(Paths.get("testfiles/test001/GraphQuery.java"),result);
-		
+		val result=m.generate				
 		val expectedResult = Files.readString(Paths.get("testfiles/test001/GraphQuery.java"));
 		assertEquals(expectedResult,result)
 	}
@@ -117,6 +116,30 @@ class SwhModelQueryTest {
 		val result=m.generate
 		val expectedResult = Files.readString(Paths.get("testfiles/test001/GraphQuery.java"));
 		assertEquals(expectedResult,result)
+	}
+	
+		//Or/and Test
+	@Test
+	def void test_swhModelQuery_ocl_02() {
+		val m = loadTestCaseModel("testfiles/test002/swhModelQuery.ocl")
+		assertNotNull(m)
+		// launch the generation
+		val result=m.generate	
+		val expectedResult = Files.readString(Paths.get("testfiles/test002/GraphQuery.java"));
+		assertEquals(expectedResult,result)
+	}
+	@Test
+	def void test_swhModelQuery_oclas_02() {
+		val m = loadTestCaseModel("testfiles/test002/swhModelQuery.ocl.oclas")
+		assertNotNull(m)
+		// launch the generation
+		val result=m.generate
+		val expectedResult = Files.readString(Paths.get("testfiles/test002/GraphQuery.java"));
+		assertEquals(expectedResult,result)
+	}
+
+	def static writeString(String path,String stringToWrite){
+		Files.writeString(Paths.get(path),stringToWrite)	
 	}
 
 }

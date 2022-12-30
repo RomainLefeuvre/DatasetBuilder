@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pivot:Model [
+<!ENTITY _0 "../../../fr.inria.diverse.swhModel/model/swhModel.ecore.oclas">
+<!ENTITY _1 "http://www.eclipse.org/ocl/2015/Library.oclas">
+]>
+<pivot:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pivot="http://www.eclipse.org/ocl/2015/Pivot"
+    xsi:schemaLocation="http://www.eclipse.org/ocl/2015/Pivot java://org.eclipse.ocl.pivot.PivotPackage" xmi:id="AAAAA" name="swhModelQuery.ocl" externalURI="platform:/resource/fr.inria.diverse.swhModel.generator.tests/testfiles/test002/swhModelQuery.ocl"
+    xmiidVersion="1">
+  <ownedImports name="swhModel" importedNamespace="pivot:Model &_0;#AAAAA" xmiidVersion="1">
+    <ownedComments body="******************************************************Graph***********************&#xA;Copyright (c) 2012 Willink Transformations and others.&#xA;All rights reserved.   This program and the accompanying materials&#xA;are made available under the terms of the Eclipse Public License v2.0&#xA;which accompanies this distribution, and is available at&#xA;http://www.eclipse.org/legal/epl-v20.html&#xA;&#xA;Contributors:&#xA;E.D.Willink - Initial API and implementation&#xA;&#xA;This file provides additional validation constraints for use of OCL embedded in Ecore.&#xA;*****************************************************************************"/>
+  </ownedImports>
+  <ownedPackages xmi:id=",B98," name="swhModel" URI="http://www.example.org/swhModel">
+    <ownedClasses xmi:id="2xgR0" name="Graph">
+      <ownedOperations xmi:id="bmp7D" name="query" type="#3JTCa">
+        <bodyExpression xsi:type="pivot:ExpressionInOCL" type="#KMKP+" body="self.origins->select(&#xA;&#x9;o:Origin|o.originVisits->exists(&#xA;&#x9;&#x9;&#x9;&#x9;originVisit:OriginVisit|originVisit.snapshot.branches->exists(b:SnapshotBranch|&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;(b.name= 'refs/heads/master'&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;or &#xA;&#x9;&#x9;&#x9;&#x9;&#x9;b.name= 'refs/heads/main')&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;and b.child.swhid ='test'&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;)&#xA;&#x9;&#x9;&#x9;&#x9;&#xA;)&#xA;)&#xA;&#xA;&#xA;">
+          <ownedBody xsi:type="pivot:IteratorExp" name="select" type="#KMKP+" referredIteration="&_1;#1ky8V">
+            <ownedSource xsi:type="pivot:PropertyCallExp" name="origins" type="#KMKP+" referredProperty="&_0;#DFEmg">
+              <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#2xgR0" referredVariable="#fMr+Z"/>
+            </ownedSource>
+            <ownedBody xsi:type="pivot:IteratorExp" name="exists" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#arQ+J">
+              <ownedSource xsi:type="pivot:PropertyCallExp" name="originVisits" type="#RY7rb" referredProperty="&_0;#8A5fc">
+                <ownedSource xsi:type="pivot:VariableExp" name="o" type="pivot:Class &_0;#Oatb9" referredVariable="#,rcw2"/>
+              </ownedSource>
+              <ownedBody xsi:type="pivot:IteratorExp" name="exists" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#arQ+J">
+                <ownedSource xsi:type="pivot:PropertyCallExp" name="branches" type="#qF7m8" referredProperty="&_0;#krPPS">
+                  <ownedSource xsi:type="pivot:PropertyCallExp" name="snapshot" isRequired="false" type="pivot:Class &_0;#sUX,E" referredProperty="&_0;#VeZw7">
+                    <ownedSource xsi:type="pivot:VariableExp" name="originVisit" type="pivot:Class &_0;#tjxK6" referredVariable="#MYkth"/>
+                  </ownedSource>
+                </ownedSource>
+                <ownedBody xsi:type="pivot:OperationCallExp" name="and" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#8sfYU">
+                  <ownedSource xsi:type="pivot:OperationCallExp" name="or" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#I9IYU">
+                    <ownedSource xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#7L5cn">
+                      <ownedSource xsi:type="pivot:PropertyCallExp" name="name" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ"
+                          referredProperty="&_0;#ZdOmx">
+                        <ownedSource xsi:type="pivot:VariableExp" name="b" type="pivot:Class &_0;#uv4jo" referredVariable="#EuhIb"/>
+                      </ownedSource>
+                      <ownedArguments xsi:type="pivot:StringLiteralExp" type="pivot:PrimitiveType &_1;#AlwVZ" stringSymbol="refs/heads/master"/>
+                    </ownedSource>
+                    <ownedArguments xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#7L5cn">
+                      <ownedSource xsi:type="pivot:PropertyCallExp" name="name" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ"
+                          referredProperty="&_0;#ZdOmx">
+                        <ownedSource xsi:type="pivot:VariableExp" name="b" type="pivot:Class &_0;#uv4jo" referredVariable="#EuhIb"/>
+                      </ownedSource>
+                      <ownedArguments xsi:type="pivot:StringLiteralExp" type="pivot:PrimitiveType &_1;#AlwVZ" stringSymbol="refs/heads/main"/>
+                    </ownedArguments>
+                  </ownedSource>
+                  <ownedArguments xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#7L5cn">
+                    <ownedSource xsi:type="pivot:PropertyCallExp" name="swhid" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ"
+                        referredProperty="&_0;#5Li,X">
+                      <ownedSource xsi:type="pivot:PropertyCallExp" name="child" isRequired="false" type="pivot:Class &_0;#gTJol" referredProperty="&_0;#qHWC3">
+                        <ownedSource xsi:type="pivot:VariableExp" name="b" type="pivot:Class &_0;#uv4jo" referredVariable="#EuhIb"/>
+                      </ownedSource>
+                    </ownedSource>
+                    <ownedArguments xsi:type="pivot:StringLiteralExp" type="pivot:PrimitiveType &_1;#AlwVZ" stringSymbol="test"/>
+                  </ownedArguments>
+                </ownedBody>
+                <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="EuhIb" name="b" type="pivot:Class &_0;#uv4jo" representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
+              </ownedBody>
+              <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="MYkth" name="originVisit" type="pivot:Class &_0;#tjxK6" representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
+            </ownedBody>
+            <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id=",rcw2" name="o" type="pivot:Class &_0;#Oatb9" representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.27/@ownedOperations.21/@ownedIterators.0"/>
+          </ownedBody>
+          <ownedContext xsi:type="pivot:ParameterVariable" xmi:id="fMr+Z" name="self" type="pivot:Class &_0;#2xgR0"/>
+        </bodyExpression>
+      </ownedOperations>
+    </ownedClasses>
+  </ownedPackages>
+  <ownedPackages name="$$" URI="http://www.eclipse.org/ocl/2015/Orphanage" nsPrefix="orphanage">
+    <ownedClasses xsi:type="pivot:SetType" xmi:id="3JTCa" name="Set" superClasses="#ffn,Y" isNullFree="true">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#ODsm5"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="KMKP+" name="OrderedSet" superClasses="#70saf #ffn,Y" isNullFree="true">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#53+C2"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="RY7rb" name="OrderedSet" superClasses="#CBe38 #mrYc2" isNullFree="true">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#53+C2"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="qF7m8" name="OrderedSet" superClasses="#budyd #,YYXX" isNullFree="true">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#53+C2"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="ffn,Y" name="UniqueCollection" superClasses="#uk3Dp">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#jdfjE"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="70saf" name="OrderedCollection" superClasses="#uk3Dp">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#feFHs"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="CBe38" name="OrderedCollection" superClasses="#1wogG">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#feFHs"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="mrYc2" name="UniqueCollection" superClasses="#1wogG">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#jdfjE"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="budyd" name="OrderedCollection" superClasses="#Oeobn">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#feFHs"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id=",YYXX" name="UniqueCollection" superClasses="#Oeobn">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#jdfjE"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="uk3Dp" name="Collection" superClasses="&_1;#jbMkR">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#qs59R"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="1wogG" name="Collection" superClasses="&_1;#jbMkR">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#qs59R"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="Oeobn" name="Collection" superClasses="&_1;#jbMkR">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#qs59R"/>
+      </ownedBindings>
+    </ownedClasses>
+  </ownedPackages>
+</pivot:Model>

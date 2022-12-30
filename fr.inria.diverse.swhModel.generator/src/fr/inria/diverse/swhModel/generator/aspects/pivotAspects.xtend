@@ -414,7 +414,8 @@ class IteratorExpAspect extends LoopExpAspect {
 			case "exists":{
 				'''
 				«propertyToSearchIn».stream().anyMatch(«iteratorVariable» ->
-					«_self.ownedBody.generate(context)»)'''
+					«_self.ownedBody.generate(context)»
+				)'''
 			}
 		}
 	}
@@ -473,10 +474,23 @@ class OperationCallExpAspect extends FeatureCallExpAspect {
 	*
 	*/
 	def String generate(Context context){
+			val value =_self.ownedArguments.get(0) as OCLExpression
 			switch(_self.name){
 				case'=':{
-					val value =_self.ownedArguments.get(0) as OCLExpression
 					'''«_self.ownedSource.generate(context)».equals(«value.generate(context)»)'''
+				}
+				case'or':{
+					'''
+					(«_self.ownedSource.generate(context)» || 
+						«value.generate(context)»)
+                    '''
+					
+				}case'and':{
+					'''
+					(«_self.ownedSource.generate(context)» && 
+						«value.generate(context)»)
+                    '''
+					
 				}
 			}
 		}
@@ -500,6 +514,13 @@ def String generate(){
 class StringLiteralExpAspect extends PrimitiveLiteralExpAspect {
 	def String generate(Context context){
 		'''"«_self.stringSymbol»"'''
+	}
+}
+
+@Aspect(className=BooleanLiteralExp)
+class BooleanLiteralExpAspect extends PrimitiveLiteralExpAspect {
+	def String generate(Context context){
+		'''"'''
 	}
 }
 
@@ -533,10 +554,7 @@ abstract class BehaviorAspect extends ClassAspect {
 
 }
 
-@Aspect(className=BooleanLiteralExp)
-class BooleanLiteralExpAspect extends PrimitiveLiteralExpAspect {
 
-}
 
 @Aspect(className=CallExp)
 abstract class CallExpAspect extends OCLExpressionAspect {
