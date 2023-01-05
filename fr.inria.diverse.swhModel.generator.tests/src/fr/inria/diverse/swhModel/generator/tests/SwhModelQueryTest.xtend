@@ -117,9 +117,14 @@ class SwhModelQueryTest {
 	def void test_swhModelQuery_ocl_003() {
 		genericTest(3,false)
 	}
+	
+	@Test
+	def void test_swhModelQuery_ocl_004() {
+		writeString("testfiles/test004/GraphQuery.java",genericTest(4,false))
+	}
 	/**
 	 * Perform a basic test comparing computed and expected file result
-	 * 	asInput : wether it take as input the abstract syntax file or the concrete syntax
+	 * 	asInput : whether it take as input the abstract syntax file or the concrete syntax
 	 *  testNb: the test number in 3 digit
 	 */
 	def String genericTest(int nb,Boolean asInput){
@@ -129,12 +134,14 @@ class SwhModelQueryTest {
 		assertNotNull(m)
 		 //launch the generation
 		val result=m.generate	
+		writeString("target/testfiles/test"+testNb+"/GraphQuery.java",result)
 		val expectedResult = Files.readString(Paths.get("testfiles/test"+testNb+"/GraphQuery.java"));
 		assertEquals(expectedResult,result)
 		result
 	}
 
 	def static writeString(String path,String stringToWrite){
+		Files.createDirectories(Paths.get(path).parent);
 		Files.writeString(Paths.get(path),stringToWrite)	
 	}
 

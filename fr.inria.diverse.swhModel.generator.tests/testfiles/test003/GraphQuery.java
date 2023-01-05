@@ -8,6 +8,7 @@ import org.softwareheritage.graph.SwhType;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import fr.inria.diverse.tools.ToolBox;
 import java.io.IOException;
+import fr.inria.diverse.model.*;
 import java.util.*;
 
 public class GraphQuery {
@@ -27,8 +28,7 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
 		    Origin o = new Origin(currentElement, graphCopy);
 		    boolean predicateResult = o.getOriginVisits().stream().anyMatch(originVisit ->
 		    	originVisit.getSnapshot().getBranches().stream().anyMatch(b ->
-		    		b.getRevision()
-		    		.getCommiter().equals("bla")
+		    		b.getRevision().getCommiter().equals("bla")
 		    	)
 		    );
 		    if (predicateResult) {
@@ -39,7 +39,7 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
 	results.addAll(selectResult);
 	return results;			    
 }
-	
+
     public static void main(String[] args) throws IOException, InterruptedException {
         Configuration.init();
         Set<Long> queryResult = new GraphQuery().runQuery();
