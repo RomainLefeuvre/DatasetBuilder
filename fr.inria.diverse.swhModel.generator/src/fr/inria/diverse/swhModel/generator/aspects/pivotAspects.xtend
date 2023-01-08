@@ -175,7 +175,6 @@ import static extension fr.inria.diverse.swhModel.generator.aspects.InvalidTypeA
 import static extension fr.inria.diverse.swhModel.generator.aspects.IterableTypeAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.IterateExpAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.IterationAspect.*
-import static extension fr.inria.diverse.swhModel.generator.aspects.IteratorExpAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.IteratorVariableAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.LambdaTypeAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.LanguageExpressionAspect.*
@@ -246,8 +245,6 @@ import static extension fr.inria.diverse.swhModel.generator.aspects.TupleLiteral
 import static extension fr.inria.diverse.swhModel.generator.aspects.TupleLiteralPartAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.TupleTypeAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.TypeAspect.*
-import static extension fr.inria.diverse.swhModel.generator.aspects.TypeExpAspect.*
-import static extension fr.inria.diverse.swhModel.generator.aspects.TypedElementAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.UnlimitedNaturalLiteralExpAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.UnspecifiedValueExpAspect.*
 import static extension fr.inria.diverse.swhModel.generator.aspects.ValueSpecificationAspect.*
@@ -266,6 +263,7 @@ import org.eclipse.ocl.pivot.internal.OperationImpl
 import org.eclipse.ocl.expressions.impl.OCLExpressionImpl
 import java.util.Map
 import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.HashMap
 
 @Aspect(className=Model)
 class Pivot_ModelAspect extends NamespaceAspect {
@@ -299,6 +297,7 @@ class ClassAspect extends TypeAspect {
 	*
 	*/
 	def String generate(){
+		val Context c =new Context()
 		'''
 		import fr.inria.diverse.Graph;
 		import fr.inria.diverse.LambdaExplorer;
@@ -310,6 +309,8 @@ class ClassAspect extends TypeAspect {
 		import org.softwareheritage.graph.SwhUnidirectionalGraph;
 		import fr.inria.diverse.tools.ToolBox;
 		import java.io.IOException;
+		import fr.inria.diverse.model.*;
+		import java.util.stream.Collectors;
 		import java.util.*;
 		
 		public class GraphQuery {
@@ -322,9 +323,12 @@ class ClassAspect extends TypeAspect {
 		    }
 		    
 		«FOR operation :  _self.ownedOperations»        
-		«operation.generate(new Context())»
+		«operation.generate(c)»
 		«ENDFOR»
-			
+		«FOR staticMethod:c.globalContext.staticMethods.values»
+		«staticMethod»
+		«ENDFOR»
+		
 		    public static void main(String[] args) throws IOException, InterruptedException {
 		        Configuration.init();
 		        Set<Long> queryResult = new GraphQuery().runQuery();
@@ -332,7 +336,6 @@ class ClassAspect extends TypeAspect {
 		    }	
 		}
 		'''
-		//«»	
 		}
 }
 @Aspect(className=Operation)
@@ -382,45 +385,7 @@ def String generate(Context context){
 	}
 }
 
-@Aspect(className=IteratorExp)
-class IteratorExpAspect extends LoopExpAspect {
-	def String generate(Context context){
-		val propertyToSearchIn =_self.ownedSource.generate(context)
-		
-		var iteratorVariable = _self.ownedIterators.get(0).name
-		if(iteratorVariable.equals("1_")){
-			var source=_self.ownedSource.name
-			iteratorVariable=source.substring(0,source.length-1)
-		}
-		context.iteratorVariable = iteratorVariable;
-		
-		//Get the iterator variable
-		switch _self.name{
-			case "select":{
-			'''		
-			List<Long> selectResult = new LambdaExplorer<Long, Long>(g, «propertyToSearchIn») {
-			    @Override
-				public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
-				    Origin «iteratorVariable» = new Origin(currentElement, graphCopy);
-				    boolean predicateResult = «_self.ownedBody.generate(context)»;
-				    if (predicateResult) {
-				    	result.add(currentElement);
-				    }
-				}
-			}.explore();
-			results.addAll(selectResult);
-			'''
-			}
-			case "exists":{
-				print("easy guy ...")
-				'''
-				«propertyToSearchIn».stream().anyMatch(«iteratorVariable» ->
-					«_self.ownedBody.generate(context)»
-				)'''
-			}
-		}
-	}
-}
+
 
 @Aspect(className=PropertyCallExp)
 class PropertyCallExpAspect extends NavigationCallExpAspect {
@@ -459,7 +424,10 @@ class VariableExpAspect extends OCLExpressionAspect {
 	*
 	*/
 	def String generate(Context context){
-		return _self.name
+		switch(_self.name){
+			case'1_':context.iteratorVariable
+			default : _self.name
+		}
 	}
 
 
@@ -475,33 +443,62 @@ class OperationCallExpAspect extends FeatureCallExpAspect {
 	*
 	*/
 	def String generate(Context context){
+	val source = _self.ownedSource.generate(context)
 			switch(_self.name){
+				case'oclAsSet':{
+					'''(new HashSet<«_self.ownedSource.type.name»>(Arrays.asList(«source»)))'''
+				}
+				case'asSet':{
+					'''(new HashSet<«_self.ownedSource.type.name»>(Arrays.asList(«source»)))'''
+				}
+				case'oclIsKindOf':{
+					'''(«source» instanceof «_self.ownedArguments.get(0).generate(context)»)'''
+				}
+				case'oclAsType' :{
+					'''((«_self.ownedArguments.get(0).generate(context)») «source»)'''
+					
+				}
 				case'=':{
 					val value =_self.ownedArguments.get(0) as OCLExpression		
-					'''«_self.ownedSource.generate(context)».equals(«value.generate(context)»)'''
+					'''«source».equals(«value.generate(context)»)'''
+				}
+				case'>':{
+					val value =_self.ownedArguments.get(0) as OCLExpression		
+					'''«source» > («value.generate(context)»)'''
+				}
+				case'<':{
+					val value =_self.ownedArguments.get(0) as OCLExpression		
+					'''«source» < («value.generate(context)»)'''
 				}
 				case'or':{
 					val value =_self.ownedArguments.get(0) as OCLExpression
 					'''
-					(«_self.ownedSource.generate(context)» || 
+					(«source» || 
 						«value.generate(context)»)
                     '''
 				}case'and':{
 				    val value =_self.ownedArguments.get(0) as OCLExpression
 					'''
-					(«_self.ownedSource.generate(context)» && 
+					(«source» && 
 						«value.generate(context)»)
                     '''	
 				}default:{
 					//Function call
-					'''
-					«_self.ownedSource.generate(context)».«_self.name»()
-					'''
+					switch(_self.ownedArguments.size){
+						case 0:'''«source».«_self.name»()'''
+						
+						case 1:{
+		                	val value =_self.ownedArguments.get(0) as OCLExpression
+							'''«source» «_self.name» («value.generate(context)»)'''
+						}
+						
+					}
 				}
 			}
 		}
+	}
 
-}
+
 
 @Aspect(className=ParameterVariable)
 class ParameterVariableAspect extends VariableAspect {
@@ -523,12 +520,20 @@ class StringLiteralExpAspect extends PrimitiveLiteralExpAspect {
 	}
 }
 
+@Aspect(className=IntegerLiteralExp)
+class IntegerLiteralExpAspect extends NumericLiteralExpAspect {
+	def String generate(Context context){
+			'''«_self.integerSymbol»'''
+		}
+}
+
 @Aspect(className=BooleanLiteralExp)
 class BooleanLiteralExpAspect extends PrimitiveLiteralExpAspect {
 	def String generate(Context context){
 		'''"'''
 	}
 }
+
 
 @Aspect(className=Annotation)
 class AnnotationAspect extends NamedElementAspect {
@@ -727,10 +732,7 @@ class FinalStateAspect extends StateAspect {
 
 }
 
-@Aspect(className=IfExp)
-class IfExpAspect extends OCLExpressionAspect {
 
-}
 
 @Aspect(className=Import)
 class ImportAspect extends NamedElementAspect {
@@ -742,10 +744,7 @@ class InstanceSpecificationAspect extends NamedElementAspect {
 
 }
 
-@Aspect(className=IntegerLiteralExp)
-class IntegerLiteralExpAspect extends NumericLiteralExpAspect {
 
-}
 
 @Aspect(className=InvalidLiteralExp)
 class InvalidLiteralExpAspect extends LiteralExpAspect {
@@ -1113,18 +1112,7 @@ abstract class TypeAspect extends NamedElementAspect {
 
 }
 
-@Aspect(className=TypeExp)
-class TypeExpAspect extends OCLExpressionAspect {
-	/*
-	* BE CAREFUL :
-	*
-	* This class has more than one superclass
-	* please specify which parent you want with the 'super' expected calling
-	*
-	*/
 
-
-}
 
 @Aspect(className=TypedElement)
 abstract class TypedElementAspect extends NamedElementAspect {
@@ -1174,24 +1162,56 @@ class VoidTypeAspect extends ClassAspect {
 
 @Aspect(className=WildcardType)
 class WildcardTypeAspect extends ClassAspect {
-
+   
 }
 @Accessors
 class Context{
+	//Todo split into two contexts,commun at all context
+	String returnVariable
+	String returnType
 	String indent
 	String iteratorVariable
+	GlobalContext globalContext
 	new(String indent){
 		this.indent=indent
+		
 	}
 	new(){
 		this.indent=""
+		this.globalContext=new GlobalContext()
+		
 	}
 	def Context addIndentAndCopy(String indentToAdd){
 		val result = new Context(this.indent+indentToAdd)
 		result.iteratorVariable = this.iteratorVariable
 		return result;
 	}
+	/*
+	 * Clone all attribute except static methods
+	 */
+	override Context clone(){
+		val context = new Context(this.indent)
+		context.iteratorVariable=this.iteratorVariable
+		context.globalContext=this.globalContext
+		context.returnType=this.returnType
+		context.returnVariable=this.returnVariable
+		return context
+	}
 	
 }
+@Accessors
+class GlobalContext{
+	HashMap<String,String> staticMethods
+	int varIndex;
+	new(){
+		this.staticMethods=new HashMap<String,String>()
+		this.varIndex=0;
+	}
+	def int getNextVar(){
+		varIndex++
+		varIndex
+	}
+}
+
 
 

@@ -16,11 +16,10 @@ package swhModel
 
 
 context Graph
-def : query():Set(Origin) = origins->select(
-	/*All the revision have been created since 2015*/
+def : query():Set(Origin) = self.origins->select(
 	originVisits->forAll(
 				snapshot.branches->forAll(
-					getRevision()->closure(parent)->forAll(timestamp=1420066800)
+					getRevision()->closure(parent)->forAll(timestamp>1420066800)
 					)
 				)
 	and
@@ -31,40 +30,10 @@ def : query():Set(Origin) = origins->select(
 						or 
 					name= 'refs/heads/main')
 					 and
-					getRevision()->closure(parent)-> size() >100
+					getRevision()->closure(parent)-> size() >1000
 				)
 		
-	)and
-	 let lastsnapshot:Snapshot = originVisits->sortedBy(timestamp)->last().snapshot in (
-	 	lastsnapshot.branches->exists(
-	 				(name= 'refs/heads/master'
-						or 
-					name= 'refs/heads/main')
-					and
-					getRevision().tree.entries->closure(entry:DirectoryEntry |
-						if entry.child->oclIsKindOf(Directory) then
-							entry.child->oclAsType(Directory).entries
-						else 
-							entry
-						endif	
-					)->exists(e:DirectoryEntry | e.name='AndroidManifest.xml')	
-					
-					)
-	 	
-	 
-	
 	)
-		
-	)
-	
-	
-	
-	
-	
-
-
-context SnapshotBranch::getRevision(): Revision
-post: result = if child->oclIsKindOf(Revision) then  child->oclAsType(Revision) else child->oclAsType(Release).revision endif
-
+)
 
 endpackage

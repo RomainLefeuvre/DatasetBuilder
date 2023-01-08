@@ -120,7 +120,17 @@ class SwhModelQueryTest {
 	
 	@Test
 	def void test_swhModelQuery_ocl_004() {
-		writeString("testfiles/test004/GraphQuery.java",genericTest(4,false))
+		genericTest(4,false)
+	}
+	
+	@Test
+	def void test_swhModelQuery_ocl_005() {
+		genericTest(5,false)
+	}
+	
+	@Test
+	def void test_swhModelQuery_ocl_006() {
+		genericTest(6,false)
 	}
 	/**
 	 * Perform a basic test comparing computed and expected file result

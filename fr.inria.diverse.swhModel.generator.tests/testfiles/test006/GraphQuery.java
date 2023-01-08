@@ -29,7 +29,10 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
 		    Origin origin = new Origin(currentElement, graphCopy);
 		    boolean predicateResult = origin.getOriginVisits().stream().anyMatch(originVisit ->
 		    	originVisit.getSnapshot().getBranches().stream().anyMatch(branche ->
-		    		branche.getName().equals("refs/heads/master")
+		    		DirectoryEntryClosure1(branche.getRevision().getTree().getEntries().stream().collect(Collectors.toSet()))
+		    		.stream().anyMatch(e ->
+		    			e.getName().equals("AndroidManifest.xml")
+		    		)
 		    	)
 		    );
 		    if (predicateResult) {
@@ -40,6 +43,38 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
 	results.addAll(selectResult);
 	return results;			    
 }
+
+ public static Set<DirectoryEntry> DirectoryEntryClosure1(Set<DirectoryEntry> param ){
+ 		Stack<DirectoryEntry> stack = new Stack<>();
+ 		HashSet<DirectoryEntry> res = new HashSet<>();
+ 		stack.addAll(param);
+ 		res.addAll(param);
+ 		
+ 		while(!stack.isEmpty()){
+ 			        Set<DirectoryEntry> children= new HashSet<DirectoryEntry>();
+ 					
+ 		            DirectoryEntry entry=stack.pop();
+ 		            try{
+ 		            children= (((entry.getChild() instanceof Directory))?
+ 		            	(((Directory) entry.getChild()).getEntries().stream().collect(Collectors.toSet())
+ 		            	):
+ 		            	((new HashSet<DirectoryEntry>(Arrays.asList(entry))))
+ 		            )		
+ 		            ;		 		            
+ 		            }catch(Exception e){
+ 		            	logger.warn("Error during closure for"+ param);
+ 		           		logger.debug("Error during closure for"+ param,e);
+ 		            }
+ 		            for(DirectoryEntry child: children){
+ 		                if(child!=null && !res.contains(child)){
+ 		                    res.add(child);
+ 		                    stack.add(child);
+ 		                }
+ 		            }
+ 		
+ 		        }
+ 		        return res;
+ 		 }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Configuration.init();

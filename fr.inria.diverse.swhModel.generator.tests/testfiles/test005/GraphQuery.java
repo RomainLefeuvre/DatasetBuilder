@@ -27,15 +27,24 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
 	    @Override
 		public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 		    Origin origin = new Origin(currentElement, graphCopy);
-		    boolean predicateResult = origin.getOriginVisits().stream().anyMatch(originVisit ->
-		    	originVisit.getSnapshot().getBranches().stream().anyMatch(branche ->
-		    		((branche.getName().equals("refs/heads/master") || 
-		    			branche.getName().equals("refs/heads/main"))
-		    		 && 
-		    			RevisionClosure2((new HashSet<Revision>(Arrays.asList(branche.getRevision()))).stream().collect(Collectors.toSet()))
-		    			.size() > (100))
+		    boolean predicateResult = (origin.getOriginVisits().stream().allMatch(originVisit ->
+		    	originVisit.getSnapshot().getBranches().stream().allMatch(branche ->
+		    		RevisionClosure2((new HashSet<Revision>(Arrays.asList(branche.getRevision()))).stream().collect(Collectors.toSet()))
+		    		.stream().allMatch(closur ->
+		    			closur.getTimestamp() > (1420066800)
+		    		)
 		    	)
-		    );
+		    ) && 
+		    	origin.getOriginVisits().stream().anyMatch(originVisit ->
+		    		originVisit.getSnapshot().getBranches().stream().anyMatch(branche ->
+		    			((branche.getName().equals("refs/heads/master") || 
+		    				branche.getName().equals("refs/heads/main"))
+		    			 && 
+		    				RevisionClosure4((new HashSet<Revision>(Arrays.asList(branche.getRevision()))).stream().collect(Collectors.toSet()))
+		    				.size() > (1000))
+		    		)
+		    	))
+		    ;
 		    if (predicateResult) {
 		    	result.add(currentElement);
 		    }
@@ -57,6 +66,33 @@ public Set<Long> runQuery() throws IOException, InterruptedException {
  		            Revision var_1=stack.pop();
  		            try{
  		            children= new HashSet<Revision>(Arrays.asList(var_1.getParent()));
+ 		            }catch(Exception e){
+ 		            	logger.warn("Error during closure for"+ param);
+ 		           		logger.debug("Error during closure for"+ param,e);
+ 		            }
+ 		            for(Revision child: children){
+ 		                if(child!=null && !res.contains(child)){
+ 		                    res.add(child);
+ 		                    stack.add(child);
+ 		                }
+ 		            }
+ 		
+ 		        }
+ 		        return res;
+ 		 }
+
+ public static Set<Revision> RevisionClosure4(Set<Revision> param ){
+ 		Stack<Revision> stack = new Stack<>();
+ 		HashSet<Revision> res = new HashSet<>();
+ 		stack.addAll(param);
+ 		res.addAll(param);
+ 		
+ 		while(!stack.isEmpty()){
+ 			        Set<Revision> children= new HashSet<Revision>();
+ 					
+ 		            Revision var_3=stack.pop();
+ 		            try{
+ 		            children= new HashSet<Revision>(Arrays.asList(var_3.getParent()));
  		            }catch(Exception e){
  		            	logger.warn("Error during closure for"+ param);
  		           		logger.debug("Error during closure for"+ param,e);

@@ -13,58 +13,23 @@
 import swhModel : 'platform:/resource/fr.inria.diverse.swhModel/model/swhModel.ecore'
 
 package swhModel
-
-
 context Graph
 def : query():Set(Origin) = origins->select(
-	/*All the revision have been created since 2015*/
-	originVisits->forAll(
-				snapshot.branches->forAll(
-					getRevision()->closure(parent)->forAll(timestamp=1420066800)
-					)
-				)
-	and
-	/*The main branch contain at least 1000 revisions */
 	originVisits->exists(
 				snapshot.branches->exists(
-					(name= 'refs/heads/master'
-						or 
-					name= 'refs/heads/main')
-					 and
-					getRevision()->closure(parent)-> size() >100
-				)
-		
-	)and
-	 let lastsnapshot:Snapshot = originVisits->sortedBy(timestamp)->last().snapshot in (
-	 	lastsnapshot.branches->exists(
-	 				(name= 'refs/heads/master'
-						or 
-					name= 'refs/heads/main')
-					and
 					getRevision().tree.entries->closure(entry:DirectoryEntry |
-						if entry.child->oclIsKindOf(Directory) then
-							entry.child->oclAsType(Directory).entries
+						if entry.child.oclIsKindOf(Directory) then
+							entry.child.oclAsType(Directory).entries.oclAsSet()
 						else 
-							entry
+							entry.oclAsSet()
 						endif	
 					)->exists(e:DirectoryEntry | e.name='AndroidManifest.xml')	
 					
 					)
-	 	
 	 
-	
 	)
 		
 	)
-	
-	
-	
-	
-	
-
-
-context SnapshotBranch::getRevision(): Revision
-post: result = if child->oclIsKindOf(Revision) then  child->oclAsType(Revision) else child->oclAsType(Release).revision endif
 
 
 endpackage
