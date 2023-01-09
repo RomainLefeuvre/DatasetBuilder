@@ -66,9 +66,14 @@ class IteratorExpAspect extends LoopExpAspect {
 					«_self.ownedBody.generate(c)»
 				)'''
 			}
+			case "sortedBy":{
+				//Todo manage sort Iterator
+				_self.ownedSource.generate(context)
+			}
 			
 			case "closure":{
 				//Todo refactor it in a generic way, with lambda
+				//Fix bad function call ...
 				val type = _self.ownedIterators.get(0).type.name
 				
 				val closureStaticFunctionName = type+"Closure"+context.globalContext.getNextVar()

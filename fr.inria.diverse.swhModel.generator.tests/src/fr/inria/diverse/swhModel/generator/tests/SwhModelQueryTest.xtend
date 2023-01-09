@@ -131,7 +131,13 @@ class SwhModelQueryTest {
 	@Test
 	def void test_swhModelQuery_ocl_006() {
 		genericTest(6,false)
+	}	
+	
+	@Test
+	def void test_swhModelQuery_ocl_007() {
+		genericTest(7,false)
 	}
+	
 	/**
 	 * Perform a basic test comparing computed and expected file result
 	 * 	asInput : whether it take as input the abstract syntax file or the concrete syntax

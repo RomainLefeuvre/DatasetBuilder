@@ -457,6 +457,8 @@ class OperationCallExpAspect extends FeatureCallExpAspect {
 				case'oclAsType' :{
 					'''((«_self.ownedArguments.get(0).generate(context)») «source»)'''
 					
+				}case'first':{
+					'''«source».get(0)'''
 				}
 				case'=':{
 					val value =_self.ownedArguments.get(0) as OCLExpression		
