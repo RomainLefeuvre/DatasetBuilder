@@ -505,12 +505,6 @@ class OperationCallExpAspect extends FeatureCallExpAspect {
 @Aspect(className=ParameterVariable)
 class ParameterVariableAspect extends VariableAspect {
 def String generate(){
-		
-		switch _self.name{
-			case 'origins':{
-				
-			}
-	}
 }
 
 }
