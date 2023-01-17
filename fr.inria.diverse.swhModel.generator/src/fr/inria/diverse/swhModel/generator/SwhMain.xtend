@@ -20,10 +20,12 @@ import org.eclipse.ocl.xtext.base.utilities.BaseCSResource
 import org.eclipse.ocl.pivot.resource.ASResource
 import org.eclipse.ocl.pivot.utilities.PivotStandaloneSetup
 import org.eclipse.ocl.xtext.completeocl.CompleteOCLStandaloneSetup
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class SwhMain{ 
 
-	public def run(String modelPath, String resultModelPath) {
+	public def run(String modelPath, String savePath, String queryId) {
 		//Load Ecore Model
 		var fact = new EcoreResourceFactoryImpl
 		if (!EPackage.Registry.INSTANCE.containsKey(EcorePackage.eNS_URI)) {
@@ -35,8 +37,6 @@ class SwhMain{
 		
 		PivotStandaloneSetup.doSetup();
 		CompleteOCLStandaloneSetup.doSetup();
-		
-		
 		SwhModelPackage.eINSTANCE.eClass();
 		
 		var rs = new ResourceSetImpl()
@@ -51,28 +51,23 @@ class SwhMain{
 		}
 		else {
 			selectedPivotModel = res.getContents().get(0) as Model;
-		}
+		}		
+		val results = selectedPivotModel.generate(queryId)
+		writeString(savePath,results)
 
-		
-		selectedPivotModel.generate
-		//Pivot_ModelAspect.generate(m);
-
-		// apply transformation
-		//res.contents.filter(EPackage).forEach[ pack | pack.annotate]
-		
-		// save the modified model in a new file
-		/*val resSet2 = new  ResourceSetImpl()
-		val res2 = resSet2.createResource(URI.createURI(resultModelPath))
-		// move content to new resource
-		res2.contents.addAll(res.contents)
-		res2.save(new HashMap())*/ 
 	}
 
 	def static void main(String[] args) {
-		println('Hello Kermeta on top of Xtend! (please create a My.ecore file to test this sample program)')
+		println(args.get(0))
 		//new SwhMain().run("tests/resources/swhModelQuery_01/swhModelQuery.oclas", "My_annotated.ecore")
-		new SwhMain().run("tests/resources/swhModelQuery_01/swhModelQuery.ocl", "My_annotated.ecore")
+		//new SwhMain().run("tests/resources/swhModelQuery_00/swhModelQuery.ocl", "tests/resources/swhModelQuery_00/test_query.java","test_query")
+		new SwhMain().run(args.get(0), args.get(1),args.get(2))
 		println('file written (please refresh project to see it)')
+	}
+	
+	def static writeString(String path,String stringToWrite){
+		Files.createDirectories(Paths.get(path).parent);
+		Files.writeString(Paths.get(path),stringToWrite)	
 	}
 	
 }

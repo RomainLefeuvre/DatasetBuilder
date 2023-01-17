@@ -15,7 +15,7 @@ import java.util.*;
 
 public class GraphQuery {
     static Logger logger = LogManager.getLogger(GraphQuery.class);
-    static String id = "testQuery";
+    static String id = "query";
     private Graph g;		    
 
     public GraphQuery() throws IOException {

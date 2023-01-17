@@ -21,7 +21,7 @@ def : query():Set(Origin) = origins->select(
 	/*Optimize it by looking for the timestamp of the first commit */
 	originVisits->exists(
 				snapshot.branches->forAll(
-					getRevision()->closure(parent)->forAll(timestamp=1420066800)
+					getRevision()->closure(parent)->forAll(timestamp>1420066800)
 					)
 				)
 	and
@@ -33,7 +33,7 @@ def : query():Set(Origin) = origins->select(
 					name= 'refs/heads/main')
 					and
 					/*The main branch contains at least 1000 revisions */
-					getRevision()->closure(parent)-> size() >100
+					getRevision()->closure(parent)-> size() >1000
 					and
 					/*The main branch contains a file 'AndroidManifest.xml'*/
 					getRevision().tree.entries->closure(entry:DirectoryEntry |
@@ -42,7 +42,7 @@ def : query():Set(Origin) = origins->select(
 						else 
 							entry.oclAsSet()
 						endif	
-					)->exists(e:DirectoryEntry | e.name='AndroidManifest.xml')	
+					)->exists(e:DirectoryEntry | e.name='README.md')	
 					
 					)
 	 

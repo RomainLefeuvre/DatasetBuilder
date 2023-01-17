@@ -149,7 +149,7 @@ class SwhModelQueryTest {
 		val m = loadTestCaseModel('''testfiles/test«testNb»/swhModelQuery.ocl«asInput?".oclas":""»''')
 		assertNotNull(m)
 		 //launch the generation
-		val result=m.generate	
+		val result=m.generate("testQuery")	
 		writeString("target/testfiles/test"+testNb+"/GraphQuery.java",result)
 		val expectedResult = Files.readString(Paths.get("testfiles/test"+testNb+"/GraphQuery.java"));
 		assertEquals(expectedResult,result)

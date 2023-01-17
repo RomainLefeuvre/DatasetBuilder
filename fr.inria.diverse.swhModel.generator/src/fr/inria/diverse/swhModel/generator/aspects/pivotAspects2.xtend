@@ -42,7 +42,7 @@ class IteratorExpAspect extends LoopExpAspect {
 		switch _self.name{
 			case "select":{
 			'''		
-			List<Long> selectResult = new LambdaExplorer<Long, Long>(g, «propertyToSearchIn») {
+			List<Long> selectResult = new LambdaExplorer<Long, Long>(g, «propertyToSearchIn»,id) {
 			    @Override
 				public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 				    Origin «iteratorVariable» = new Origin(currentElement, graphCopy);

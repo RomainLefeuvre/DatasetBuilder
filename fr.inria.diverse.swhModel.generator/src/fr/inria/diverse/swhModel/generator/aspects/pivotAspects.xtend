@@ -264,12 +264,13 @@ import org.eclipse.ocl.expressions.impl.OCLExpressionImpl
 import java.util.Map
 import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.HashMap
+import java.util.UUID
 
 @Aspect(className=Model)
 class Pivot_ModelAspect extends NamespaceAspect {
-	def String generate(){
+	def String generate(String queryId){
 		'''
-		«_self.ownedPackages.get(0).generate()»
+		«_self.ownedPackages.get(0).generate(queryId)»
 		'''
 	}
 }
@@ -278,10 +279,10 @@ class Pivot_ModelAspect extends NamespaceAspect {
 
 @Aspect(className=Package)
 class PackageAspect extends NamespaceAspect {
-	def String generate(){
+	def String generate(String queryId){
 		'''
 		«FOR ownedClass :  _self.ownedClasses»  
-		   «ownedClass.generate()»
+		   «ownedClass.generate(queryId)»
 		«ENDFOR»
 		'''
 		}
@@ -296,9 +297,10 @@ class ClassAspect extends TypeAspect {
 	* please specify which parent you want with the 'super' expected calling
 	*
 	*/
-	def String generate(){
+	def String generate(String queryId){
 		val Context c =new Context()
 		'''
+		package fr.inria.diverse;
 		import fr.inria.diverse.Graph;
 		import fr.inria.diverse.LambdaExplorer;
 		import fr.inria.diverse.model.Origin;
@@ -315,7 +317,8 @@ class ClassAspect extends TypeAspect {
 		
 		public class GraphQuery {
 		    static Logger logger = LogManager.getLogger(GraphQuery.class);
-		    private Graph g;
+		    static String id = "«queryId»";
+		    private Graph g;		    
 		
 		    public GraphQuery() throws IOException {
 		        g = new Graph();
@@ -356,6 +359,7 @@ class OperationAspect extends FeatureAspect {
 					'''
 					public Set<Long> runQuery() throws IOException, InterruptedException {
 						Set<Long> results = new HashSet<>();
+						logger.info("------Executing query "+id+"------");
 						«expr.generate(context)»
 						return results;			    
 					}

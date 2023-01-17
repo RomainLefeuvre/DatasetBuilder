@@ -1,3 +1,4 @@
+package fr.inria.diverse;
 import fr.inria.diverse.Graph;
 import fr.inria.diverse.LambdaExplorer;
 import fr.inria.diverse.model.Origin;
@@ -14,7 +15,8 @@ import java.util.*;
 
 public class GraphQuery {
     static Logger logger = LogManager.getLogger(GraphQuery.class);
-    private Graph g;
+    static String id = "testQuery";
+    private Graph g;		    
 
     public GraphQuery() throws IOException {
         g = new Graph();
@@ -23,7 +25,8 @@ public class GraphQuery {
     
 public Set<Long> runQuery() throws IOException, InterruptedException {
 	Set<Long> results = new HashSet<>();
-	List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins()) {
+	logger.info("------Executing query "+id+"------");
+	List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins(),id) {
 	    @Override
 		public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 		    Origin o = new Origin(currentElement, graphCopy);
