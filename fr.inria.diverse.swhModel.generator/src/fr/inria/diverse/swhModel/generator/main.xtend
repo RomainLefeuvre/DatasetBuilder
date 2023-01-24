@@ -7,13 +7,9 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.common.util.URI
 
-import static extension fr.inria.diverse.swhModel.generator.EPackageAspect.*
-import java.util.HashMap
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
 import fr.inria.diverse.swhModel.SwhModelPackage
-import org.eclipse.emf.ecore.EObject
 import org.eclipse.ocl.pivot.Model
-import fr.inria.diverse.swhModel.generator.aspects.Pivot_ModelAspect
 
 import static extension fr.inria.diverse.swhModel.generator.aspects.Pivot_ModelAspect.*
 import org.eclipse.ocl.xtext.base.utilities.BaseCSResource
@@ -23,7 +19,7 @@ import org.eclipse.ocl.xtext.completeocl.CompleteOCLStandaloneSetup
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class SwhMain{ 
+class main{ 
 
 	public def run(String modelPath, String savePath, String queryId) {
 		//Load Ecore Model
@@ -58,10 +54,9 @@ class SwhMain{
 	}
 
 	def static void main(String[] args) {
-		println(args.get(0))
 		//new SwhMain().run("tests/resources/swhModelQuery_01/swhModelQuery.oclas", "My_annotated.ecore")
 		//new SwhMain().run("tests/resources/swhModelQuery_00/swhModelQuery.ocl", "tests/resources/swhModelQuery_00/test_query.java","test_query")
-		new SwhMain().run(args.get(0), args.get(1),args.get(2))
+		new main().run(args.get(0), args.get(1),args.get(2))
 		println('file written (please refresh project to see it)')
 	}
 	
