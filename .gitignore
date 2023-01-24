@@ -105,3 +105,4 @@ xtend-gen/
 # End of https://www.toptal.com/developers/gitignore/api/xtext,eclipse,java
 /s/
 target/
+staticdispatch-gen/

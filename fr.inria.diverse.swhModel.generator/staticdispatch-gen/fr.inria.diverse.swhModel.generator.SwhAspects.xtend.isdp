@@ -1,5 +1,0 @@
-	// BeginInjectInto fr.inria.diverse.swhModel.generator.EClassifierAspect#void annotate() from fr.inria.diverse.swhModel.generator.EClassAspect
-		if (_self instanceof org.eclipse.emf.ecore.EClass){
-			fr.inria.diverse.swhModel.generator.EClassAspect.annotate((org.eclipse.emf.ecore.EClass)_self);
-		} else
-		// EndInjectInto fr.inria.diverse.swhModel.generator.EClassifierAspect#void annotate() from fr.inria.diverse.swhModel.generator.EClassAspect
