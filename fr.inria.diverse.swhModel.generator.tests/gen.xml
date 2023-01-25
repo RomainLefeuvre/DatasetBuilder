@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project fr.inria.diverse.swhModel.generator">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="${dir.buildfile}"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/gen.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="fr.inria.diverse.swhModel.generator.Main"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${dir.jarfile}/@dot"/>
+        	
+            <zipfileset excludes="META-INF/*.SF" src="../fr.inria.diverse.swhModel/fr.inria.diverse.swhModel_0.1.0.jar"/>
+
+        	
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.xtend.lib_2.25.0.v20210301-0821.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.xtext.xbase.lib_2.25.0.v20210301-0821.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/com.google.guava_30.1.0.v20210127-2300.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.xtend.lib.macro_2.25.0.v20210301-0821.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/fr.inria.diverse.k3.al.annotationprocessor.plugin_3.3.0.v20220303-1213.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.ecore_2.25.0.v20210816-0937.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.common_2.23.0.v20210924-1718.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.ecore.xmi_2.16.0.v20190528-0725.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.ocl_3.17.0.v20211130-1448.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/lpg.runtime.java_2.0.17.v201004271640.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.ocl.common_1.17.0.v20211130-1448.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.ocl.pivot_1.17.0.v20211130-1448.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.jdt.annotation_2.2.600.v20200408-1511.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.edit_2.16.0.v20190920-0401.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.ecore.change_2.14.0.v20190528-0725.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.core.runtime_3.24.0.v20210910-0750.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.osgi_3.17.100.v20211104-1730.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.osgi.compatibility.state_1.2.500.v20210730-0750.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.equinox.weaving.hook_1.2.200.v20180827-1235.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.fx.osgi_3.7.0.202010120826.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.equinox.common_3.15.100.v20211021-1418.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.core.jobs_3.12.0.v20210723-1034.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.equinox.registry_3.11.100.v20211021-1418.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.equinox.preferences_3.9.100.v20211021-1418.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.core.contenttype_3.8.100.v20210910-0640.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.equinox.app_1.6.100.v20211021-1418.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.ocl.xtext.base_1.17.0.v20211130-1448.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.xtext_2.25.0.v20210301-0843.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.antlr.runtime_3.2.0.v201101311130.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/com.google.inject_3.0.0.v201605172100.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/com.google.inject.multibindings_3.0.0.v201605172100.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.mwe.core_1.6.1.v20210218-2134.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.apache.commons.cli_1.4.0.v20200417-1444.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.mwe2.runtime_2.12.1.v20210218-2134.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.mwe.utils_1.6.1.v20210218-2134.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.xtext.util_2.25.0.v20210301-0843.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/javax.inject_1.0.0.v20091030.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.ocl.examples.xtext.serializer_1.17.0.v20211130-1448.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.ocl.xtext.completeocl_1.17.0.v20211130-1448.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.ocl.xtext.essentialocl_1.17.0.v20211130-1448.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.apache.log4j_1.2.15.v201012070815.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.core.resources_3.16.0.v20211001-2032.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.codegen.ecore_2.28.0.v20210925-0555.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="../thirdPartyLibrary/org.eclipse.emf.codegen_2.22.0.v20210420-0623.jar"/>
+        </jar>
+    </target>
+</project>

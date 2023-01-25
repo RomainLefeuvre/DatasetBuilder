@@ -89,23 +89,55 @@
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
-
-
 ### Prerequisites
+* Java 11
+
+#### Build Prerequisites
+* Ant >= 1.10.12
+* Linux
+#### Tooling Prerequisites (Optional : Editor support for query)
+* [GemocStudio V3.5.0](https://gemoc.org/download.html)
+
+## Usage
+### Standelone Usage
+The generator can be used through the jar package version : ```fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar ``` : 
+* run ```java -jar fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar <oclModelPath> <exportPath> <QueryName>``` where 
+  * ```<oclModelPath>``` the path of the ocl model (either .ocl or the abstract syntax saved in .oclas)
+  * ```<exportPath>``` the path were the resulting java code will be saved
+  * ```<QueryId>``` the query Id, used for saving the query results during execution
+
+Exemple : **```java -jar fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar fr.inria.diverse.swhModel.generator/tests/resources/swhModelQuery_01/swhModelQuery.ocl ./query.java testQuery```**
+
+### Designing ocl queries
+Queries are described as an OCL Operation named ”query” in the Graph context, returning a Set of Origin i.e. the set of repository matching the query. The following template can be used :
+```
+import swhModel : 'platform:/resource/fr.inria.diverse.swhModel/model/swhModel.ecore'
+package swhModel
+context Graph
+def : query():Set(Origin) = origins->select(
+	/*QUERY BODY */
+)
+endpackage
+```
 
 
-### Installation
-
-
+To define the ocl request and therefore the input model of the generator, it is recommended to use the eclipse tooling providing development tools for OCL.
+* Install the Gemoc GemocStudio
+* Import the ```fr.inria.diverse.swhModel project``` and ```fr.inria.diverse.swhModel.queryExemple``` projects
+* Modify the templace.ocl file 
+* Use the previous section (Standelone Usage) to generate the corresponding java code
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
+## Building the standalone version 
+As the project is based on eclipse technologies (OCL eclipse, xtext ...) the projects eclipse plugins. A standalone build procedure is available, forming an uber-jar with all the necessary dependencies. 
 
-<!-- USAGE EXAMPLES -->
-## Usage
-_For more examples, please refer to the [Documentation](https://example.com)_
+To build the project :
+* run the build.sh script that compile ```fr.inria.diverse.swhModel``` then ```fr.inria.diverse.swhModel.generator```
+* The jar is also installed in your local m2 repository to run tests
 
+Then you can run the test project :
+* run ```mvn test``` in ```fr.inria.diverse.swhModel.generator.tests```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
