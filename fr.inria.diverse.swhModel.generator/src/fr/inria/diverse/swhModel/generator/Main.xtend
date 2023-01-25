@@ -43,11 +43,12 @@ class Main{
 		PivotStandaloneSetup.doSetup()
 		CompleteOCLStandaloneSetup.doSetup()
 		//Add mapping to resolve swhModel.ecore import on OCL files
+		print(this.getClass().getClassLoader().getResource("swhModel.ecore").toString())
 		URIConverter.URI_MAP.put(URI.createURI("platform:/resource/fr.inria.diverse.swhModel/model/swhModel.ecore"), 
 			URI.createURI(class.classLoader.getResource("swhModel.ecore").toString)
 		)
 		//Load SwhModel by accessing an attribute, here the eClass
-		SwhModelPackage.eINSTANCE.eClass()
+		SwhModelPackage.eINSTANCE.eClass();
 		//Loading the input ocl or oclas model
 		var rs = new ResourceSetImpl()
 		var uri = URI.createURI(modelPath)

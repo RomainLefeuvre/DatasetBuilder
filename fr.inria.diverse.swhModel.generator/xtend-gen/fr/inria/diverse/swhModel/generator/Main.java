@@ -55,6 +55,7 @@ public class Main {
       _extensionToFactoryMap.put("*", _xMIResourceFactoryImpl);
       PivotStandaloneSetup.doSetup();
       CompleteOCLStandaloneSetup.doSetup();
+      InputOutput.<String>print(this.getClass().getClassLoader().getResource("swhModel.ecore").toString());
       URIConverter.URI_MAP.put(URI.createURI("platform:/resource/fr.inria.diverse.swhModel/model/swhModel.ecore"), 
         URI.createURI(this.getClass().getClassLoader().getResource("swhModel.ecore").toString()));
       SwhModelPackage.eINSTANCE.eClass();
