@@ -1,20 +1,5 @@
-/********************************************************Graph***********************
- * Copyright (c) 2012 Willink Transformations and others.
- * All rights reserved.   This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v2.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v20.html
- *
- * Contributors:
- *   E.D.Willink - Initial API and implementation
- *
- * This file provides additional validation constraints for use of OCL embedded in Ecore.
- *******************************************************************************/
 import swhModel : 'platform:/resource/fr.inria.diverse.swhModel/model/swhModel.ecore'
-
 package swhModel
-
-
 context Graph
 def : query():Set(Origin) = origins->select(
 	/*All the revision have been created since 2015*/
@@ -22,15 +7,11 @@ def : query():Set(Origin) = origins->select(
 	originVisits->exists(
 				snapshot.branches->forAll(
 					getRevision()->closure(parent)->forAll(timestamp>1420066800)
-					)
 				)
-	and
+	)and
 	/*For the moment the sort iterator is not implemented, so the defautl order, implem order is kept */
-	originVisits->exists(
-				snapshot.branches->exists(
-	 				(name= 'refs/heads/master'
-						or 
-					name= 'refs/heads/main')
+	 originVisits->sortedBy(timestamp)->first().snapshot.branches->exists(
+	 				(name= 'refs/heads/master' or name= 'refs/heads/main')
 					and
 					/*The main branch contains at least 1000 revisions */
 					getRevision()->closure(parent)-> size() >1000
@@ -42,15 +23,7 @@ def : query():Set(Origin) = origins->select(
 						else 
 							entry.oclAsSet()
 						endif	
-					)->exists(e:DirectoryEntry | e.name='README.md')	
-					
-					)
-	 
-	 	
-	 
-	
-	))
-		
-	
-	
+					)->exists(e:DirectoryEntry | e.name='AndroidManifest.xml')	
+	)
+)
 endpackage

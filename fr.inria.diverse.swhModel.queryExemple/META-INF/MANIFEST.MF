@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: QueryExemple
+Bundle-SymbolicName: fr.inria.diverse.swhModel.queryExemple
+Bundle-Version: 0.1.0
+Automatic-Module-Name: fr.inria.diverse.swhModel.queryExemple
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: fr.inria.diverse.swhModel;bundle-version="0.1.0"

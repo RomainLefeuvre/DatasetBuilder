@@ -21,7 +21,6 @@
 			<artifactId>junit-platform-launcher</artifactId>
 			<version>1.9.2</version>
 			<scope>test</scope>
-
 		</dependency>
 		<dependency>
 			<groupId>fr.inria.diverse.swhModel</groupId>
@@ -34,10 +33,7 @@
 			<version>5.9.2</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
-
-
 	<build>
 		<plugins>
 			<plugin>
