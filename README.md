@@ -33,10 +33,10 @@
     <!--img src="images/logo.png" alt="Logo" width="80" height="80"-->
   </a>
 
-<h3 align="center">OCL query compiler to swh-graph java api</h3>
+<h3 align="center">DATASET BUILDER</h3>
 
   <p align="center">
-    project_description
+    Build repository dataset by describing an OCL query on the SoftwareHeritage Graph Property Dataset
     <br />
     <a href="https://github.com/RomainLefeuvre/OCL_QUERY_SWH-GRAPH_GEN"><strong>Explore the docs »</strong></a>
     <br />
@@ -77,7 +77,13 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
+This project is a companion repository containing a prototype of the fingerprint approach.
 
+### Structure 
+* ```fr.inria.diverse.swhModel``` : The project containing the object oriented model of the SWH graph dataset expressed as an ecore project
+* ```fr.inria.diverse.swhModel.generator``` : The project containing the generator, it generate java code that target the swh-graph api from a query expressed in OCL on the OO model
+* ```fr.inria.diverse.swhModel.generator.tests``` : The project containing the tests of the generator
+* ```fr.inria.diverse.swhModel.queryExemple``` : An example project containing ocl query template. It can be used to design OCL query while leveraging on OCL tooling.
 <!--([![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
 
@@ -88,14 +94,12 @@
 
 
 <!-- GETTING STARTED -->
-## Getting Started
-### Prerequisites
+## Prerequisites
 * Java 11
-
-#### Build Prerequisites
+### Build Prerequisites
 * Ant >= 1.10.12
 * Linux
-#### Tooling Prerequisites (Optional : Editor support for query)
+### Tooling Prerequisites (Optional for ocl query editor support)
 * [GemocStudio V3.5.0](https://gemoc.org/download.html)
 
 ## Usage
@@ -130,7 +134,7 @@ To define the ocl request and therefore the input model of the generator, it is 
 
 
 ## Building the standalone version 
-As the project is based on eclipse technologies (OCL eclipse, xtext ...) the projects eclipse plugins. A standalone build procedure is available, forming an uber-jar with all the necessary dependencies. 
+As the project is based on eclipse technologies (OCL eclipse, xtext ...) the projects are eclipse plugins. A standalone build procedure is available, forming an uber-jar with all the necessary dependencies. 
 
 To build the project :
 * run the build.sh script that compile ```fr.inria.diverse.swhModel``` then ```fr.inria.diverse.swhModel.generator```
