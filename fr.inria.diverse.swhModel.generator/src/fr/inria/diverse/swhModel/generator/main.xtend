@@ -18,6 +18,7 @@ import org.eclipse.ocl.pivot.utilities.PivotStandaloneSetup
 import org.eclipse.ocl.xtext.completeocl.CompleteOCLStandaloneSetup
 import java.nio.file.Files
 import java.nio.file.Paths
+import org.eclipse.emf.ecore.resource.URIConverter
 
 class main{ 
 
@@ -33,6 +34,11 @@ class main{
 		
 		PivotStandaloneSetup.doSetup();
 		CompleteOCLStandaloneSetup.doSetup();
+		
+		URIConverter.URI_MAP.put(URI.createURI("platform:/resource/fr.inria.diverse.swhModel/model/"), 
+			URI.createURI("jar:file:/home/dvojtise/git/github_RomainLefeuvre/OCL_QUERY_SWH-GRAPH_GEN/fr.inria.diverse.swhModel.generator/swhoclgen.jar!/")
+		)
+		
 		SwhModelPackage.eINSTANCE.eClass();
 		
 		var rs = new ResourceSetImpl()
