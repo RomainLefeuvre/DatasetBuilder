@@ -144,8 +144,8 @@ class SwhModelQueryTest {
 		assertNotNull(m)
 		 //launch the generation
 		val result=m.generate("testQuery")	
-		writeString("target/testfiles/test"+testNb+"/GraphQuery.java",result)
-		val expectedResult = Files.readString(Paths.get('''«resourceDirectory»/test«testNb»/GraphQuery.java'''));
+		writeString("target/testfiles/test"+testNb+"/GraphQuery.java_",result)
+		val expectedResult = Files.readString(Paths.get('''«resourceDirectory»/test«testNb»/GraphQuery.java_'''));
 		assertEquals(expectedResult,result)
 		result
 	}
