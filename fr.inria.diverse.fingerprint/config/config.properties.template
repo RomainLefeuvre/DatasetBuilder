@@ -1,0 +1,6 @@
+threadNumber=1
+graphPath=/dataset/graph
+exportPath=export/
+loadingMode=MAPPED
+checkPointIntervalInMinutes=30
+swhToken=XXXXXXXXXXXXXXXXXXx
