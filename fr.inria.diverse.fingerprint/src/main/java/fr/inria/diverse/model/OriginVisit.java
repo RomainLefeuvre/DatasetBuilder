@@ -1,11 +1,12 @@
 package fr.inria.diverse.model;
+
 import java.io.Serializable;
 
 public class OriginVisit implements Serializable {
 	private static final long serialVersionUID = -1707044607192784010L;
 	private Long timestamp;
 	private Snapshot snapshot;
-	
+
 	public OriginVisit() {
 	}
 
@@ -17,8 +18,6 @@ public class OriginVisit implements Serializable {
 	public OriginVisit(Snapshot snapshot) {
 		this.snapshot = snapshot;
 	}
-
-
 
 	public Long getTimestamp() {
 		return timestamp;

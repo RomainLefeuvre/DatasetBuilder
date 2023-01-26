@@ -18,8 +18,6 @@ public abstract class LambdaExplorer<Input,Output extends Serializable> extends 
         super(graph);
     }
 
-
-
     public LambdaExplorer(Graph graph, List<Input> inputs){
         super(graph);
         this.inputs=inputs;
@@ -55,16 +53,26 @@ public abstract class LambdaExplorer<Input,Output extends Serializable> extends 
 
     @Override
     public void run() throws InterruptedException, IOException {
+        this.run(true);
+    }
+    
+    public void run(boolean restoreCheckpoint) throws InterruptedException, IOException {
         try {
-            this.restoreCheckpoint();
+            if(restoreCheckpoint)
+            	this.restoreCheckpoint();
             this.exploreGraphNode(this.inputs!=null ?inputs.size():graph.getGraph().numNodes());
         } catch (Exception e) {
             logger.error("Error while running ",e);
             throw new RuntimeException("Error", e);
         }    }
-
+    
+    
     public List<Output> explore() throws InterruptedException, IOException {
-        this.run();
+        return this.explore(true);
+    }
+    
+    public List<Output> explore(boolean restoreCheckpoint) throws InterruptedException, IOException {
+        this.run(restoreCheckpoint);
         logger.info("found "+result.size()+" results");
         return result;
     }
