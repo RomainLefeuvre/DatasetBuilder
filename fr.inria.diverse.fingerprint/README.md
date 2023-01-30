@@ -20,7 +20,7 @@ ToDo : provide a docker container
   `cd scripts`
 - Download the last full graph dataset by running  
   `sh dl_scripts.sh`
-- Install locally our swh-graph fork by running
+- Install locally swh-graph to your m2 repository
   `sh install_swh_graph_to_local_m2.sh`
 - Package  
   `cd ..`  
