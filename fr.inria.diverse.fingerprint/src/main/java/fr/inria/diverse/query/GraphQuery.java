@@ -99,8 +99,5 @@ public class GraphQuery {
         return res;
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Configuration.init();
-        Set<Long> queryResult = new GraphQuery().runQuery();
-    }
+    
 }

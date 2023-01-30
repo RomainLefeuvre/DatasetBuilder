@@ -32,3 +32,24 @@ ToDo : provide a docker container
 
 `java -ea -server -XX:PretenureSizeThreshold=512M -XX:MaxNewSize=4G -XX:+UseLargePages -XX:+UseTransparentHugePages -XX:+UseNUMA -XX:+UseTLAB -XX:+ResizeTLAB -Djava.io.tmpdir=../java-tmp-dir -Xmx180G -jar ./target/shTest-1.0-SNAPSHOT.jar`
 
+ 
+```
+GraphQueryRunner [-h] [-c=<checkPointIntervalInMinutes>]
+                        [-e=<exportPath>] [-g=<graphPath>] [-l=<loadingMode>]
+                        [-t=<threadNumber>]
+Execute a query over the graph property dataset
+  -c, --checkPointIntervalInMinutes=<checkPointIntervalInMinutes>
+               The time in minutes after which a checkpoint will be produced
+  -e, --exportPath=<exportPath>
+               The export path, where all the queries results will be saved
+                 including checkpoints
+  -g, --graphPath=<graphPath>
+               The graph path
+  -h, --help   display this help and exit
+  -l, --loadingMode=<loadingMode>
+               The graph loading mode either MAPPED for memory mapped or RAM
+                 for ram loading
+  -t, --threadNumber=<threadNumber>
+               The number of thread the query will use
+Romain Lefeuvre - DIVERSE team - Inria
+```

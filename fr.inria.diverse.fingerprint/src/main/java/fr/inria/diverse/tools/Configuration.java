@@ -3,13 +3,16 @@ package fr.inria.diverse.tools;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import picocli.CommandLine.Model.ArgSpec;
+import picocli.CommandLine.Model.OptionSpec;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-public class Configuration {
+public abstract class Configuration {
 
 	/**
 	 * FILENAME is the file location of the configuration JSON file
@@ -22,77 +25,26 @@ public class Configuration {
 	/**
 	 * The instance of Configuration that this Class is storing
 	 */
-	private static Configuration instance = null;
-	// Config Attributes
-	private final int threadNumber;
-	private final String graphPath;
-	private final String loadingMode;
-	private final String swhToken;
-	private final String exportPath;
-	private final int checkPointIntervalInMinutes;
-
-	private Configuration(String configUri) {
-		Properties props = new Properties();
-		try (InputStream input = new FileInputStream(Paths.get(configUri, CONFIG_FILE_NAME).toFile())) {
-			if (input == null) {
-				throw new RuntimeException("unable to find config.properties");
-			}
-			props.load(input);
-		} catch (IOException e) {
-			throw new RuntimeException("Error while loading config file", e);
-		}
-		this.threadNumber = Integer.parseInt(props.getProperty("threadNumber"));
-		this.graphPath = props.getProperty("graphPath");
-		this.loadingMode = props.getProperty("loadingMode");
-		this.swhToken = props.getProperty("swhToken");
-		this.exportPath = props.getProperty("exportPath");
-		this.checkPointIntervalInMinutes = Integer.parseInt(props.getProperty("checkPointIntervalInMinutes"));
-
-	}
-
-	public static void init(String uri) {
-		if (Configuration.instance == null) {
-			Configuration.instance = new Configuration(uri.equals("") ? DEFAULT_URI : uri);
-		} else {
-			logger.warn("Init not done since configuration is already init");
-		}
-	}
-
-	public static void init() {
-		if (Configuration.instance == null) {
-			Configuration.instance = new Configuration(DEFAULT_URI);
-		} else {
-			logger.warn("Init not done since configuration is already init");
-		}
-	}
+	protected static Configuration instance = null;
 
 	public static Configuration getInstance() {
-
 		return Configuration.instance;
 	}
-
+	
+	
 	// Getters
-	public int getThreadNumber() {
-		return threadNumber;
-	}
+	public abstract int getThreadNumber();
+	public abstract String getGraphPath() ;
+	public abstract String getLoadingMode() ;
+	public abstract String getExportPath() ;
+	public abstract int getCheckPointIntervalInMinutes() ;
 
-	public String getGraphPath() {
-		return graphPath;
-	}
 
-	public String getLoadingMode() {
-		return loadingMode;
+	@Override
+	public String toString() {
+		return "Configuration [getThreadNumber()=" + getThreadNumber() + ", getGraphPath()=" + getGraphPath()
+				+ ", getLoadingMode()=" + getLoadingMode() + ", getExportPath()=" + getExportPath()
+				+ ", getCheckPointIntervalInMinutes()=" + getCheckPointIntervalInMinutes() + "]";
 	}
-
-	public String getSwhToken() {
-		return swhToken;
-	}
-
-	public String getExportPath() {
-		return exportPath;
-	}
-
-	public int getCheckPointIntervalInMinutes() {
-		return checkPointIntervalInMinutes;
-	}
+	
 }
