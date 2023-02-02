@@ -26,6 +26,7 @@ import com.google.gson.reflect.TypeToken;
 
 import fr.inria.diverse.Graph;
 import fr.inria.diverse.LambdaExplorer;
+import fr.inria.diverse.query.GraphQueryRunner;
 import it.unimi.dsi.fastutil.bytes.ByteBigList;
 import it.unimi.dsi.fastutil.bytes.ByteMappedBigList;
 import it.unimi.dsi.fastutil.longs.LongBigList;
@@ -166,9 +167,17 @@ public class OriginToolbox extends SwhGraphProperties {
 		return loadOrComputeLastSnaps();
 		
 	}
-	
+	class GraphQueryRunner_ extends GraphQueryRunner {
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+
+		}
+		}
  
 	public static void main(String[] args) throws IOException, InterruptedException {
+		GraphQueryRunner_.init(new String[0]);;
+
 		logger.info("Origin Toolbox");
 		loadOrComputeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
 			

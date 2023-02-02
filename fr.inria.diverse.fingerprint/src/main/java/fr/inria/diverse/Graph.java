@@ -46,7 +46,12 @@ public class Graph {
         logger.info("Loading label");
         graph.properties.loadLabelNames();
         logger.info("Label loaded");
-        
+        logger.info("Loading origins");
+        this.loadOrigins();
+        logger.info("Origins loaded");
+        logger.info("Loading Last visit");
+        lastSnap= OriginToolbox.loadOrComputeLastSnaps(origins);
+        logger.info("Last visit Loaded");
 
     }
 
