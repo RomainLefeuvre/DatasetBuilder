@@ -1,8 +1,10 @@
 package fr.inria.diverse.tools;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Type;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -33,6 +35,8 @@ import it.unimi.dsi.fastutil.longs.LongBigList;
 import it.unimi.dsi.fastutil.longs.LongMappedBigList;
 import it.unimi.dsi.fastutil.shorts.ShortBigList;
 import it.unimi.dsi.fastutil.shorts.ShortMappedBigList;
+import picocli.CommandLine;
+import picocli.CommandLine.PropertiesDefaultProvider;
 
 /*Class that contains all the different treatments, function needed to integrate
 the last visit of each origin. In fact, it is realy usefull to access such kind of information to build
@@ -41,8 +45,8 @@ to do it directly in the generation of the compressed version of the PropertyGra
 */
 public class OriginToolbox extends SwhGraphProperties {
 	static Logger logger = LogManager.getLogger(OriginToolbox.class);
-	static String resultUri= Configuration.getInstance().getExportPath() + "OriginIdLastSnapIdOriginUri.json";
-	static String originLastSnapUri = Configuration.getInstance().getExportPath() + "originLastSnap.json";
+	static String resultFileName= "OriginIdLastSnapIdOriginUri.json";
+	static String originLastSnapFileName = "originLastSnap.json";
 	//ToDo : use a different way to store data, more space efficient
 	private HashMap<String,Long> originUriLastSnapId;
 	private List<OriginIdLastSnapIdOriginUri> results;
@@ -97,7 +101,7 @@ public class OriginToolbox extends SwhGraphProperties {
 			}
 		}
 		logger.info("Export Result");
-		ToolBox.exportObjectToJson(results, resultUri);
+		ToolBox.exportObjectToJson(results,  Configuration.getInstance().getExportPath() +resultFileName);
 	}
 	
 	public static class OriginIdLastSnapIdOriginUri{
@@ -138,7 +142,7 @@ public class OriginToolbox extends SwhGraphProperties {
 	
 	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps(List<Long> origins) {
 		List<OriginIdLastSnapIdOriginUri> results;
-
+		String resultUri =  Configuration.getInstance().getExportPath() + resultFileName;
 		if(ToolBox.checkIfExist(resultUri)) {
 			logger.info("Loading " + resultUri);
 			Type type = new TypeToken<List<OriginIdLastSnapIdOriginUri>> () {
@@ -167,20 +171,22 @@ public class OriginToolbox extends SwhGraphProperties {
 		return loadOrComputeLastSnaps();
 		
 	}
-	class GraphQueryRunner_ extends GraphQueryRunner {
+	public static class  Runner extends GraphQueryRunner {
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
+			logger.info("Origin Toolbox");
+
+			loadOrComputeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
 
 		}
-		}
+		
+	}
  
 	public static void main(String[] args) throws IOException, InterruptedException {
-		GraphQueryRunner_.init(new String[0]);;
-
-		logger.info("Origin Toolbox");
-		loadOrComputeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
-			
+		Runner runner =new Runner();
+    	runner.init();
+    	runner.execute(new String[0]);
+					
     }
 	
 }

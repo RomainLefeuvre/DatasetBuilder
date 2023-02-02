@@ -58,18 +58,26 @@ public class GraphQueryRunner extends Configuration implements Runnable  {
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		init(args);
+		GraphQueryRunner gqr = new GraphQueryRunner();
+        gqr.init();
+        gqr.execute(args);
+
         //Set<Long> queryResult = new GraphQuery().runQuery();
         
     }
 	
-	public static void init(String[] args) {
-		GraphQueryRunner gqr = new GraphQueryRunner();
-		gqr.cmd = new CommandLine(gqr);
+	public  void init() {
+		cmd = new CommandLine(this);
 		File defaultsFile = Paths.get(DEFAULT_URI,Configuration.CONFIG_FILE_NAME).toFile();
-		gqr.cmd.setDefaultValueProvider(new PropertiesDefaultProvider(defaultsFile));
-		Configuration.instance = gqr;
-		gqr.cmd.execute(args);
+		cmd.setDefaultValueProvider(new PropertiesDefaultProvider(defaultsFile));
+		Configuration.instance = this;
+
+
+	}
+	
+	public void execute(String[] args) {
+        this.cmd.execute(args);
+
 	}
 
 	@Override

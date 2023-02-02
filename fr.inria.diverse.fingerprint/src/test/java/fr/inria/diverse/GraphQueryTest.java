@@ -27,7 +27,9 @@ public class GraphQueryTest {
     private boolean restoreCheckpoint = false;
     @BeforeClass
     public static void init() {
-    	GraphQueryRunnerTest.init(new String[0]);;
+    	GraphQueryRunnerTest runner =new GraphQueryRunnerTest();
+    	runner.init();
+    	runner.execute(new String[0]);
 		
     }
     public GraphQueryTest() throws IOException {
