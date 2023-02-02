@@ -1,6 +1,7 @@
 package fr.inria.diverse.model;
 
 import fr.inria.diverse.Graph;
+import fr.inria.diverse.tools.OriginToolbox;
 import it.unimi.dsi.big.webgraph.LazyLongIterator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,7 @@ public class Origin extends NodeImpl implements Serializable {
 	private static final long serialVersionUID = -7579546333573935591L;
 	static Logger logger = LogManager.getLogger(Origin.class);
 	private List<OriginVisit> originVisits;
+	private OriginVisit lastVisit;
 	private String originUrl;
 
 	public Origin() {
@@ -38,12 +40,17 @@ public class Origin extends NodeImpl implements Serializable {
 	}
 
 	public OriginVisit getLastVisit() {
-		for (OriginVisit originVisit : this.getOriginVisits()) {
-			if (Graph.lastSnap.contains(originVisit.getSnapshot().getNodeId())) {
-				return originVisit;
-			}
-		}
+		if(lastVisit==null)
+			loadOriginIdLastSnapIdOriginUri();
+		if(lastVisit==null)
 		throw new RuntimeException("Last Visit not available for origin node " + this.getNodeId());
+		return lastVisit;
+	}
+	
+	protected void loadOriginIdLastSnapIdOriginUri() {
+		OriginToolbox.OriginIdLastSnapIdOriginUri o =Graph.lastSnap.get(this.getNodeId());
+		this.originUrl=o.getOriginUri();
+		this.lastVisit=new OriginVisit(new Snapshot(o.getLastSnapId(), this.getGraph()));
 	}
 
 	public void setOriginVisit(List<OriginVisit> originVisit) {

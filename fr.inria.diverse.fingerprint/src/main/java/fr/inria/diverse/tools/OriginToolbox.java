@@ -2,20 +2,30 @@ package fr.inria.diverse.tools;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SWHID;
+import org.softwareheritage.graph.SwhType;
+import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import org.softwareheritage.graph.maps.NodeIdMap;
 import org.softwareheritage.graph.maps.NodeTypesMap;
 
+import com.google.gson.reflect.TypeToken;
+
 import fr.inria.diverse.Graph;
+import fr.inria.diverse.LambdaExplorer;
 import it.unimi.dsi.fastutil.bytes.ByteBigList;
 import it.unimi.dsi.fastutil.bytes.ByteMappedBigList;
 import it.unimi.dsi.fastutil.longs.LongBigList;
@@ -28,17 +38,23 @@ the last visit of each origin. In fact, it is realy usefull to access such kind 
 efficient query on the graph. Here we will not integrate it in the most efficient manner, as it is preferable
 to do it directly in the generation of the compressed version of the PropertyGraphDataset.
 */
-public class LastVisits extends SwhGraphProperties {
-	static Logger logger = LogManager.getLogger(LastVisits.class);
+public class OriginToolbox extends SwhGraphProperties {
+	static Logger logger = LogManager.getLogger(OriginToolbox.class);
+	static String resultUri= Configuration.getInstance().getExportPath() + "OriginIdLastSnapIdOriginUri.json";
 	static String originLastSnapUri = Configuration.getInstance().getExportPath() + "originLastSnap.json";
 	//ToDo : use a different way to store data, more space efficient
 	private HashMap<String,Long> originUriLastSnapId;
 	private List<OriginIdLastSnapIdOriginUri> results;
 
-	List<List<String>> lastVisits;
-	private Set<Long> origins;
 
-	public LastVisits() throws IOException {
+	List<List<String>> lastVisits;
+	private List<Long> origins;
+
+	public OriginToolbox() throws IOException {
+		this(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
+	}
+	
+	public OriginToolbox(List<Long> origins) throws IOException {
 		super(Configuration.getInstance().getGraphPath());
 		logger.info("Loading NodeIdMap");
 		this.nodeIdMap=new NodeIdMap(Configuration.getInstance().getGraphPath());
@@ -50,12 +66,10 @@ public class LastVisits extends SwhGraphProperties {
 		this.lastVisits= ToolBox.readCsv(Configuration.getInstance().getGraphPath() + ".lastVisit.csv");
 		logger.info("Loading lastVisits - over");
 		logger.info("Loading origins");
-		this.origins = ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins");
+		this.origins = origins;
 		logger.info("Loading origins - over");
         results= new ArrayList<>();
-		
 	}
-	
 
 	// Use the mph function to get the corresponding swhid, since our swhid are
 	// extract
@@ -76,7 +90,7 @@ public class LastVisits extends SwhGraphProperties {
 			this.results.add(new OriginIdLastSnapIdOriginUri(lastSnapId,url,originId));
 		}
 		logger.info("Export Result");
-		ToolBox.exportObjectToJson(results, Configuration.getInstance().getExportPath() + "OriginIdLastSnapIdOriginUri.json");
+		ToolBox.exportObjectToJson(results, resultUri);
 	}
 	
 	public static class OriginIdLastSnapIdOriginUri{
@@ -110,10 +124,40 @@ public class LastVisits extends SwhGraphProperties {
 		
 		
 	}
+
+	public List<OriginIdLastSnapIdOriginUri> getResults() {
+		return results;
+	}
+	
+	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps(List<Long> origins) {
+		List<OriginIdLastSnapIdOriginUri> results;
+
+		if(ToolBox.checkIfExist(resultUri)) {
+			Type type = new TypeToken<List<OriginIdLastSnapIdOriginUri>> () {
+            }.getType();
+            results =ToolBox.loadJsonObject(resultUri, type);
+		}else {
+			try {
+				OriginToolbox l = new OriginToolbox(origins);
+				l.run();
+				results=l.getResults();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException(e);
+			}
+		}
+		return results.stream().collect(Collectors.toMap(OriginIdLastSnapIdOriginUri::getOriginId, Function.identity()));
+
+		
+	}
+	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps() {
+		return loadOrComputeLastSnaps();
+		
+	}
+	
  
 	public static void main(String[] args) throws IOException, InterruptedException {
-		LastVisits lastVisit = new LastVisits();
-		lastVisit.run();
+		loadOrComputeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
 			
     }
 	
