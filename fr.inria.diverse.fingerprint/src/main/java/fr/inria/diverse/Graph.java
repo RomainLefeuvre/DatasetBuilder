@@ -28,6 +28,12 @@ public class Graph {
      */
     public void loadGraph() throws IOException {
         logger.info("Loading graph " + (this.isMappedMemoryActivated() ? "MAPPED MODE" : ""));
+        logger.info("Loading origins");
+        this.loadOrigins();
+        logger.info("Origins loaded");
+        logger.info("Loading Last visit");
+        lastSnap= OriginToolbox.loadOrComputeLastSnaps(origins);
+        logger.info("Last visit Loaded");
         graph = this.isMappedMemoryActivated() ?
                 SwhUnidirectionalGraph.loadLabelledMapped(this.config.getGraphPath()) :
                 SwhUnidirectionalGraph.loadLabelled(this.config.getGraphPath());
@@ -40,12 +46,7 @@ public class Graph {
         logger.info("Loading label");
         graph.properties.loadLabelNames();
         logger.info("Label loaded");
-        logger.info("Loading origins");
-        this.loadOrigins();
-        logger.info("Origins loaded");
-        logger.info("Loading Last visit");
-        lastSnap= OriginToolbox.loadOrComputeLastSnaps(origins);
-        logger.info("Last visit Loaded");
+        
 
     }
 
