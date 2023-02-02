@@ -85,8 +85,7 @@ public class ToolBox {
 	
 	public static boolean checkIfExist(String path) {
 		Path filePath = Paths.get(path);
-		Path parentDir = filePath.getParent();
-		return Files.exists(parentDir);
+		return Files.exists(filePath);
 	}
 
 	public static String getFileName(DirEntry labelId, SwhUnidirectionalGraph graphCopy) {

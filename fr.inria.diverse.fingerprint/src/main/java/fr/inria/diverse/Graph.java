@@ -2,13 +2,18 @@ package fr.inria.diverse;
 
 import fr.inria.diverse.tools.Configuration;
 import fr.inria.diverse.tools.ToolBox;
+import fr.inria.diverse.tools.OriginToolbox;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SWHID;
 import org.softwareheritage.graph.SwhType;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
+import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,7 +22,7 @@ public class Graph {
     protected SwhUnidirectionalGraph graph;
     protected Configuration config = Configuration.getInstance();
     protected List<Long> origins;
-    public static Set<Long> lastSnap = new HashSet<>();
+    public static  Map<Long, OriginToolbox.OriginIdLastSnapIdOriginUri>  lastSnap;
     /**
      * Load the transposed Graph
      */
@@ -35,7 +40,11 @@ public class Graph {
         logger.info("Loading label");
         graph.properties.loadLabelNames();
         logger.info("Label loaded");
-        loadLastVisit();
+        logger.info("Loading origins");
+        this.loadOrigins();
+        logger.info("Origins loaded");
+        logger.info("Loading Last visit");
+        lastSnap= OriginToolbox.loadOrComputeLastSnaps(origins);
         logger.info("Last visit Loaded");
 
     }
@@ -51,8 +60,12 @@ public class Graph {
     public void setGraph(SwhUnidirectionalGraph graph) {
         this.graph = graph;
     }
+    
+    public List<Long> getOrigins(){
+    	return this.origins;
+    }
 
-    public List<Long> getOrigins() {
+    private void loadOrigins() {
         if(origins==null){
             logger.info("------Loading Origins------");
             try {
@@ -78,19 +91,11 @@ public class Graph {
                 throw new RuntimeException("Error while retrieving origin");
             }
         }
-        return origins;
     }
+    
+    
 
-    public void loadLastVisit(){
-        List<List<String>> lastVisits = ToolBox.readCsv(Configuration.getInstance().getGraphPath()+".lastVisit.csv");
-        for(List<String> l : lastVisits){
-            try {
-                lastSnap.add(this.graph.getNodeId(new SWHID("swh:1:snp:" + l.get(2))));
-            }catch(Exception e){
-                logger.warn("error while retrieving last visit "+ l);
-            }
-        }
-    }
+  
 
 
 

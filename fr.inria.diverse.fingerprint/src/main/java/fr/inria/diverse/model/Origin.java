@@ -10,6 +10,7 @@ import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Origin extends NodeImpl implements Serializable {
 	private static final long serialVersionUID = -7579546333573935591L;
@@ -48,9 +49,11 @@ public class Origin extends NodeImpl implements Serializable {
 	}
 	
 	protected void loadOriginIdLastSnapIdOriginUri() {
+		Map<Long, OriginToolbox.OriginIdLastSnapIdOriginUri> lastSnap= Graph.lastSnap ;
 		OriginToolbox.OriginIdLastSnapIdOriginUri o =Graph.lastSnap.get(this.getNodeId());
-		this.originUrl=o.getOriginUri();
 		this.lastVisit=new OriginVisit(new Snapshot(o.getLastSnapId(), this.getGraph()));
+		this.originUrl=o.getOriginUri();
+
 	}
 
 	public void setOriginVisit(List<OriginVisit> originVisit) {

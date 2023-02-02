@@ -69,6 +69,7 @@ public class OriginToolbox extends SwhGraphProperties {
 		this.origins = origins;
 		logger.info("Loading origins - over");
         results= new ArrayList<>();
+        originUriLastSnapId =  new HashMap<>();
 	}
 
 	// Use the mph function to get the corresponding swhid, since our swhid are
@@ -80,14 +81,19 @@ public class OriginToolbox extends SwhGraphProperties {
 			try {
 				originUriLastSnapId.put(l.get(0), this.nodeIdMap.getNodeId(new SWHID("swh:1:snp:" + l.get(2)), false));
 			} catch (Exception e) {
-				logger.warn("error while retrieving last visit " + l);
+				logger.warn("error while retrieving last visit " + l,e);
 			}
 		}
 		logger.info("Populate OriginIdLastSnapId");
 		for(Long originId : origins) {
 			String url = this.getUrl(originId);
-			Long lastSnapId= this.originUriLastSnapId.get(url);
-			this.results.add(new OriginIdLastSnapIdOriginUri(lastSnapId,url,originId));
+			if(this.originUriLastSnapId.containsKey(url)) {
+				Long lastSnapId= this.originUriLastSnapId.get(url);
+				this.results.add(new OriginIdLastSnapIdOriginUri(lastSnapId,url,originId));
+
+			}else {
+				logger.warn("Skipping "+originId+" "+url);
+			}
 		}
 		logger.info("Export Result");
 		ToolBox.exportObjectToJson(results, resultUri);
@@ -133,14 +139,20 @@ public class OriginToolbox extends SwhGraphProperties {
 		List<OriginIdLastSnapIdOriginUri> results;
 
 		if(ToolBox.checkIfExist(resultUri)) {
+			logger.info("Loading " + resultUri);
 			Type type = new TypeToken<List<OriginIdLastSnapIdOriginUri>> () {
             }.getType();
             results =ToolBox.loadJsonObject(resultUri, type);
+			logger.info("Loading " + resultUri+" ");
+
 		}else {
 			try {
+				logger.info("Computing " + resultUri);
 				OriginToolbox l = new OriginToolbox(origins);
 				l.run();
 				results=l.getResults();
+				logger.info("Computing " + resultUri+" over");
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				throw new RuntimeException(e);
@@ -157,6 +169,7 @@ public class OriginToolbox extends SwhGraphProperties {
 	
  
 	public static void main(String[] args) throws IOException, InterruptedException {
+		logger.info("Origin Toolbox");
 		loadOrComputeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
 			
     }
