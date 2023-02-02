@@ -3,6 +3,7 @@ package fr.inria.diverse;
 import fr.inria.diverse.Graph;
 import fr.inria.diverse.LambdaExplorer;
 import fr.inria.diverse.model.Origin;
+import fr.inria.diverse.query.GraphQueryRunner;
 import fr.inria.diverse.tools.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +27,8 @@ public class GraphQueryTest {
     private boolean restoreCheckpoint = false;
     @BeforeClass
     public static void init() {
-        Configuration.init();
+    	GraphQueryRunnerTest.init(new String[0]);;
+		
     }
     public GraphQueryTest() throws IOException {
         g = new Graph();

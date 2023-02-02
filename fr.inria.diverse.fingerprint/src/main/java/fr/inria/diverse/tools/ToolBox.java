@@ -82,6 +82,12 @@ public class ToolBox {
 		if (!Files.exists(parentDir))
 			Files.createDirectories(parentDir);
 	}
+	
+	public static boolean checkIfExist(String path) {
+		Path filePath = Paths.get(path);
+		Path parentDir = filePath.getParent();
+		return Files.exists(parentDir);
+	}
 
 	public static String getFileName(DirEntry labelId, SwhUnidirectionalGraph graphCopy) {
 		return new String(graphCopy.getLabelName(labelId.filenameId));

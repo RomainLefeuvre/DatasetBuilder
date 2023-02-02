@@ -22,7 +22,7 @@ import picocli.CommandLine.Option;
 )
 public class GraphQueryRunner extends Configuration implements Runnable  {
 	static Logger logger = LogManager.getLogger(GraphQueryRunner.class);
-	
+	private CommandLine cmd;
 	@Option(names = {"--graphPath","-g"},description = "The graph path", required = true)
 	private String graphPath;
 	@Option(names = {"--threadNumber","-t"},description = "The number of thread the query will use")
@@ -58,19 +58,22 @@ public class GraphQueryRunner extends Configuration implements Runnable  {
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		GraphQueryRunner gqr = new GraphQueryRunner();
-		CommandLine cmd = new CommandLine(gqr);
-		File defaultsFile = Paths.get(DEFAULT_URI,Configuration.CONFIG_FILE_NAME).toFile();
-		cmd.setDefaultValueProvider(new PropertiesDefaultProvider(defaultsFile));
-		cmd.execute(args);
-		Configuration c = Configuration.getInstance();
+		init(args);
         //Set<Long> queryResult = new GraphQuery().runQuery();
         
     }
+	
+	public static void init(String[] args) {
+		GraphQueryRunner gqr = new GraphQueryRunner();
+		gqr.cmd = new CommandLine(gqr);
+		File defaultsFile = Paths.get(DEFAULT_URI,Configuration.CONFIG_FILE_NAME).toFile();
+		gqr.cmd.setDefaultValueProvider(new PropertiesDefaultProvider(defaultsFile));
+		Configuration.instance = gqr;
+		gqr.cmd.execute(args);
+	}
 
 	@Override
 	public void run() {
-		Configuration.instance = this;
 		logger.info(this);
 		// TODO Auto-generated method stub
 		
