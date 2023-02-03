@@ -87,7 +87,7 @@ public class OriginToolbox extends SwhGraphProperties {
 	public void run() {
 		
 		logger.info("Populate originUriLastSnapId");
-		this.lastVisits.parallelStream().map(l ->{
+		this.originUriLastSnapId =(HashMap<String, Long>) this.lastVisits.parallelStream().map(l ->{
 			Map.Entry<String,Long> entry=null;
 			try {
 				String url =l.get(0);
@@ -107,7 +107,7 @@ public class OriginToolbox extends SwhGraphProperties {
 			OriginIdLastSnapIdOriginUri r=null;
 			if(this.originUriLastSnapId.containsKey(url)) {
 				Long lastSnapId= this.originUriLastSnapId.get(url);
-				this.results.add(new OriginIdLastSnapIdOriginUri(lastSnapId,url,originId));
+				r=new OriginIdLastSnapIdOriginUri(lastSnapId,url,originId);
 
 			}else {
 				logger.warn("Skipping "+originId+" "+url);
