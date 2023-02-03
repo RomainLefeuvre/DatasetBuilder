@@ -156,7 +156,6 @@
 									</excludes>
 								</filter>
 							</filters>
-                        <outputDirectory>../release</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
