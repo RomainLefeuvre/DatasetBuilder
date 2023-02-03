@@ -100,7 +100,7 @@ public class SwhGraphProperties implements FlyweightPrototype<SwhGraphProperties
     }
 
     public SwhGraphProperties copy() {
-        return new SwhGraphProperties(path, nodeIdMap.copy(), nodeTypesMap.copy(),
+        return new SwhGraphProperties(path, nodeIdMap.copy(), nodeTypesMap==null ? null :nodeTypesMap.copy(),
                 ((authorTimestamp instanceof LongMappedBigList)
                         ? ((LongMappedBigList) authorTimestamp).copy()
                         : authorTimestamp),

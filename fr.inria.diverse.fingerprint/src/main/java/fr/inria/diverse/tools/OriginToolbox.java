@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -69,9 +70,12 @@ public class OriginToolbox extends SwhGraphProperties {
 		logger.info("Loading messages - over");
 		logger.info("Loading lastVisits");
 		this.lastVisits= ToolBox.readCsv(Configuration.getInstance().getGraphPath() + ".lastVisit.csv");
+		assert(lastVisits!=null && lastVisits.size()>0);
+
 		logger.info("Loading lastVisits - over");
 		logger.info("Loading origins");
 		this.origins = origins;
+		assert(origins!=null && origins.size()>0);
 		logger.info("Loading origins - over");
         results= new ArrayList<>();
         originUriLastSnapId =  new HashMap<>();
@@ -81,17 +85,26 @@ public class OriginToolbox extends SwhGraphProperties {
 	// extract
 	// from the relation version we assume that the corresponding id exists
 	public void run() {
+		
 		logger.info("Populate originUriLastSnapId");
-		for (List<String> l : lastVisits) {
+		this.lastVisits.parallelStream().map(l ->{
+			Map.Entry<String,Long> entry=null;
 			try {
-				originUriLastSnapId.put(l.get(0), this.nodeIdMap.getNodeId(new SWHID("swh:1:snp:" + l.get(2)), false));
+				String url =l.get(0);
+				//Todo Find a trick to avoid to do a lightweight copy for each element, we only need to do it for each thread
+				//We can imagine a thread pool mechanism ...
+				Long snapId=this.nodeIdMap.copy().getNodeId(new SWHID("swh:1:snp:" + l.get(2)), false);
+				entry= new AbstractMap.SimpleImmutableEntry<String,Long>(url,snapId);
 			} catch (Exception e) {
 				logger.warn("error while retrieving last visit " + l,e);
 			}
-		}
+			return entry;
+		}).filter(entry -> entry!=null).collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
+		
 		logger.info("Populate OriginIdLastSnapId");
-		for(Long originId : origins) {
-			String url = this.getUrl(originId);
+		this.results= origins.parallelStream().map(originId -> {
+			String url = this.copy().getUrl(originId);
+			OriginIdLastSnapIdOriginUri r=null;
 			if(this.originUriLastSnapId.containsKey(url)) {
 				Long lastSnapId= this.originUriLastSnapId.get(url);
 				this.results.add(new OriginIdLastSnapIdOriginUri(lastSnapId,url,originId));
@@ -99,7 +112,9 @@ public class OriginToolbox extends SwhGraphProperties {
 			}else {
 				logger.warn("Skipping "+originId+" "+url);
 			}
-		}
+			return r;
+		}).filter(obj -> obj!=null).collect(Collectors.toList());
+
 		logger.info("Export Result");
 		ToolBox.exportObjectToJson(results,  Configuration.getInstance().getExportPath() +resultFileName);
 	}
@@ -151,20 +166,6 @@ public class OriginToolbox extends SwhGraphProperties {
 			logger.info("Loading " + resultUri+" ");
 
 		}else {
-			results=computeLastSnaps(origins);
-		}
-		return results.stream().collect(Collectors.toMap(OriginIdLastSnapIdOriginUri::getOriginId, Function.identity()));
-
-		
-	}
-	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps() {
-		return loadOrComputeLastSnaps();
-		
-	}
-	public static List<OriginIdLastSnapIdOriginUri> computeLastSnaps(List<Long> origins) {
-		List<OriginIdLastSnapIdOriginUri> results;
-		String resultUri =  Configuration.getInstance().getExportPath() + resultFileName;
-		
 			try {
 				logger.info("Computing " + resultUri);
 				OriginToolbox l = new OriginToolbox(origins);
@@ -176,16 +177,26 @@ public class OriginToolbox extends SwhGraphProperties {
 				// TODO Auto-generated catch block
 				throw new RuntimeException(e);
 			}
-		return results;
+		}
+		return results.stream().collect(Collectors.toMap(OriginIdLastSnapIdOriginUri::getOriginId, Function.identity()));
 
 		
 	}
+	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps() {
+		return loadOrComputeLastSnaps();
+		
+	}
+	
 	public static class  Runner extends GraphQueryRunner {
 		@Override
 		public void run() {
 			logger.info("Origin Toolbox");
-
-			computeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
+             try {
+				(new OriginToolbox(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"))).run();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 		
