@@ -14,7 +14,7 @@ git checkout v2.2.0-threadSafe
 #Update the pom.xml
 #mvn versions:set -DnewVersion=$version
 #Install it in your repository
-mvn clean install
+mvn clean install -Dmaven.javadoc.skip=true
 cd ../../
 #Remove the temp folder
 rm -r -f ./swh-graph/
