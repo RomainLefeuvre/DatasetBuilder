@@ -151,6 +151,20 @@ public class OriginToolbox extends SwhGraphProperties {
 			logger.info("Loading " + resultUri+" ");
 
 		}else {
+			results=computeLastSnaps(origins);
+		}
+		return results.stream().collect(Collectors.toMap(OriginIdLastSnapIdOriginUri::getOriginId, Function.identity()));
+
+		
+	}
+	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps() {
+		return loadOrComputeLastSnaps();
+		
+	}
+	public static List<OriginIdLastSnapIdOriginUri> computeLastSnaps(List<Long> origins) {
+		List<OriginIdLastSnapIdOriginUri> results;
+		String resultUri =  Configuration.getInstance().getExportPath() + resultFileName;
+		
 			try {
 				logger.info("Computing " + resultUri);
 				OriginToolbox l = new OriginToolbox(origins);
@@ -162,13 +176,8 @@ public class OriginToolbox extends SwhGraphProperties {
 				// TODO Auto-generated catch block
 				throw new RuntimeException(e);
 			}
-		}
-		return results.stream().collect(Collectors.toMap(OriginIdLastSnapIdOriginUri::getOriginId, Function.identity()));
+		return results;
 
-		
-	}
-	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps() {
-		return loadOrComputeLastSnaps();
 		
 	}
 	public static class  Runner extends GraphQueryRunner {
@@ -176,7 +185,7 @@ public class OriginToolbox extends SwhGraphProperties {
 		public void run() {
 			logger.info("Origin Toolbox");
 
-			loadOrComputeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
+			computeLastSnaps(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
 
 		}
 		
