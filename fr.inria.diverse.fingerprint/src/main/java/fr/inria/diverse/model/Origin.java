@@ -48,12 +48,14 @@ public class Origin extends NodeImpl implements Serializable {
 		return lastVisit;
 	}
 	
-	protected void loadOriginIdLastSnapIdOriginUri() {
-		Map<Long, OriginToolbox.OriginIdLastSnapIdOriginUri> lastSnap= Graph.lastSnap ;
-		OriginToolbox.OriginIdLastSnapIdOriginUri o =Graph.lastSnap.get(this.getNodeId());
-		this.lastVisit=new OriginVisit(new Snapshot(o.getLastSnapId(), this.getGraph()));
-		this.originUrl=o.getOriginUri();
-
+	protected void loadOriginIdLastSnapIdOriginUri() {		
+		    if(Graph.lastSnap.containsKey(this.getNodeId())) {
+				OriginToolbox.OriginIdLastSnapIdOriginUri o =Graph.lastSnap.get(this.getNodeId());
+				if(o.getLastSnapId()!=null)
+					this.lastVisit=new OriginVisit(new Snapshot(o.getLastSnapId(), this.getGraph()));
+				if(o.getOriginUri()!=null)
+					this.originUrl=o.getOriginUri();
+		    }
 	}
 
 	public void setOriginVisit(List<OriginVisit> originVisit) {
