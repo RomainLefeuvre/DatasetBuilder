@@ -99,9 +99,13 @@ public class OriginToolbox extends SwhGraphProperties {
 				logger.warn("error while retrieving last visit " + l,e);
 			}
 			return entry;
-		}).filter(entry -> entry!=null).collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue,(url1,url2)->{
+		}).filter(entry -> entry!=null).collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue,(Long lastSnapId, Long lastSnapId2)->{
 			logger.warn("Duplicate Keys found ");
-			return url1;
+			if(lastSnapId!=null)
+				return lastSnapId;
+			else {
+				return lastSnapId2;
+			}
 			
 		}));
 		
