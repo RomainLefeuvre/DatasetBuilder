@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
+import fr.inria.diverse.tools.ModelInconsistencyException;
+
 import java.io.Serializable;
 
 public class Revision extends NodeImpl implements Serializable, SnapshotChild, DirectoryChild {
@@ -33,7 +35,7 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 		if (this.commiterTimestamp == null) {
 			this.commiterTimestamp = this.getGraph().copy().getCommitterTimestamp(this.getNodeId());
 			if (this.commiterTimestamp == null) {
-				throw new RuntimeException("No commiter timestamp for " + this.getNodeId());
+				throw new ModelInconsistencyException("No commiter timestamp for " + this.getNodeId());
 			}
 		}
 		return commiterTimestamp;

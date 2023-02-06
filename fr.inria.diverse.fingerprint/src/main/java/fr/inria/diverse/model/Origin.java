@@ -1,6 +1,7 @@
 package fr.inria.diverse.model;
 
 import fr.inria.diverse.Graph;
+import fr.inria.diverse.tools.ModelInconsistencyException;
 import fr.inria.diverse.tools.OriginToolbox;
 import it.unimi.dsi.big.webgraph.LazyLongIterator;
 import org.apache.logging.log4j.LogManager;
@@ -40,21 +41,27 @@ public class Origin extends NodeImpl implements Serializable {
 		return originVisits;
 	}
 
-	public OriginVisit getLastVisit() {
+	public OriginVisit getLastVisit()   {
 		if(lastVisit==null)
 			loadOriginIdLastSnapIdOriginUri();
 		if(lastVisit==null)
-		throw new RuntimeException("Last Visit not available for origin node " + this.getNodeId());
+		throw new ModelInconsistencyException("Last Visit not available for origin node " + this.getNodeId());
 		return lastVisit;
 	}
 	
-	protected void loadOriginIdLastSnapIdOriginUri() {		
+	protected void loadOriginIdLastSnapIdOriginUri()  {		
 		    if(Graph.lastSnap.containsKey(this.getNodeId())) {
 				OriginToolbox.OriginIdLastSnapIdOriginUri o =Graph.lastSnap.get(this.getNodeId());
-				if(o.getLastSnapId()!=null)
+				if(o==null) {
+					throw new ModelInconsistencyException("Cannot find last Snap for given origin "+this.getNodeId());
+				}
+				if(o!=null && o.getLastSnapId()!=null)
 					this.lastVisit=new OriginVisit(new Snapshot(o.getLastSnapId(), this.getGraph()));
-				if(o.getOriginUri()!=null)
+				if(o!=null && o.getOriginUri()!=null)
 					this.originUrl=o.getOriginUri();
+		    }else {
+				throw new ModelInconsistencyException("Cannot find last Snap for given origin "+this.getNodeId());
+
 		    }
 	}
 
