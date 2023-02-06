@@ -210,7 +210,7 @@ public class OriginToolbox extends SwhGraphProperties {
 		
 	}
  
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws IOException {
 		Runner runner =new Runner();
     	runner.init();
     	runner.execute(new String[0]);
