@@ -4,6 +4,8 @@ import fr.inria.diverse.Graph;
 import fr.inria.diverse.LambdaExplorer;
 import fr.inria.diverse.model.Origin;
 import fr.inria.diverse.tools.Configuration;
+import fr.inria.diverse.tools.ModelInconsistencyException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SWHID;
@@ -32,20 +34,19 @@ public class GraphQuery {
             @Override
             public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
                 Origin origin = new Origin(currentElement, graphCopy);
-                boolean predicateResult =
-                        origin.getLastVisit().getSnapshot().getBranches().stream().anyMatch(branche ->
-                                ((branche.getName().equals("refs/heads/master") ||
-                                        branche.getName().equals("refs/heads/main"))
-                                        &&
-                                        optimizationPredicate1_3(branche)
-                                        &&
-                                        DirectoryEntryClosure5(branche.getRevision().getTree().getEntries().stream().collect(Collectors.toSet()))
-                                                .stream().anyMatch(e ->
-                                                        e.getName().equals("AndroidManifest.xml")
-                                                ))
-                        )
-
-                        ;
+                boolean predicateResult=false;
+					predicateResult = origin.getLastVisit().getSnapshot().getBranches().stream().anyMatch(branche ->
+					        ((branche.getName().equals("refs/heads/master") ||
+					                branche.getName().equals("refs/heads/main"))
+					                &&
+					                optimizationPredicate1_3(branche)
+					                &&
+					                DirectoryEntryClosure5(branche.getRevision().getTree().getEntries().stream().collect(Collectors.toSet()))
+					                        .stream().anyMatch(e ->
+					                                e.getName().equals("AndroidManifest.xml")
+					                        ))
+					);
+				
                 if (predicateResult) {
                     result.add(currentElement);
                 }

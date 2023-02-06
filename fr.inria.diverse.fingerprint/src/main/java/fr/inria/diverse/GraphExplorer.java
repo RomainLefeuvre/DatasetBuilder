@@ -2,6 +2,7 @@ package fr.inria.diverse;
 
 import fr.inria.diverse.tools.Configuration;
 import fr.inria.diverse.tools.Executor;
+import fr.inria.diverse.tools.ModelInconsistencyException;
 import fr.inria.diverse.tools.ToolBox;
 import org.apache.hadoop.util.Time;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +14,7 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -33,12 +35,12 @@ public abstract class GraphExplorer<T extends Serializable> {
     //A counter to keep the index of the exploration
     protected AtomicLong counter;
     //The result of the exploration that will be exported
-    protected ArrayList<T> result;
+    protected List<T> result;
 
 
     //Nb: you are responsible to properly initialize the result attribute in your subClass
     public GraphExplorer(Graph graph) {
-        this.result=new ArrayList<>();
+        this.result= Collections.synchronizedList( new ArrayList<T>());
         this.graph = graph;
         this.checkpointSynchro = new Semaphore(this.config.getThreadNumber(),true);
         this.counter = new AtomicLong(-1);
@@ -74,7 +76,11 @@ public abstract class GraphExplorer<T extends Serializable> {
                     try {
                         this.checkpointSynchro.acquire();
                         this.exploreGraphNodeAction(i, graphCopy.copy());
-                    } catch (Throwable e) {
+                   
+                    } catch (ModelInconsistencyException e) {
+    					logger.warn("Inconsistency detected - Due to :"+e.getMessage());
+    				}
+                    catch (Throwable e) {
                         logger.error("Error catch for index " + i, e);
                     }
                     this.checkpointSynchro.release();
@@ -125,14 +131,14 @@ public abstract class GraphExplorer<T extends Serializable> {
      */
     protected void restoreCheckpoint() {
         //Try to restore previous partial experiment
-        ArrayList<T> checkpointResult = ToolBox.deserialize(this.getExportPath());
+        List<T> checkpointResult = ToolBox.deserialize(this.getExportPath());
         AtomicLong checkpointCounter = ToolBox.deserialize(this.getExportCounterPath());
         if (checkpointCounter == null || checkpointCounter.get() == 0 || checkpointResult == null) {
             logger.info("No checkpoint to restart from");
         } else {
             logger.info("Checkpoint found, restart from it, start at node " + checkpointCounter.get());
             this.counter = checkpointCounter;
-            this.result = checkpointResult;
+            this.result =  Collections.synchronizedList(checkpointResult);
         }
     }
     protected abstract String getExportPath();
