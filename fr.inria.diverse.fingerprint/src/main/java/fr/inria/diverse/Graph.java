@@ -73,9 +73,8 @@ public class Graph {
                     @Override
                     public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
                         if (graphCopy.getNodeType(currentElement) == SwhType.ORI) {
-                            synchronized (result) {
-                                result.add(currentElement);
-                            }
+                             result.add(currentElement);
+                            
                         }
                     }
                     @Override
