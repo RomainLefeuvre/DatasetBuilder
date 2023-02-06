@@ -11,10 +11,10 @@
             <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%n"/>
         </File>
     </Appenders>
-    <Loggers>
-        <Root level="INFO">
+	<Loggers>
+        <AsyncRoot level="INFO">
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="FileLogging"/>
-        </Root>
+        </AsyncRoot>
     </Loggers>
 </Configuration>
