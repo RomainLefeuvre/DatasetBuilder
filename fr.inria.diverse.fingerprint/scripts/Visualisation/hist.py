@@ -16,7 +16,7 @@ def run(query_result_path, originid_lastsnapid_originuri_path):
     resDf['forge']=resDf.apply(lambda x: urlparse(x['originUri']).netloc, axis=1)
     res=resDf.forge.value_counts()
     fig=res.plot(kind='bar').figure
-    fig.savefig('hist.png')
+    fig.savefig('hist.png',bbox_inches='tight')
     print(res)
     
 if __name__ == '__main__':
