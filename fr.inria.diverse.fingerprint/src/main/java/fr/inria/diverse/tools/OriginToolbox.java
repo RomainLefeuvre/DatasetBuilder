@@ -48,7 +48,7 @@ public class OriginToolbox extends SwhGraphProperties {
 	Dataset<Row> originVisitStatus;
 	private List<Long> origins;
 	// Bypass origin termination check to avoid graph loading
-	private Boolean bypass;
+	private Boolean bypass = false;
 
 	public OriginToolbox(Boolean bypass) throws IOException {
 		super(Configuration.getInstance().getGraphPath());
@@ -62,7 +62,8 @@ public class OriginToolbox extends SwhGraphProperties {
 	}
 
 	public void init() throws IOException {
-		spark = SparkSession.builder().appName("dataSetBuilder").config("spark.master", "local").getOrCreate();
+		spark = SparkSession.builder().appName("dataSetBuilder").config("spark.master", "local")
+				.config("spark.cores.max", Configuration.getInstance().getThreadNumber()).getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
 		originVisitStatus = spark.read().format("orc")
 				.load(Configuration.getInstance().getGraphPath() + "_orc_origin_visit_status/");
