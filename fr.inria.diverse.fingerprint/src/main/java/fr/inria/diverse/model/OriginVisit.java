@@ -10,7 +10,7 @@ public class OriginVisit implements Serializable {
 	public OriginVisit() {
 	}
 
-	public OriginVisit(Long timestamp, Snapshot snapshot) {
+	public OriginVisit(Snapshot snapshot, Long timestamp) {
 		this.timestamp = timestamp;
 		this.snapshot = snapshot;
 	}
@@ -34,4 +34,5 @@ public class OriginVisit implements Serializable {
 	public void setSnapshot(Snapshot snapshot) {
 		this.snapshot = snapshot;
 	}
+
 }

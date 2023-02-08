@@ -1,17 +1,18 @@
 package fr.inria.diverse.model;
 
-import fr.inria.diverse.Graph;
-import fr.inria.diverse.tools.ModelInconsistencyException;
-import fr.inria.diverse.tools.OriginToolbox;
-import it.unimi.dsi.big.webgraph.LazyLongIterator;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import fr.inria.diverse.Graph;
+import fr.inria.diverse.tools.ModelInconsistencyException;
+import fr.inria.diverse.tools.OriginToolbox.OriginMap.SnapTimestampMap;
+import it.unimi.dsi.big.webgraph.LazyLongIterator;
 
 public class Origin extends NodeImpl implements Serializable {
 	private static final long serialVersionUID = -7579546333573935591L;
@@ -33,36 +34,28 @@ public class Origin extends NodeImpl implements Serializable {
 		if (originVisits == null) {
 			this.originVisits = new ArrayList<>();
 			LazyLongIterator it = this.getGraph().copy().successors(this.getNodeId());
-			for (long childId; (childId = it.nextLong()) != -1;) {
-				originVisits.add(new OriginVisit(new Snapshot(childId, this.getGraph())));
+			SnapTimestampMap snaps = Graph.lastSnap.getSnaps(this.getNodeId());
+			if (snaps != null) {
+				for (long snapId; (snapId = it.nextLong()) != -1;) {
+					Long snapTimestamp = snaps.getTimestamp(snapId);
+
+					if (snapTimestamp != null) {
+						originVisits.add(new OriginVisit(new Snapshot(snapId, this.getGraph()), snapTimestamp));
+					} else {
+						throw new ModelInconsistencyException(
+								"Snap " + snapId + " not found for origin " + this.getNodeId());
+					}
+				}
+			} else {
+				throw new ModelInconsistencyException("No full originVisit for " + this.getNodeId());
 			}
 		}
-		// Todo Restore it from a file
 		return originVisits;
 	}
 
-	public OriginVisit getLastVisit()   {
-		if(lastVisit==null)
-			loadOriginIdLastSnapIdOriginUri();
-		if(lastVisit==null)
-		throw new ModelInconsistencyException("Last Visit not available for origin node " + this.getNodeId());
-		return lastVisit;
-	}
-	
-	protected void loadOriginIdLastSnapIdOriginUri()  {		
-		    if(Graph.lastSnap.containsKey(this.getNodeId())) {
-				OriginToolbox.OriginIdLastSnapIdOriginUri o =Graph.lastSnap.get(this.getNodeId());
-				if(o==null) {
-					throw new ModelInconsistencyException("Cannot find last Snap for given origin "+this.getNodeId());
-				}
-				if(o!=null && o.getLastSnapId()!=null)
-					this.lastVisit=new OriginVisit(new Snapshot(o.getLastSnapId(), this.getGraph()));
-				if(o!=null && o.getOriginUri()!=null)
-					this.originUrl=o.getOriginUri();
-		    }else {
-				throw new ModelInconsistencyException("Cannot find last Snap for given origin "+this.getNodeId());
-
-		    }
+	public OriginVisit getLastOriginVisit() {
+		return this.getOriginVisits().stream().max(Comparator.comparing(OriginVisit::getTimestamp))
+				.orElseThrow(() -> new ModelInconsistencyException("No full originVisit for " + this.getNodeId()));
 	}
 
 	public void setOriginVisit(List<OriginVisit> originVisit) {
@@ -79,4 +72,5 @@ public class Origin extends NodeImpl implements Serializable {
 	public void setOriginUrl(String originUrl) {
 		this.originUrl = originUrl;
 	}
+
 }

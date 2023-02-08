@@ -1,43 +1,29 @@
 package fr.inria.diverse.tools;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.lang.reflect.Type;
-import java.nio.file.Paths;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
+import org.apache.spark.storage.StorageLevel;
 import org.softwareheritage.graph.SWHID;
-import org.softwareheritage.graph.SwhType;
-import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import org.softwareheritage.graph.maps.NodeIdMap;
-import org.softwareheritage.graph.maps.NodeTypesMap;
 
 import com.google.gson.reflect.TypeToken;
 
-import fr.inria.diverse.Graph;
-import fr.inria.diverse.LambdaExplorer;
 import fr.inria.diverse.query.GraphQueryRunner;
-import it.unimi.dsi.fastutil.bytes.ByteBigList;
-import it.unimi.dsi.fastutil.bytes.ByteMappedBigList;
-import it.unimi.dsi.fastutil.longs.LongBigList;
-import it.unimi.dsi.fastutil.longs.LongMappedBigList;
-import it.unimi.dsi.fastutil.shorts.ShortBigList;
-import it.unimi.dsi.fastutil.shorts.ShortMappedBigList;
-import picocli.CommandLine;
-import picocli.CommandLine.PropertiesDefaultProvider;
+import scala.Tuple2;
 
 /*Class that contains all the different treatments, function needed to integrate
 the last visit of each origin. In fact, it is realy usefull to access such kind of information to build
@@ -46,175 +32,224 @@ to do it directly in the generation of the compressed version of the PropertyGra
 */
 public class OriginToolbox extends SwhGraphProperties {
 	static Logger logger = LogManager.getLogger(OriginToolbox.class);
-	static String resultFileName= "OriginIdLastSnapIdOriginUri.json";
-	static String originLastSnapFileName = "originLastSnap.json";
-	//ToDo : use a different way to store data, more space efficient
-	private HashMap<String,Long> originUriLastSnapId;
-	private List<OriginIdLastSnapIdOriginUri> results;
-
-
+	static String resultFileName = "originsSnaps.json";
+	// ToDo : use a different way to store data, more space efficient
+	private HashMap<String, Long> originUriLastSnapId;
+	private OriginMap results;
+	private SparkSession spark;
+	Dataset<Row> originVisitStatus;
 	List<List<String>> lastVisits;
 	private List<Long> origins;
 
 	public OriginToolbox() throws IOException {
-		this(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"));
+		this(ToolBox.deserialize(Configuration.getInstance().getExportPath() + "origins/origins"));
+
 	}
-	
+
 	public OriginToolbox(List<Long> origins) throws IOException {
 		super(Configuration.getInstance().getGraphPath());
+		spark = SparkSession.builder().appName("dataSetBuilder").config("spark.master", "local").getOrCreate();
+		Dataset<String> logData = spark.read().textFile("./log").cache();
+		originVisitStatus = spark.read().format("orc")
+				.load(Configuration.getInstance().getGraphPath() + "_orc_origin_visit_status/");
+		originVisitStatus.createOrReplaceTempView("originVisitStatus");
+		originVisitStatus.persist(StorageLevel.MEMORY_ONLY());
+		logger.info("OriginVisistStatus Loaded, " + originVisitStatus.count() + " rows");
+
 		logger.info("Loading NodeIdMap");
-		this.nodeIdMap=new NodeIdMap(Configuration.getInstance().getGraphPath());
+		this.nodeIdMap = new NodeIdMap(Configuration.getInstance().getGraphPath());
 		logger.info("Loading NodeIdMap - over");
 		logger.info("Loading messages");
 		this.loadMessages();
 		logger.info("Loading messages - over");
 		logger.info("Loading lastVisits");
-		this.lastVisits= ToolBox.readCsv(Configuration.getInstance().getGraphPath() + ".lastVisit.csv");
-		assert(lastVisits!=null && lastVisits.size()>0);
 
-		logger.info("Loading lastVisits - over");
 		logger.info("Loading origins");
 		this.origins = origins;
-		assert(origins!=null && origins.size()>0);
+		assert (origins != null && origins.size() > 0);
 		logger.info("Loading origins - over");
-        results= new ArrayList<>();
-        originUriLastSnapId =  new HashMap<>();
+		results = new OriginMap();
+	}
+
+	/**
+	 * Get the list of OriginIdLastSnapIdOriginUri ie. for each origin retrieve its
+	 * snapshot id and the corresponding timestamp
+	 * 
+	 * @param originIdUrlTuple A list of tuple <OriginUrl,OriginId>
+	 * @return List<OriginIdLastSnapIdOriginUri>
+	 */
+	public OriginMap getSnapshotsFromRelationalVersion(List<Tuple2<String, Long>> originIdUrlTuple) {
+		// Convert the hashmap to a list of Row
+		List<Row> originIdUrl = originIdUrlTuple.parallelStream().map(tuple -> RowFactory.create(tuple._1, tuple._2))
+				.collect(Collectors.toList());
+		// The Schema of the new DF that will be created
+		StructType schema = DataTypes.createStructType(
+				new StructField[] { DataTypes.createStructField("originUrl", DataTypes.StringType, false),
+						DataTypes.createStructField("originId", DataTypes.LongType, false) });
+		// Create the dataframe
+		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema);
+		// Filter non full snapshots
+		Dataset<Row> fullRow = originVisitStatus.select("snapshot", "date", "origin").filter("status='full'");
+		// Perform join and extract the corresponding List of Row
+		List<Row> queryRes = fullRow.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullRow.col("origin")))
+				.select("snapshot", "date", "originId").collectAsList();
+		// Convert the list of Row to an HashMap <OriginId,<SnapId,SnapTimestamp>>
+		OriginMap result = new OriginMap();
+		queryRes.parallelStream().forEach(row -> {
+			Long snapId = this.nodeIdMap.copy().getNodeId(new SWHID("swh:1:snp:" + row.getString(0)), false);
+			Long timestamp = row.getTimestamp(1).getTime();
+			Long originId = row.getLong(2);
+			synchronized (result) {
+				result.addSnap(originId, new Tuple2<Long, Long>(snapId, timestamp));
+			}
+		});
+
+		return result;
 	}
 
 	// Use the mph function to get the corresponding swhid, since our swhid are
 	// extract
 	// from the relation version we assume that the corresponding id exists
 	public void run() {
-		
-		logger.info("Populate originUriLastSnapId");
-		this.originUriLastSnapId =(HashMap<String, Long>) this.lastVisits.parallelStream().map(l ->{
-			Map.Entry<String,Long> entry=null;
-			try {
-				String url =l.get(0);
-				//Todo Find a trick to avoid to do a lightweight copy for each element, we only need to do it for each thread
-				//We can imagine a thread pool mechanism ...
-				Long snapId=this.nodeIdMap.copy().getNodeId(new SWHID("swh:1:snp:" + l.get(2)), false);
-				entry= new AbstractMap.SimpleImmutableEntry<String,Long>(url,snapId);
-			} catch (Exception e) {
-				logger.warn("error while retrieving last visit " + l,e);
-			}
-			return entry;
-		}).filter(entry -> entry!=null).collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue,(Long lastSnapId, Long lastSnapId2)->{
-			logger.warn("Duplicate Keys found ");
-			if(lastSnapId!=null)
-				return lastSnapId;
-			else {
-				return lastSnapId2;
-			}
-			
-		}));
-		
-		logger.info("Populate OriginIdLastSnapId");
-		this.results= origins.parallelStream().map(originId -> {
+		logger.info("Get Snapshots information from relational version");
+		List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
 			String url = this.copy().getUrl(originId);
-			OriginIdLastSnapIdOriginUri r=null;
-			if(this.originUriLastSnapId.containsKey(url)) {
-				Long lastSnapId= this.originUriLastSnapId.get(url);
-				r=new OriginIdLastSnapIdOriginUri(lastSnapId,url,originId);
-
-			}else {
-				logger.warn("Skipping "+originId+" "+url);
-			}
-			return r;
-		}).filter(obj -> obj!=null).collect(Collectors.toList());
+			return new Tuple2<String, Long>(url, originId);
+		}).collect(Collectors.toList());
+		results = getSnapshotsFromRelationalVersion(originIdUrlTuple);
 
 		logger.info("Export Result");
-		ToolBox.exportObjectToJson(results,  Configuration.getInstance().getExportPath() +resultFileName);
-	}
-	
-	public static class OriginIdLastSnapIdOriginUri{
-		private Long originId;
-		private Long lastSnapId;
-		private String originUri;
-		public OriginIdLastSnapIdOriginUri(Long lastSnapId, String originUri, Long originId) {
-			super();
-			this.originId=originId;
-			this.lastSnapId = lastSnapId;
-			this.originUri = originUri;
-		}
-		public Long getOriginId() {
-			return originId;
-		}
-		public void setOriginId(Long originId) {
-			this.originId = originId;
-		}
-		public Long getLastSnapId() {
-			return lastSnapId;
-		}
-		public void setLastSnapId(Long lastSnapId) {
-			this.lastSnapId = lastSnapId;
-		}
-		public String getOriginUri() {
-			return originUri;
-		}
-		public void setOriginUri(String originUri) {
-			this.originUri = originUri;
-		}
-		
-		
+		ToolBox.exportObjectToJson(results, Configuration.getInstance().getExportPath() + resultFileName);
 	}
 
-	public List<OriginIdLastSnapIdOriginUri> getResults() {
+	public OriginMap getResults() {
 		return results;
 	}
-	
-	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps(List<Long> origins) {
-		List<OriginIdLastSnapIdOriginUri> results;
-		String resultUri =  Configuration.getInstance().getExportPath() + resultFileName;
-		if(ToolBox.checkIfExist(resultUri)) {
-			logger.info("Loading " + resultUri);
-			Type type = new TypeToken<List<OriginIdLastSnapIdOriginUri>> () {
-            }.getType();
-            results =ToolBox.loadJsonObject(resultUri, type);
-			logger.info("Loading " + resultUri+" ");
 
-		}else {
+	// **********************Static methods**********************
+	public static OriginMap loadOrComputeOriginSnaps(List<Long> origins) {
+		String resultUri = Configuration.getInstance().getExportPath() + resultFileName;
+		OriginMap results;
+
+		if (ToolBox.checkIfExist(resultUri)) {
+			logger.info("Loading " + resultUri);
+			Type type = new TypeToken<OriginMap>() {
+			}.getType();
+			results = ToolBox.loadJsonObject(resultUri, type);
+			logger.info("Loading " + resultUri + " ");
+
+		} else {
 			try {
 				logger.info("Computing " + resultUri);
 				OriginToolbox l = new OriginToolbox(origins);
 				l.run();
-				results=l.getResults();
-				logger.info("Computing " + resultUri+" over");
+				results = l.getResults();
+				logger.info("Computing " + resultUri + " over");
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				throw new RuntimeException(e);
 			}
 		}
-		return results.stream().collect(Collectors.toMap(OriginIdLastSnapIdOriginUri::getOriginId, Function.identity()));
+		return results;
 
-		
 	}
-	public static Map<Long, OriginIdLastSnapIdOriginUri> loadOrComputeLastSnaps() {
+
+	public static OriginMap loadOrComputeLastSnaps() {
 		return loadOrComputeLastSnaps();
-		
+
 	}
-	
-	public static class  Runner extends GraphQueryRunner {
+
+	// **********************Inner class**********************
+	public static class OriginMap {
+		private Map<Long, SnapTimestampMap> originSnaps;
+
+		public OriginMap(Map<Long, SnapTimestampMap> originSnaps) {
+			super();
+			this.originSnaps = originSnaps;
+		}
+
+		public OriginMap() {
+			originSnaps = new HashMap<>();
+		}
+
+		public SnapTimestampMap getSnaps(Long originId) {
+			return originSnaps.getOrDefault(originId, null);
+		}
+
+		public void addSnap(Long originId, Tuple2<Long, Long> snap) {
+			if (!this.originSnaps.containsKey(originId))
+				this.originSnaps.put(originId, new SnapTimestampMap());
+
+			this.originSnaps.get(originId).addSnap(snap._1, snap._2);
+		}
+
+		public void addSnaps(Long originId, SnapTimestampMap snaps) {
+			originSnaps.put(originId, snaps);
+		}
+
+		public Map<Long, SnapTimestampMap> getOriginSnaps() {
+			return originSnaps;
+		}
+
+		public void setOriginSnaps(Map<Long, SnapTimestampMap> originSnaps) {
+			this.originSnaps = originSnaps;
+		}
+
+		public static class SnapTimestampMap {
+			private Map<Long, Long> snapTimestamp;
+
+			public SnapTimestampMap() {
+				this.snapTimestamp = new HashMap<>();
+			}
+
+			public SnapTimestampMap(Map<Long, Long> snapTimestamp) {
+				super();
+				this.snapTimestamp = snapTimestamp;
+			}
+
+			public void addSnap(Long snapId, Long snapTimestamp) {
+				this.snapTimestamp.put(snapId, snapTimestamp);
+			}
+
+			public Long getTimestamp(Long snapId) {
+				return this.snapTimestamp.getOrDefault(snapId, null);
+			}
+
+			public Map<Long, Long> getSnapTimestamp() {
+				return snapTimestamp;
+			}
+
+			public void setSnapTimestamp(Map<Long, Long> snapTimestamp) {
+				this.snapTimestamp = snapTimestamp;
+			}
+
+		}
+
+	}
+
+	// **********************CLI For Standalone Usage **********************
+	public static class Runner extends GraphQueryRunner {
 		@Override
 		public void run() {
 			logger.info("Origin Toolbox");
-             try {
-				(new OriginToolbox(ToolBox.deserialize(Configuration.getInstance().getExportPath() +"origins/origins"))).run();
+			try {
+				(new OriginToolbox(
+						ToolBox.deserialize(Configuration.getInstance().getExportPath() + "origins/origins"))).run();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
-		
 	}
- 
+
+	// **********************Main For in IDE Usage**********************
 	public static void main(String[] args) throws IOException {
-		Runner runner =new Runner();
-    	runner.init();
-    	runner.execute(new String[0]);
-					
-    }
-	
+		Runner runner = new Runner();
+		runner.init();
+		runner.execute(new String[0]);
+
+	}
+
 }
