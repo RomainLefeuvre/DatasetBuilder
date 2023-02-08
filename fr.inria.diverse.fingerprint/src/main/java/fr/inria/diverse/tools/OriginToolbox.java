@@ -48,20 +48,20 @@ public class OriginToolbox extends SwhGraphProperties {
 	Dataset<Row> originVisitStatus;
 	private List<Long> origins;
 	// Bypass origin termination check to avoid graph loading
-	private Boolean bypass = false;
-
-	public OriginToolbox(Graph g) throws IOException {
-		this();
-		this.g = g;
-	}
+	private Boolean bypass;
 
 	public OriginToolbox(Boolean bypass) throws IOException {
-		this();
+		super(Configuration.getInstance().getGraphPath());
 		this.bypass = bypass;
+		this.init();
 	}
 
-	public OriginToolbox() throws IOException {
+	public OriginToolbox(Graph g) throws IOException {
 		super(Configuration.getInstance().getGraphPath());
+		this.init();
+	}
+
+	public void init() throws IOException {
 		spark = SparkSession.builder().appName("dataSetBuilder").config("spark.master", "local").getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
 		originVisitStatus = spark.read().format("orc")
@@ -153,14 +153,13 @@ public class OriginToolbox extends SwhGraphProperties {
 	}
 
 	private void loadOrComputeOrigins() {
-		if (ToolBox.checkIfExist(originPath) && bypass) {
-			logger.info("------Loading Origins------");
-
-			ToolBox.deserialize(Configuration.getInstance().getExportPath() + originPath);
-			logger.info("------Origins Loaded------");
+		if (ToolBox.checkIfExist(Configuration.getInstance().getExportPath() + originPath) && this.bypass) {
+			logger.info("Loading Origins");
+			this.origins = ToolBox.deserialize(Configuration.getInstance().getExportPath() + originPath);
+			logger.info("Origins Loaded-");
 
 		} else {
-			logger.info("------Computing Origins------");
+			logger.info("Computing Origins");
 
 			try {
 				if (g == null) {
@@ -182,7 +181,7 @@ public class OriginToolbox extends SwhGraphProperties {
 						return Configuration.getInstance().getExportPath() + originPath;
 					}
 				}.explore();
-				logger.info("------Origins Computed------");
+				logger.info("Computing Computed - over");
 
 			} catch (Exception e) {
 				throw new RuntimeException("Error while retrieving origin");
