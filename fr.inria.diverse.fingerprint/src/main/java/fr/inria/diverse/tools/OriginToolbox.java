@@ -70,7 +70,6 @@ public class OriginToolbox extends SwhGraphProperties {
 		originVisitStatus = spark.read().format("orc")
 				.load(Configuration.getInstance().getGraphPath() + "_orc_origin_visit_status/");
 		originVisitStatus.createOrReplaceTempView("originVisitStatus");
-		logger.info("OriginVisistStatus Loaded, " + originVisitStatus.count() + " rows");
 
 		logger.info("Loading NodeIdMap");
 		this.nodeIdMap = new NodeIdMap(Configuration.getInstance().getGraphPath());
