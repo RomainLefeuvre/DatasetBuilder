@@ -38,6 +38,7 @@ public class GraphQueryTest {
 	public GraphQueryTest() throws IOException {
 		g = new Graph();
 		g.loadGraph();
+		g.loadExternalInfo();
 	}
 
 	public Set<Long> runQuery() throws IOException, InterruptedException {

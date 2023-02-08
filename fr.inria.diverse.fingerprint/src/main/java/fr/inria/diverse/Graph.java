@@ -2,11 +2,9 @@ package fr.inria.diverse;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.softwareheritage.graph.SwhType;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
 import fr.inria.diverse.tools.Configuration;
@@ -17,8 +15,8 @@ public class Graph {
 	static Logger logger = LogManager.getLogger(Graph.class);
 	protected SwhUnidirectionalGraph graph;
 	protected Configuration config = Configuration.getInstance();
-	protected List<Long> origins;
-	public static OriginMap lastSnap;
+	protected List<Long> originsList;
+	public static OriginMap originsSnaps;
 
 	/**
 	 * Load the transposed Graph
@@ -36,13 +34,16 @@ public class Graph {
 		logger.info("Loading label");
 		graph.properties.loadLabelNames();
 		logger.info("Label loaded");
-		logger.info("Loading origins");
-		this.loadOrigins();
-		logger.info("Origins loaded");
-		logger.info("Loading Last visit");
-		lastSnap = OriginToolbox.loadOrComputeOriginSnaps(origins);
-		logger.info("Last visit Loaded");
+		logger.info("Loading Origins");
 
+	}
+
+	public void loadExternalInfo() throws IOException {
+		OriginToolbox t = new OriginToolbox(this);
+		t.run();
+		this.originsList = t.getOrigins();
+		this.originsSnaps = t.getResults();
+		logger.info("Origins Loaded");
 	}
 
 	private boolean isMappedMemoryActivated() {
@@ -58,34 +59,7 @@ public class Graph {
 	}
 
 	public List<Long> getOrigins() {
-		return this.origins;
-	}
-
-	private void loadOrigins() {
-		if (origins == null) {
-			logger.info("------Loading Origins------");
-			try {
-				origins = new LambdaExplorer<Long, Long>(this) {
-					@Override
-					public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
-						if (graphCopy.getNodeType(currentElement) == SwhType.ORI) {
-							result.add(currentElement);
-
-						}
-					}
-
-					@Override
-					protected String getExportPath() {
-						String uuid = UUID.randomUUID().toString();
-						return Configuration.getInstance().getExportPath() + "origins/origins";
-					}
-				}.explore();
-				logger.info("------Origins Loaded------");
-
-			} catch (Exception e) {
-				throw new RuntimeException("Error while retrieving origin");
-			}
-		}
+		return this.originsList;
 	}
 
 }

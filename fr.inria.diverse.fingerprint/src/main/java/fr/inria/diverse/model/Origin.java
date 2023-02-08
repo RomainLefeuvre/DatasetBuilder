@@ -34,7 +34,7 @@ public class Origin extends NodeImpl implements Serializable {
 		if (originVisits == null) {
 			this.originVisits = new ArrayList<>();
 			LazyLongIterator it = this.getGraph().copy().successors(this.getNodeId());
-			SnapTimestampMap snaps = Graph.lastSnap.getSnaps(this.getNodeId());
+			SnapTimestampMap snaps = Graph.originsSnaps.getSnaps(this.getNodeId());
 			if (snaps != null) {
 				for (long snapId; (snapId = it.nextLong()) != -1;) {
 					Long snapTimestamp = snaps.getTimestamp(snapId);

@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,10 +19,14 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.apache.spark.storage.StorageLevel;
 import org.softwareheritage.graph.SWHID;
+import org.softwareheritage.graph.SwhType;
+import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import org.softwareheritage.graph.maps.NodeIdMap;
 
 import com.google.gson.reflect.TypeToken;
 
+import fr.inria.diverse.Graph;
+import fr.inria.diverse.LambdaExplorer;
 import fr.inria.diverse.query.GraphQueryRunner;
 import scala.Tuple2;
 
@@ -33,20 +38,29 @@ to do it directly in the generation of the compressed version of the PropertyGra
 public class OriginToolbox extends SwhGraphProperties {
 	static Logger logger = LogManager.getLogger(OriginToolbox.class);
 	static String resultFileName = "originsSnaps.json";
+	String originPath = "origins/origins";
+
 	// ToDo : use a different way to store data, more space efficient
 	private HashMap<String, Long> originUriLastSnapId;
 	private OriginMap results;
 	private SparkSession spark;
+	private Graph g;
 	Dataset<Row> originVisitStatus;
-	List<List<String>> lastVisits;
 	private List<Long> origins;
+	// Bypass origin termination check to avoid graph loading
+	private Boolean bypass = false;
 
-	public OriginToolbox() throws IOException {
-		this(ToolBox.deserialize(Configuration.getInstance().getExportPath() + "origins/origins"));
-
+	public OriginToolbox(Graph g) throws IOException {
+		this();
+		this.g = g;
 	}
 
-	public OriginToolbox(List<Long> origins) throws IOException {
+	public OriginToolbox(Boolean bypass) throws IOException {
+		this();
+		this.bypass = bypass;
+	}
+
+	public OriginToolbox() throws IOException {
 		super(Configuration.getInstance().getGraphPath());
 		spark = SparkSession.builder().appName("dataSetBuilder").config("spark.master", "local").getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
@@ -62,13 +76,44 @@ public class OriginToolbox extends SwhGraphProperties {
 		logger.info("Loading messages");
 		this.loadMessages();
 		logger.info("Loading messages - over");
-		logger.info("Loading lastVisits");
-
-		logger.info("Loading origins");
-		this.origins = origins;
-		assert (origins != null && origins.size() > 0);
-		logger.info("Loading origins - over");
 		results = new OriginMap();
+		this.loadOrComputeOrigins();
+	}
+
+	public OriginMap getResults() {
+		return results;
+	}
+
+	public List<Long> getOrigins() {
+		return this.origins;
+	}
+
+	public void run() {
+		String resultUri = Configuration.getInstance().getExportPath() + resultFileName;
+
+		if (ToolBox.checkIfExist(resultUri)) {
+			logger.info("Loading " + resultUri);
+			Type type = new TypeToken<OriginMap>() {
+			}.getType();
+			results = ToolBox.loadJsonObject(resultUri, type);
+			logger.info("Loading " + resultUri + " ");
+
+		} else {
+
+			logger.info("Computing " + resultUri);
+			logger.info("Get Snapshots information from relational version");
+			List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
+				String url = this.copy().getUrl(originId);
+				return new Tuple2<String, Long>(url, originId);
+			}).collect(Collectors.toList());
+			results = getSnapshotsFromRelationalVersion(originIdUrlTuple);
+
+			logger.info("Export Result");
+			ToolBox.exportObjectToJson(results, Configuration.getInstance().getExportPath() + resultFileName);
+			logger.info("Computing " + resultUri + " over");
+
+		}
+
 	}
 
 	/**
@@ -78,7 +123,7 @@ public class OriginToolbox extends SwhGraphProperties {
 	 * @param originIdUrlTuple A list of tuple <OriginUrl,OriginId>
 	 * @return List<OriginIdLastSnapIdOriginUri>
 	 */
-	public OriginMap getSnapshotsFromRelationalVersion(List<Tuple2<String, Long>> originIdUrlTuple) {
+	private OriginMap getSnapshotsFromRelationalVersion(List<Tuple2<String, Long>> originIdUrlTuple) {
 		// Convert the hashmap to a list of Row
 		List<Row> originIdUrl = originIdUrlTuple.parallelStream().map(tuple -> RowFactory.create(tuple._1, tuple._2))
 				.collect(Collectors.toList());
@@ -107,60 +152,45 @@ public class OriginToolbox extends SwhGraphProperties {
 		return result;
 	}
 
-	// Use the mph function to get the corresponding swhid, since our swhid are
-	// extract
-	// from the relation version we assume that the corresponding id exists
-	public void run() {
-		logger.info("Get Snapshots information from relational version");
-		List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
-			String url = this.copy().getUrl(originId);
-			return new Tuple2<String, Long>(url, originId);
-		}).collect(Collectors.toList());
-		results = getSnapshotsFromRelationalVersion(originIdUrlTuple);
+	private void loadOrComputeOrigins() {
+		if (ToolBox.checkIfExist(originPath) && bypass) {
+			logger.info("------Loading Origins------");
 
-		logger.info("Export Result");
-		ToolBox.exportObjectToJson(results, Configuration.getInstance().getExportPath() + resultFileName);
-	}
-
-	public OriginMap getResults() {
-		return results;
-	}
-
-	// **********************Static methods**********************
-	public static OriginMap loadOrComputeOriginSnaps(List<Long> origins) {
-		String resultUri = Configuration.getInstance().getExportPath() + resultFileName;
-		OriginMap results;
-
-		if (ToolBox.checkIfExist(resultUri)) {
-			logger.info("Loading " + resultUri);
-			Type type = new TypeToken<OriginMap>() {
-			}.getType();
-			results = ToolBox.loadJsonObject(resultUri, type);
-			logger.info("Loading " + resultUri + " ");
+			ToolBox.deserialize(Configuration.getInstance().getExportPath() + originPath);
+			logger.info("------Origins Loaded------");
 
 		} else {
-			try {
-				logger.info("Computing " + resultUri);
-				OriginToolbox l = new OriginToolbox(origins);
-				l.run();
-				results = l.getResults();
-				logger.info("Computing " + resultUri + " over");
+			logger.info("------Computing Origins------");
 
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				throw new RuntimeException(e);
+			try {
+				if (g == null) {
+					g = new Graph();
+					g.loadGraph();
+				}
+				this.origins = new LambdaExplorer<Long, Long>(g) {
+					@Override
+					public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+						if (graphCopy.getNodeType(currentElement) == SwhType.ORI) {
+							result.add(currentElement);
+
+						}
+					}
+
+					@Override
+					protected String getExportPath() {
+						String uuid = UUID.randomUUID().toString();
+						return Configuration.getInstance().getExportPath() + originPath;
+					}
+				}.explore();
+				logger.info("------Origins Computed------");
+
+			} catch (Exception e) {
+				throw new RuntimeException("Error while retrieving origin");
 			}
 		}
-		return results;
-
 	}
 
-	public static OriginMap loadOrComputeLastSnaps() {
-		return loadOrComputeLastSnaps();
-
-	}
-
-	// **********************Inner class**********************
+// **********************Inner class**********************
 	public static class OriginMap {
 		private Map<Long, SnapTimestampMap> originSnaps;
 
@@ -228,23 +258,22 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	}
 
-	// **********************CLI For Standalone Usage **********************
+// **********************CLI For Standalone Usage **********************
 	public static class Runner extends GraphQueryRunner {
 		@Override
 		public void run() {
 			logger.info("Origin Toolbox");
 			try {
-				(new OriginToolbox(
-						ToolBox.deserialize(Configuration.getInstance().getExportPath() + "origins/origins"))).run();
+				(new OriginToolbox(true)).run();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
+
 	}
 
-	// **********************Main For in IDE Usage**********************
 	public static void main(String[] args) throws IOException {
 		Runner runner = new Runner();
 		runner.init();
