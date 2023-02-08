@@ -18,7 +18,6 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
-import org.apache.spark.storage.StorageLevel;
 import org.softwareheritage.graph.SWHID;
 import org.softwareheritage.graph.SwhType;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
@@ -71,7 +70,6 @@ public class OriginToolbox extends SwhGraphProperties {
 		originVisitStatus = spark.read().format("orc")
 				.load(Configuration.getInstance().getGraphPath() + "_orc_origin_visit_status/");
 		originVisitStatus.createOrReplaceTempView("originVisitStatus");
-		originVisitStatus.persist(StorageLevel.MEMORY_ONLY());
 		logger.info("OriginVisistStatus Loaded, " + originVisitStatus.count() + " rows");
 
 		logger.info("Loading NodeIdMap");
@@ -100,7 +98,7 @@ public class OriginToolbox extends SwhGraphProperties {
 			Type type = new TypeToken<OriginMap>() {
 			}.getType();
 			results = ToolBox.loadJsonObject(resultUri, type);
-			logger.info("Loading " + resultUri + " ");
+			logger.info("Loading " + resultUri + "Over");
 
 		} else {
 
@@ -115,7 +113,7 @@ public class OriginToolbox extends SwhGraphProperties {
 			logger.info("Export Result");
 			ToolBox.exportObjectToJson(results, Configuration.getInstance().getExportPath() + resultFileName);
 			logger.info("Computing " + resultUri + " over");
-
+			spark.close();
 		}
 
 	}
