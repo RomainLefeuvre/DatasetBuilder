@@ -64,12 +64,7 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	public void init() throws IOException {
 		int totalThread = Configuration.getInstance().getThreadNumber();
-		int driverCore = (int) Math.round(totalThread * 0.05);
-		int executorCore = (int) Math.round(totalThread / 10);
-		SparkConf conf = new SparkConf().setMaster("local").setAppName("dataSetBuilder")
-				.set("spark.driver.cores", "" + driverCore).set("spark.cores.max", "" + totalThread)
-				.set("spark.executor.cores", "" + executorCore)
-
+		SparkConf conf = new SparkConf().setMaster("local[" + totalThread + "]").setAppName("dataSetBuilder")
 				.set("spark.driver.memory", "" + Runtime.getRuntime().freeMemory());
 		spark = SparkSession.builder().config(conf).getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
