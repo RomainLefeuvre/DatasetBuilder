@@ -15,6 +15,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
@@ -31,8 +32,7 @@ import fr.inria.diverse.query.GraphQueryRunner;
 import scala.Tuple2;
 
 /*Class that contains all the different treatments, function needed to integrate
-the last visit of each origin. In fact, it is realy usefull to access such kind of information to build
-efficient query on the graph. Here we will not integrate it in the most efficient manner, as it is preferable
+visit of each origin. Here we will not integrate it in the most efficient manner, as it is preferable
 to do it directly in the generation of the compressed version of the PropertyGraphDataset.
 */
 public class OriginToolbox extends SwhGraphProperties {
@@ -40,8 +40,6 @@ public class OriginToolbox extends SwhGraphProperties {
 	static String resultFileName = "originsSnaps.json";
 	String originPath = "origins/origins";
 
-	// ToDo : use a different way to store data, more space efficient
-	private HashMap<String, Long> originUriLastSnapId;
 	private OriginMap results;
 	private SparkSession spark;
 	private Graph g;
@@ -103,12 +101,7 @@ public class OriginToolbox extends SwhGraphProperties {
 
 			logger.info("Computing " + resultUri);
 			logger.info("Get Snapshots information from relational version");
-			List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
-				String url = this.copy().getUrl(originId);
-				return new Tuple2<String, Long>(url, originId);
-			}).collect(Collectors.toList());
-			results = getSnapshotsFromRelationalVersion(originIdUrlTuple);
-
+			getSnapshotsFromRelationalVersion();
 			logger.info("Export Result");
 			ToolBox.exportObjectToJson(results, Configuration.getInstance().getExportPath() + resultFileName);
 			logger.info("Computing " + resultUri + " over");
@@ -124,10 +117,18 @@ public class OriginToolbox extends SwhGraphProperties {
 	 * @param originIdUrlTuple A list of tuple <OriginUrl,OriginId>
 	 * @return List<OriginIdLastSnapIdOriginUri>
 	 */
-	private OriginMap getSnapshotsFromRelationalVersion(List<Tuple2<String, Long>> originIdUrlTuple) {
-		// Convert the hashmap to a list of Row
+	private OriginMap getSnapshotsFromRelationalVersion() {
+		logger.info("Retrieving Origin URL");
+		List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
+			String url = this.copy().getUrl(originId);
+			return new Tuple2<String, Long>(url, originId);
+		}).collect(Collectors.toList());
+
+		logger.info("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
 		List<Row> originIdUrl = originIdUrlTuple.parallelStream().map(tuple -> RowFactory.create(tuple._1, tuple._2))
 				.collect(Collectors.toList());
+
+		logger.info("Spark processes");
 		// The Schema of the new DF that will be created
 		StructType schema = DataTypes.createStructType(
 				new StructField[] { DataTypes.createStructField("originUrl", DataTypes.StringType, false),
@@ -135,22 +136,25 @@ public class OriginToolbox extends SwhGraphProperties {
 		// Create the dataframe
 		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema);
 		// Filter non full snapshots
-		Dataset<Row> fullRow = originVisitStatus.select("snapshot", "date", "origin").filter("status='full'");
+		Dataset<Row> fullRow = originVisitStatus.select("snapshot", "date", "origin", "status").filter("status='full'");
 		// Perform join and extract the corresponding List of Row
-		List<Row> queryRes = fullRow.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullRow.col("origin")))
-				.select("snapshot", "date", "originId").collectAsList();
-		// Convert the list of Row to an HashMap <OriginId,<SnapId,SnapTimestamp>>
-		OriginMap result = new OriginMap();
-		queryRes.parallelStream().forEach(row -> {
+		Dataset<Row> queryRes = fullRow
+				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullRow.col("origin")))
+				.withColumn("timestamp", functions.unix_timestamp(fullRow.col("date")))
+				.select("snapshot", "timestamp", "originId", "status");
+
+		List<Row> queryResList = queryRes.collectAsList();
+		results = new OriginMap();
+		queryResList.parallelStream().forEach(row -> {
 			Long snapId = this.nodeIdMap.copy().getNodeId(new SWHID("swh:1:snp:" + row.getString(0)), false);
-			Long timestamp = row.getTimestamp(1).getTime();
+			Long timestamp = row.getLong(1);
 			Long originId = row.getLong(2);
-			synchronized (result) {
-				result.addSnap(originId, new Tuple2<Long, Long>(snapId, timestamp));
+			synchronized (results) {
+				results.addSnap(originId, new Tuple2<Long, Long>(snapId, timestamp));
 			}
 		});
 
-		return result;
+		return results;
 	}
 
 	private void loadOrComputeOrigins() {
