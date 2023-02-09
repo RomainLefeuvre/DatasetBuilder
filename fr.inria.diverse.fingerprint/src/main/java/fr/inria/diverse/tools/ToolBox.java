@@ -1,12 +1,15 @@
 package fr.inria.diverse.tools;
 
-import com.google.gson.Gson;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
-import org.softwareheritage.graph.SwhUnidirectionalGraph;
-import org.softwareheritage.graph.labels.DirEntry;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +17,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.hadoop.fs.FileUtil;
+import org.softwareheritage.graph.SwhUnidirectionalGraph;
+import org.softwareheritage.graph.labels.DirEntry;
+
+import com.google.gson.Gson;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 
 public class ToolBox {
 	public static <T> T loadJsonObject(String fileName, Type type) {
@@ -82,7 +94,7 @@ public class ToolBox {
 		if (!Files.exists(parentDir))
 			Files.createDirectories(parentDir);
 	}
-	
+
 	public static boolean checkIfExist(String path) {
 		Path filePath = Paths.get(path);
 		return Files.exists(filePath);
@@ -105,6 +117,12 @@ public class ToolBox {
 			e.printStackTrace();
 		}
 		return records;
+	}
+
+	public static List<File> getFilePathEndingWith(String folder, String pattern) throws IOException {
+		return Arrays.stream(FileUtil.listFiles(new File(folder))).filter(f -> f.getPath().endsWith(pattern))
+				.collect(Collectors.toList());
+
 	}
 
 }

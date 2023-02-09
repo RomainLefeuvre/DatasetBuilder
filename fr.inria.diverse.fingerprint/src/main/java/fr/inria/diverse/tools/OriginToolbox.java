@@ -61,6 +61,7 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	public void init() throws IOException {
 		int totalThread = Configuration.getInstance().getThreadNumber();
+
 		SparkConf conf = new SparkConf().setMaster("local[" + totalThread + "]").setAppName("dataSetBuilder")
 				.set("spark.driver.memory", "" + Runtime.getRuntime().freeMemory());
 		spark = SparkSession.builder().config(conf).getOrCreate();
@@ -142,13 +143,21 @@ public class OriginToolbox extends SwhGraphProperties {
 				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullRow.col("origin")))
 				.withColumn("timestamp", functions.unix_timestamp(fullRow.col("date")))
 				.select("snapshot", "timestamp", "originId", "status");
+		String tmpPath = Configuration.getInstance().getExportPath() + "origin_visit_status_tmp";
+		queryRes.coalesce(1).write().mode("overwrite").csv(tmpPath);
 
-		List<Row> queryResList = queryRes.collectAsList();
+		List<List<String>> queryResList;
+		try {
+			queryResList = ToolBox.readCsv(ToolBox.getFilePathEndingWith(tmpPath, ".csv").get(0).toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Error while loading temporary file");
+		}
 		results = new OriginMap();
 		queryResList.parallelStream().forEach(row -> {
-			Long snapId = this.nodeIdMap.copy().getNodeId(new SWHID("swh:1:snp:" + row.getString(0)), false);
-			Long timestamp = row.getLong(1);
-			Long originId = row.getLong(2);
+			Long snapId = this.nodeIdMap.copy().getNodeId(new SWHID("swh:1:snp:" + row.get(0)), false);
+			Long timestamp = Long.parseLong(row.get(1));
+			Long originId = Long.parseLong(row.get(2));
 			synchronized (results) {
 				results.addSnap(originId, new Tuple2<Long, Long>(snapId, timestamp));
 			}
