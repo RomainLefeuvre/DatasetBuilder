@@ -141,16 +141,14 @@ public class OriginToolbox extends SwhGraphProperties {
 		Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
 				"origin");
 
-		fullSnap = fullSnap.withColumn("timestamp", functions.unix_timestamp(fullSnap.col("date"))).select("snapshot",
-				"timestamp", "origin");
-
 		// Perform join and extract the corresponding List of Row
-		List<Row> queryRes = fullSnap
+		Dataset<Row> queryRes = fullSnap
 				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
-				.select("snapshot", "timestamp", "originId").groupBy("originId")
-				.agg(functions.collect_list(functions.struct("snapshot", "timestamp")).as("snapshot")).collectAsList();
+				.select("snapshot", "date", "originId").groupBy("originId")
+				.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop().cache();
+		queryRes.coalesce(1).write().format("json").save(Configuration.getInstance().getExportPath() + "test");
 
-		queryRes.parallelStream().forEach(row -> {
+		queryRes.collectAsList().parallelStream().forEach(row -> {
 			Long originId = row.getLong(0);
 			SnapTimestampMap snaps = new SnapTimestampMap();
 			NodeIdMap nodeIdMapCopy = nodeIdMap.copy();
@@ -158,7 +156,7 @@ public class OriginToolbox extends SwhGraphProperties {
 			row.getList(1).stream().forEach(snapRow -> {
 				SWHID snapSWHID = new SWHID("swh:1:snp:" + ((Row) snapRow).getString(0));
 				Long snapId = nodeIdMapCopy.getNodeId(snapSWHID, false);
-				Long timestamp = ((Row) snapRow).getLong(1);
+				Long timestamp = ((Row) snapRow).getTimestamp(1).getTime();
 				snaps.addSnap(snapId, timestamp);
 			});
 			synchronized (results) {
