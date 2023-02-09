@@ -11,7 +11,7 @@ import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
 import fr.inria.diverse.Graph;
 import fr.inria.diverse.tools.ModelInconsistencyException;
-import fr.inria.diverse.tools.OriginToolbox.OriginMap.SnapTimestampMap;
+import fr.inria.diverse.tools.OriginToolbox.SnapTimestampMap;
 import it.unimi.dsi.big.webgraph.LazyLongIterator;
 
 public class Origin extends NodeImpl implements Serializable {

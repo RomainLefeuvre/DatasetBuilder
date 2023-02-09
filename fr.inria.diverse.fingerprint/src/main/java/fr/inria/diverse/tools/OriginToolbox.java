@@ -41,7 +41,7 @@ public class OriginToolbox extends SwhGraphProperties {
 	static String resultFileName = "originsSnaps.json";
 	String originPath = "origins/origins";
 
-	private OriginMap results;
+	private OriginMap results = new OriginMap();
 	private SparkSession spark;
 	private Graph g;
 	Dataset<Row> originVisitStatus;
@@ -138,30 +138,31 @@ public class OriginToolbox extends SwhGraphProperties {
 		// Create the dataframe
 		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema);
 		// Filter non full snapshots
-		Dataset<Row> fullRow = originVisitStatus.select("snapshot", "date", "origin", "status").filter("status='full'");
-		// Perform join and extract the corresponding List of Row
-		Dataset<Row> queryRes = fullRow
-				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullRow.col("origin")))
-				.withColumn("timestamp", functions.unix_timestamp(fullRow.col("date")))
-				.select("snapshot", "timestamp", "originId", "status");
-		logger.info(" Spark nb " + queryRes.cache().count());
-		String tmpPath = Configuration.getInstance().getExportPath() + "origin_visit_status_tmp";
-		queryRes.coalesce(1).write().mode("overwrite").csv(tmpPath);
+		Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
+				"origin");
 
-		List<List<String>> queryResList;
-		try {
-			queryResList = ToolBox.readCsv(ToolBox.getFilePathEndingWith(tmpPath, ".csv").get(0).toString());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException("Error while loading temporary file");
-		}
-		results = new OriginMap();
-		queryResList.parallelStream().forEach(row -> {
-			Long snapId = this.nodeIdMap.copy().getNodeId(new SWHID("swh:1:snp:" + row.get(0)), false);
-			Long timestamp = Long.parseLong(row.get(1));
-			Long originId = Long.parseLong(row.get(2));
+		fullSnap = fullSnap.withColumn("timestamp", functions.unix_timestamp(fullSnap.col("date"))).select("snapshot",
+				"timestamp", "origin");
+
+		// Perform join and extract the corresponding List of Row
+		List<Row> queryRes = fullSnap
+				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
+				.select("snapshot", "timestamp", "originId").groupBy("originId")
+				.agg(functions.collect_list(functions.struct("snapshot", "timestamp")).as("snapshot")).collectAsList();
+
+		queryRes.parallelStream().forEach(row -> {
+			Long originId = row.getLong(0);
+			SnapTimestampMap snaps = new SnapTimestampMap();
+			NodeIdMap nodeIdMapCopy = nodeIdMap.copy();
+			// Populate snaps
+			row.getList(1).stream().forEach(snapRow -> {
+				SWHID snapSWHID = new SWHID("swh:1:snp:" + ((Row) snapRow).getString(0));
+				Long snapId = nodeIdMapCopy.getNodeId(snapSWHID, false);
+				Long timestamp = ((Row) snapRow).getLong(1);
+				snaps.addSnap(snapId, timestamp);
+			});
 			synchronized (results) {
-				results.addSnap(originId, new Tuple2<Long, Long>(snapId, timestamp));
+				results.addSnaps(originId, snaps);
 			}
 		});
 
@@ -241,34 +242,34 @@ public class OriginToolbox extends SwhGraphProperties {
 			this.originSnaps = originSnaps;
 		}
 
-		public static class SnapTimestampMap {
-			private Map<Long, Long> snapTimestamp;
+	}
 
-			public SnapTimestampMap() {
-				this.snapTimestamp = new HashMap<>();
-			}
+	public static class SnapTimestampMap {
+		private Map<Long, Long> snapTimestamp;
 
-			public SnapTimestampMap(Map<Long, Long> snapTimestamp) {
-				super();
-				this.snapTimestamp = snapTimestamp;
-			}
+		public SnapTimestampMap() {
+			this.snapTimestamp = new HashMap<>();
+		}
 
-			public void addSnap(Long snapId, Long snapTimestamp) {
-				this.snapTimestamp.put(snapId, snapTimestamp);
-			}
+		public SnapTimestampMap(Map<Long, Long> snapTimestamp) {
+			super();
+			this.snapTimestamp = snapTimestamp;
+		}
 
-			public Long getTimestamp(Long snapId) {
-				return this.snapTimestamp.getOrDefault(snapId, null);
-			}
+		public void addSnap(Long snapId, Long snapTimestamp) {
+			this.snapTimestamp.put(snapId, snapTimestamp);
+		}
 
-			public Map<Long, Long> getSnapTimestamp() {
-				return snapTimestamp;
-			}
+		public Long getTimestamp(Long snapId) {
+			return this.snapTimestamp.getOrDefault(snapId, null);
+		}
 
-			public void setSnapTimestamp(Map<Long, Long> snapTimestamp) {
-				this.snapTimestamp = snapTimestamp;
-			}
+		public Map<Long, Long> getSnapTimestamp() {
+			return snapTimestamp;
+		}
 
+		public void setSnapTimestamp(Map<Long, Long> snapTimestamp) {
+			this.snapTimestamp = snapTimestamp;
 		}
 
 	}
