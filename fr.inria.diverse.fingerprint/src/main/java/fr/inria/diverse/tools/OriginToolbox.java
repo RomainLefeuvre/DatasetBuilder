@@ -17,6 +17,7 @@ import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.softwareheritage.graph.SWHID;
@@ -62,8 +63,8 @@ public class OriginToolbox extends SwhGraphProperties {
 	public void init() throws IOException {
 		int totalThread = Configuration.getInstance().getThreadNumber();
 
-		SparkConf conf = new SparkConf().setMaster("local[" + totalThread + "]").setAppName("dataSetBuilder")
-				.set("spark.driver.memory", "" + Runtime.getRuntime().freeMemory());
+		SparkConf conf = new SparkConf().setMaster("local[" + (totalThread - 2) + "]").setAppName("dataSetBuilder")
+				.set("spark.driver.memory", "" + Runtime.getRuntime().freeMemory()).set("spark.driver.cores", "" + 2);
 		spark = SparkSession.builder().config(conf).getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
 		originVisitStatus = spark.read().format("orc")
@@ -131,9 +132,9 @@ public class OriginToolbox extends SwhGraphProperties {
 
 		logger.info("Spark processes");
 		// The Schema of the new DF that will be created
-		StructType schema = DataTypes.createStructType(
-				new StructField[] { DataTypes.createStructField("originUrl", DataTypes.StringType, false),
-						DataTypes.createStructField("originId", DataTypes.LongType, false) });
+		StructType schema = DataTypes.createStructType(new StructField[] {
+				DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
+				DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
 		// Create the dataframe
 		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema);
 		// Filter non full snapshots
