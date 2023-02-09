@@ -154,8 +154,7 @@ public class OriginToolbox extends SwhGraphProperties {
 				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
 				.select("snapshot", "date", "originId").groupBy("originId")
 				.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop().cache();
-		queryRes.coalesce(1).write().mode("overwrite").format("json")
-				.save(Configuration.getInstance().getExportPath() + "test");
+		logger.info("queryRes " + queryRes.count());
 
 		queryRes.collectAsList().parallelStream().forEach(row -> {
 			Long originId = row.getLong(0);
