@@ -38,16 +38,22 @@ to do it directly in the generation of the compressed version of the PropertyGra
 */
 public class OriginToolbox extends SwhGraphProperties {
 	static Logger logger = LogManager.getLogger(OriginToolbox.class);
+	// The path where the results attribute will be saved in the export folder
 	static String resultFileName = "originsSnaps.json";
-	String originPath = "origins/origins";
-
+	// The path where the list of origins will be saved in the export folder
+	private String originPath = "origins/origins";
+	// The result map containing the snapshots id and their timestamps for each
+	// origins
 	private OriginMap results = new OriginMap();
+	// Spark attribute
 	private SparkSession spark;
-	private Graph g;
-	Dataset<Row> originVisitStatus;
+	// The originVisitStatus dataframe
+	private Dataset<Row> originVisitStatus;
+	// The origin List
 	private List<Long> origins;
 	// Bypass origin termination check to avoid graph loading
 	private Boolean bypass = false;
+	private Graph g;
 
 	public OriginToolbox(Boolean bypass) throws IOException {
 		super(Configuration.getInstance().getGraphPath());
@@ -117,7 +123,7 @@ public class OriginToolbox extends SwhGraphProperties {
 	 * snapshot id and the corresponding timestamp
 	 * 
 	 * @param originIdUrlTuple A list of tuple <OriginUrl,OriginId>
-	 * @return List<OriginIdLastSnapIdOriginUri>
+	 * @return OriginMap
 	 */
 	private OriginMap getSnapshotsFromRelationalVersion() {
 		logger.info("Retrieving Origin URL");
@@ -133,13 +139,15 @@ public class OriginToolbox extends SwhGraphProperties {
 		logger.info("Spark processes");
 		// The Schema of the new DF that will be created
 		StructType schema = DataTypes.createStructType(new StructField[] {
-				DataTypes.createStructField("originUrl", DataTypes.StringType, false, Metadata.empty()),
-				DataTypes.createStructField("originId", DataTypes.LongType, false, Metadata.empty()) });
+				DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
+				DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
 		// Create the dataframe
-		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema);
+		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop().cache();
+		logger.info("originIdUrlDf " + originIdUrlDf.count());
 		// Filter non full snapshots
-		Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
-				"origin");
+		Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'")
+				.select("snapshot", "date", "origin").cache();
+		logger.info("fullSnap " + fullSnap.count());
 
 		// Perform join and extract the corresponding List of Row
 		Dataset<Row> queryRes = fullSnap
