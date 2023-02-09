@@ -133,8 +133,8 @@ public class OriginToolbox extends SwhGraphProperties {
 		logger.info("Spark processes");
 		// The Schema of the new DF that will be created
 		StructType schema = DataTypes.createStructType(new StructField[] {
-				DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
-				DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
+				DataTypes.createStructField("originUrl", DataTypes.StringType, false, Metadata.empty()),
+				DataTypes.createStructField("originId", DataTypes.LongType, false, Metadata.empty()) });
 		// Create the dataframe
 		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema);
 		// Filter non full snapshots
@@ -144,6 +144,7 @@ public class OriginToolbox extends SwhGraphProperties {
 				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullRow.col("origin")))
 				.withColumn("timestamp", functions.unix_timestamp(fullRow.col("date")))
 				.select("snapshot", "timestamp", "originId", "status");
+		logger.info(" Spark nb " + queryRes.cache().count());
 		String tmpPath = Configuration.getInstance().getExportPath() + "origin_visit_status_tmp";
 		queryRes.coalesce(1).write().mode("overwrite").csv(tmpPath);
 
