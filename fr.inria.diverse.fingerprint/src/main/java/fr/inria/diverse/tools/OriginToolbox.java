@@ -18,6 +18,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
+import org.apache.spark.sql.expressions.Window;
+import org.apache.spark.sql.expressions.WindowSpec;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -122,12 +124,11 @@ public class OriginToolbox extends SwhGraphProperties {
 	public void populateResultFromRelationalQueryResult(Dataset<Row> queryRes) {
 		long numRows = queryRes.count();
 		int chunkSize = 1000;
-
 		for (int currentRow = 0; currentRow <= numRows; currentRow = currentRow + 1000) {
 			long start = currentRow;
 			long end = currentRow + 1000 < numRows ? currentRow + 1000 : numRows + 1;
-
-			queryRes.where("row_id >=" + start + " AND row_id<" + end).collectAsList().parallelStream().forEach(row -> {
+			Dataset<Row> batch = queryRes.where("row_id >=" + start + " AND row_id<" + end).cache();
+			batch.collectAsList().parallelStream().forEach(row -> {
 				Long originId = row.getLong(0);
 				SnapTimestampMap snaps = new SnapTimestampMap();
 				NodeIdMap nodeIdMapCopy = nodeIdMap.copy(); // Populate snaps
@@ -141,7 +142,7 @@ public class OriginToolbox extends SwhGraphProperties {
 					results.addSnaps(originId, snaps);
 				}
 			});
-			;
+
 		}
 
 	}
@@ -180,13 +181,13 @@ public class OriginToolbox extends SwhGraphProperties {
 			// Filter non full snapshots
 			Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
 					"origin");
-
+			WindowSpec window = Window.orderBy(functions.col("originId"));
 			// Perform join and extract the corresponding List of Row
 			Dataset<Row> queryRes = fullSnap
 					.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
 					.select("snapshot", "date", "originId").groupBy("originId")
 					.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop()
-					.withColumn("row_id", functions.monotonically_increasing_id()).cache();
+					.withColumn("row_id", functions.row_number().over(window)).cache();
 			queryRes.write().format("parquet").save(tmpUri.toString());
 			return queryRes;
 		} else {
