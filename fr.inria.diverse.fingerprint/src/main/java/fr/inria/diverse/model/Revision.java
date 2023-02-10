@@ -1,14 +1,15 @@
 package fr.inria.diverse.model;
 
-import it.unimi.dsi.big.webgraph.LazyLongIterator;
+import java.io.Serializable;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
+import fr.inria.diverse.Graph;
 import fr.inria.diverse.tools.ModelInconsistencyException;
-
-import java.io.Serializable;
+import it.unimi.dsi.big.webgraph.LazyLongIterator;
 
 public class Revision extends NodeImpl implements Serializable, SnapshotChild, DirectoryChild {
 	private static final long serialVersionUID = 6380145784930210887L;
@@ -23,7 +24,7 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 		super();
 	}
 
-	public Revision(long nodeId, SwhUnidirectionalGraph g) {
+	public Revision(long nodeId, Graph g) {
 		super(nodeId, g);
 	}
 
@@ -33,7 +34,7 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 
 	public Long getCommiterTimestamp() {
 		if (this.commiterTimestamp == null) {
-			this.commiterTimestamp = this.getGraph().copy().getCommitterTimestamp(this.getNodeId());
+			this.commiterTimestamp = this.getUnderlyingGraph().copy().getCommitterTimestamp(this.getNodeId());
 			if (this.commiterTimestamp == null) {
 				throw new ModelInconsistencyException("No commiter timestamp for " + this.getNodeId());
 			}
@@ -43,7 +44,7 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 
 	public Long getTimestamp() {
 		if (this.timestamp == null) {
-			Long t = this.getGraph().copy().getAuthorTimestamp(this.getNodeId());
+			Long t = this.getUnderlyingGraph().copy().getAuthorTimestamp(this.getNodeId());
 			this.timestamp = t == null ? -1 : t;
 		}
 		return timestamp;
@@ -51,7 +52,7 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 
 	public String getCommiter() {
 		if (this.commiter == null) {
-			this.commiter = "" + this.getGraph().copy().getCommitterId(this.getNodeId());
+			this.commiter = "" + this.getUnderlyingGraph().copy().getCommitterId(this.getNodeId());
 		}
 		return commiter;
 	}
@@ -65,7 +66,7 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 	 */
 	public Revision getParent() {
 		// if(parent==null&& !noParent){
-		SwhUnidirectionalGraph graphCopy = this.getGraph().copy();
+		SwhUnidirectionalGraph graphCopy = this.getUnderlyingGraph().copy();
 		LazyLongIterator childIt = graphCopy.successors(this.getNodeId());
 		Revision parent = null;
 		for (long successorNode; (successorNode = childIt.nextLong()) != -1 && parent == null;) {
@@ -81,7 +82,7 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 	}
 
 	public Directory getTree() {
-		SwhUnidirectionalGraph graph_copy = this.getGraph().copy();
+		SwhUnidirectionalGraph graph_copy = this.getUnderlyingGraph().copy();
 		LazyLongIterator childIt = graph_copy.successors(this.getNodeId());
 		Directory tree = null;
 		for (long successorNode; (successorNode = childIt.nextLong()) != -1 && tree == null;) {
@@ -105,14 +106,14 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 
 	public String getMessage() {
 		if (this.message == null) {
-			this.getGraph().copy().getMessage(this.getNodeId());
+			this.getUnderlyingGraph().copy().getMessage(this.getNodeId());
 		}
 		return message;
 	}
 
 	public String getAuthor() {
 		if (this.author == null) {
-			this.author = "" + this.getGraph().copy().getAuthorId(this.getNodeId());
+			this.author = "" + this.getUnderlyingGraph().copy().getAuthorId(this.getNodeId());
 		}
 		return author;
 	}

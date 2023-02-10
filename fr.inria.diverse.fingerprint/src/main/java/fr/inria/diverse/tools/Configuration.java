@@ -1,16 +1,11 @@
 package fr.inria.diverse.tools;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import picocli.CommandLine.Model.ArgSpec;
-import picocli.CommandLine.Model.OptionSpec;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.Properties;
 
 public abstract class Configuration {
 
@@ -30,21 +25,40 @@ public abstract class Configuration {
 	public static Configuration getInstance() {
 		return Configuration.instance;
 	}
-	
-	
-	// Getters
-	public abstract int getThreadNumber();
-	public abstract String getGraphPath() ;
-	public abstract String getLoadingMode() ;
-	public abstract String getExportPath() ;
-	public abstract int getCheckPointIntervalInMinutes() ;
 
+	public abstract int getThreadNumber();
+
+	public Path getGraphPath() {
+		return Paths.get(getGraphFolderPath().toString(), "/compressed/graph");
+	}
+
+	public Path getRelationalPath() {
+		return Paths.get(getGraphFolderPath().toString(), "/orc/");
+	}
+
+	public ZonedDateTime getGraphTimestamp() {
+		ZonedDateTime graphDate = ToolBox.extractDate(this.getGraphFolderPath().getFileName().toString());
+		// Take 7 days of guarentee;
+		return graphDate.minusDays(1);
+	};
+
+	public abstract ZonedDateTime getQueryTimestamp();
+
+	protected abstract Path getGraphFolderPath();
+
+	public abstract String getLoadingMode();
+
+	public abstract Path getExportPath();
+
+	public abstract int getCheckPointIntervalInMinutes();
 
 	@Override
 	public String toString() {
 		return "Configuration [getThreadNumber()=" + getThreadNumber() + ", getGraphPath()=" + getGraphPath()
+				+ ", getRelationalPath()=" + getRelationalPath() + ", getGraphTimestamp()=" + getGraphTimestamp()
+				+ ", getQueryTimestamp()=" + getQueryTimestamp() + ", getGraphFolderPath()=" + getGraphFolderPath()
 				+ ", getLoadingMode()=" + getLoadingMode() + ", getExportPath()=" + getExportPath()
 				+ ", getCheckPointIntervalInMinutes()=" + getCheckPointIntervalInMinutes() + "]";
 	}
-	
+
 }

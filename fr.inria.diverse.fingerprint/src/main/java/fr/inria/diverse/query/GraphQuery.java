@@ -35,10 +35,10 @@ public class GraphQuery {
 		Set<Long> results = new HashSet<>();
 		String id = "05b860db-1362-45af-989f-e53847c9b1db";
 		logger.info("------Executing query " + id + "------");
-		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins(), id) {
+		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOriginsList(), id) {
 			@Override
 			public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
-				Origin origin = new Origin(currentElement, graphCopy);
+				Origin origin = new Origin(currentElement, this.graph);
 				boolean predicateResult = false;
 				predicateResult = origin.getLastOriginVisit().getSnapshot().getBranches().stream()
 						.anyMatch(branche -> ((branche.getName().equals("refs/heads/master")

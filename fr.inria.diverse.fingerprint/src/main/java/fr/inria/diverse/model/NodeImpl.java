@@ -1,26 +1,28 @@
 package fr.inria.diverse.model;
 
+import java.io.Serializable;
+
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
-import java.io.Serializable;
+import fr.inria.diverse.Graph;
 
 public class NodeImpl implements Serializable, Node {
 	private static final long serialVersionUID = -5583517045537897698L;
 	private long nodeId;
 	private String swhid;
-	private SwhUnidirectionalGraph graph;
+	private Graph graph;
 
 	public NodeImpl() {
 	}
 
-	public NodeImpl(long nodeId, SwhUnidirectionalGraph g) {
+	public NodeImpl(long nodeId, Graph g) {
 		this.graph = g;
 		this.nodeId = nodeId;
 	}
 
 	public String getSwhid() {
 		if (swhid == null) {
-			this.swhid = String.valueOf(this.graph.getSWHID(this.nodeId));
+			this.swhid = String.valueOf(this.getUnderlyingGraph().getSWHID(this.nodeId));
 		}
 		return swhid;
 	}
@@ -29,11 +31,17 @@ public class NodeImpl implements Serializable, Node {
 		this.swhid = swhid;
 	}
 
-	public SwhUnidirectionalGraph getGraph() {
+	public SwhUnidirectionalGraph getUnderlyingGraph() {
+		return graph.getGraph();
+	}
+
+	@Override
+	public Graph getGraph() {
 		return graph;
 	}
 
-	public void setGraph(SwhUnidirectionalGraph g) {
+	@Override
+	public void setGraph(Graph g) {
 		this.graph = g;
 	}
 
@@ -61,4 +69,5 @@ public class NodeImpl implements Serializable, Node {
 	public int hashCode() {
 		return (int) (nodeId ^ (nodeId >>> 32));
 	}
+
 }

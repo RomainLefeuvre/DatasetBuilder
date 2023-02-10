@@ -1,6 +1,7 @@
 package fr.inria.diverse;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,17 +15,24 @@ import fr.inria.diverse.tools.OriginToolbox.OriginMap;
 public class Graph {
 	static Logger logger = LogManager.getLogger(Graph.class);
 	protected SwhUnidirectionalGraph graph;
+	protected ZonedDateTime graphTimestamp;
 	protected Configuration config = Configuration.getInstance();
+
+	public Configuration getConfig() {
+		return config;
+	}
+
 	protected List<Long> originsList;
-	public static OriginMap originsSnaps;
+	protected OriginMap originsSnaps;
 
 	/**
 	 * Load the transposed Graph
 	 */
 	public void loadGraph() throws IOException {
 		logger.info("Loading graph " + (this.isMappedMemoryActivated() ? "MAPPED MODE" : ""));
-		graph = this.isMappedMemoryActivated() ? SwhUnidirectionalGraph.loadLabelledMapped(this.config.getGraphPath())
-				: SwhUnidirectionalGraph.loadLabelled(this.config.getGraphPath());
+		graph = this.isMappedMemoryActivated()
+				? SwhUnidirectionalGraph.loadLabelledMapped(this.config.getGraphPath().toString())
+				: SwhUnidirectionalGraph.loadLabelled(this.config.getGraphPath().toString());
 		graph.loadCommitterTimestamps();
 		// graph.loadAuthorTimestamps();
 		logger.info("Graph loaded");
@@ -35,6 +43,7 @@ public class Graph {
 		graph.properties.loadLabelNames();
 		logger.info("Label loaded");
 		logger.info("Loading Origins");
+		this.graphTimestamp = config.getGraphTimestamp();
 
 	}
 
@@ -58,8 +67,16 @@ public class Graph {
 		this.graph = graph;
 	}
 
-	public List<Long> getOrigins() {
-		return this.originsList;
+	public ZonedDateTime getGraphTimestamp() {
+		return graphTimestamp;
+	}
+
+	public List<Long> getOriginsList() {
+		return originsList;
+	}
+
+	public OriginMap getOriginsSnaps() {
+		return originsSnaps;
 	}
 
 }

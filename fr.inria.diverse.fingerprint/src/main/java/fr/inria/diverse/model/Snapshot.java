@@ -1,16 +1,16 @@
 package fr.inria.diverse.model;
 
-import it.unimi.dsi.big.webgraph.labelling.ArcLabelledNodeIterator;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import org.softwareheritage.graph.labels.DirEntry;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import fr.inria.diverse.Graph;
+import it.unimi.dsi.big.webgraph.labelling.ArcLabelledNodeIterator;
 
 public class Snapshot extends NodeImpl implements Serializable {
 	private static final long serialVersionUID = 2166967946176031738L;
@@ -20,14 +20,14 @@ public class Snapshot extends NodeImpl implements Serializable {
 	public Snapshot() {
 	}
 
-	public Snapshot(long nodeId, SwhUnidirectionalGraph g) {
+	public Snapshot(long nodeId, Graph g) {
 		super(nodeId, g);
 	}
 
 	public List<SnapshotBranch> getBranches() {
 		if (this.branches == null) {
 			this.branches = new ArrayList<>();
-			SwhUnidirectionalGraph graphCopy = this.getGraph().copy();
+			SwhUnidirectionalGraph graphCopy = this.getUnderlyingGraph().copy();
 			ArcLabelledNodeIterator.LabelledArcIterator it = graphCopy.labelledSuccessors(this.getNodeId());
 			for (long snapChildId; (snapChildId = it.nextLong()) != -1;) {
 				final DirEntry[] labels = (DirEntry[]) it.label().get();

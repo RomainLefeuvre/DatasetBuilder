@@ -10,8 +10,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
@@ -24,14 +26,23 @@ import fr.inria.diverse.model.SnapshotBranch;
 
 public class GraphQueryTest {
 	static Logger logger = LogManager.getLogger(GraphQueryTest.class);
+	private static GraphQueryRunnerTest runner;
 	private Graph g;
 	private boolean restoreCheckpoint = false;
 
 	@BeforeClass
 	public static void init() {
-		GraphQueryRunnerTest runner = new GraphQueryRunnerTest();
+		runner = new GraphQueryRunnerTest();
 		runner.init();
-		runner.execute(new String[0]);
+		String[] args = { "--queryTimestamp", "2021-03-23", "--exportPath", "./exportTest" };
+		runner.execute(args);
+		logger.info(runner);
+
+	}
+
+	@AfterClass
+	public static void clean() throws IOException {
+		FileUtils.deleteDirectory(runner.getExportPath().toFile());
 
 	}
 
@@ -45,10 +56,10 @@ public class GraphQueryTest {
 		Set<Long> results = new HashSet<>();
 		String id = "05b860db-1362-45af-989f-e53847c9b1db";
 		logger.info("------Executing query " + id + "------");
-		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins(), id) {
+		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOriginsList(), id) {
 			@Override
 			public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
-				Origin origin = new Origin(currentElement, graphCopy);
+				Origin origin = new Origin(currentElement, this.graph);
 				boolean predicateResult = false;
 
 				predicateResult = origin.getLastOriginVisit().getSnapshot().getBranches().stream()

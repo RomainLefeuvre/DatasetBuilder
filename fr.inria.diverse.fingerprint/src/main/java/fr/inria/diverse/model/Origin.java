@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
 import fr.inria.diverse.Graph;
 import fr.inria.diverse.tools.ModelInconsistencyException;
@@ -24,23 +23,34 @@ public class Origin extends NodeImpl implements Serializable {
 	public Origin() {
 	}
 
-	public Origin(long nodeId, SwhUnidirectionalGraph g) {
+	public Origin(long nodeId, Graph g) {
 		super(nodeId, g);
 		this.originUrl = originUrl;
 	}
 
+	/**
+	 * Get the List of the full Origin visit that are prior to the query timestamp
+	 * 
+	 * @return List<OriginVisit>
+	 */
 	public List<OriginVisit> getOriginVisits() {
 
 		if (originVisits == null) {
 			this.originVisits = new ArrayList<>();
-			LazyLongIterator it = this.getGraph().copy().successors(this.getNodeId());
-			SnapTimestampMap snaps = Graph.originsSnaps.getSnaps(this.getNodeId());
+			LazyLongIterator it = this.getUnderlyingGraph().copy().successors(this.getNodeId());
+			SnapTimestampMap snaps = this.getGraph().getOriginsSnaps().getSnaps(this.getNodeId());
 			if (snaps != null) {
 				for (long snapId; (snapId = it.nextLong()) != -1;) {
 					Long snapTimestamp = snaps.getTimestamp(snapId);
 
 					if (snapTimestamp != null) {
-						originVisits.add(new OriginVisit(new Snapshot(snapId, this.getGraph()), snapTimestamp));
+						if (snapTimestamp <= this.getGraph().getConfig().getQueryTimestamp().toInstant().toEpochMilli()
+								&& snapTimestamp <= this.getGraph().getGraphTimestamp().toInstant().toEpochMilli()) {
+							originVisits.add(new OriginVisit(new Snapshot(snapId, this.getGraph()), snapTimestamp));
+						} else {
+							logger.info(
+									"Skipping origin visit containing snap " + snapId + " since the query date is ");
+						}
 					} else {
 						throw new ModelInconsistencyException(
 								"Snap " + snapId + " not found for origin " + this.getNodeId());
@@ -64,7 +74,7 @@ public class Origin extends NodeImpl implements Serializable {
 
 	public String getOriginUrl() {
 		if (originUrl == null) {
-			originUrl = this.getGraph().copy().getUrl(this.getNodeId());
+			originUrl = this.getUnderlyingGraph().copy().getUrl(this.getNodeId());
 		}
 		return originUrl;
 	}

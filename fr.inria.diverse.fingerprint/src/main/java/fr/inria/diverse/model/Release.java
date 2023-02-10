@@ -1,11 +1,13 @@
 package fr.inria.diverse.model;
 
-import it.unimi.dsi.big.webgraph.LazyLongIterator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.softwareheritage.graph.SwhType;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
+
+import fr.inria.diverse.Graph;
+import it.unimi.dsi.big.webgraph.LazyLongIterator;
 
 public class Release extends NodeImpl implements SnapshotChild {
 	private static final long serialVersionUID = -2603274610133183403L;
@@ -22,7 +24,7 @@ public class Release extends NodeImpl implements SnapshotChild {
 		super();
 	}
 
-	public Release(long nodeId, SwhUnidirectionalGraph g) {
+	public Release(long nodeId, Graph g) {
 		super(nodeId, g);
 	}
 
@@ -32,7 +34,7 @@ public class Release extends NodeImpl implements SnapshotChild {
 
 	public Long getTimestamp() {
 		if (this.timestamp == null) {
-			this.timestamp = this.getGraph().copy().getAuthorTimestamp(this.getNodeId());
+			this.timestamp = this.getUnderlyingGraph().copy().getAuthorTimestamp(this.getNodeId());
 		}
 		return timestamp;
 	}
@@ -42,7 +44,7 @@ public class Release extends NodeImpl implements SnapshotChild {
 	}
 
 	public Revision getRevision() {
-		SwhUnidirectionalGraph graphCopy = this.getGraph().copy();
+		SwhUnidirectionalGraph graphCopy = this.getUnderlyingGraph().copy();
 		LazyLongIterator childIt = graphCopy.successors(this.getNodeId());
 		Long candidateNodeId = childIt.nextLong();
 		if (graphCopy.getNodeType(candidateNodeId) == SwhType.REV) {
@@ -59,7 +61,7 @@ public class Release extends NodeImpl implements SnapshotChild {
 
 	public String getMessage() {
 		if (this.message == null) {
-			this.getGraph().copy().getMessage(this.getNodeId());
+			this.getUnderlyingGraph().copy().getMessage(this.getNodeId());
 		}
 		return message;
 	}
@@ -70,7 +72,7 @@ public class Release extends NodeImpl implements SnapshotChild {
 
 	public String getAuthor() {
 		if (this.author == null) {
-			this.author = "" + this.getGraph().copy().getAuthorId(this.getNodeId());
+			this.author = "" + this.getUnderlyingGraph().copy().getAuthorId(this.getNodeId());
 		}
 		return author;
 	}

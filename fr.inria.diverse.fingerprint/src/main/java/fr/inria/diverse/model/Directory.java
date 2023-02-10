@@ -1,16 +1,16 @@
 package fr.inria.diverse.model;
 
-import it.unimi.dsi.big.webgraph.labelling.ArcLabelledNodeIterator.LabelledArcIterator;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import org.softwareheritage.graph.labels.DirEntry;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import fr.inria.diverse.Graph;
+import it.unimi.dsi.big.webgraph.labelling.ArcLabelledNodeIterator.LabelledArcIterator;
 
 public class Directory extends NodeImpl implements DirectoryChild, Serializable {
 	static Logger logger = LogManager.getLogger(Directory.class);
@@ -19,13 +19,13 @@ public class Directory extends NodeImpl implements DirectoryChild, Serializable 
 		super();
 	}
 
-	public Directory(long nodeId, SwhUnidirectionalGraph g) {
+	public Directory(long nodeId, Graph g) {
 		super(nodeId, g);
 	}
 
 	public List<DirectoryEntry> getEntries() {
 		List<DirectoryEntry> entries = new ArrayList<>();
-		SwhUnidirectionalGraph graphCopy = this.getGraph().copy();
+		SwhUnidirectionalGraph graphCopy = this.getUnderlyingGraph().copy();
 		LabelledArcIterator it = graphCopy.labelledSuccessors(this.getNodeId());
 		for (long childId; (childId = it.nextLong()) >= 0;) {
 			DirectoryChild child = null;

@@ -14,6 +14,8 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,5 +126,20 @@ public class ToolBox {
 				.collect(Collectors.toList());
 
 	}
+
+	/**
+	 * Parse a date YYYY-MM-DD at the beginning of a string a return a ZonedDateTime
+	 * 
+	 * @param string
+	 * @return ZonedDateTime
+	 */
+	public static ZonedDateTime extractDate(String string) {
+		String[] split = string.split("-");
+		int year = Integer.parseInt(split[0]);
+		int month = Integer.parseInt(split[1]);
+		int day = Integer.parseInt(split[2]);
+		return ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of("Europe/Paris"));
+
+	};
 
 }
