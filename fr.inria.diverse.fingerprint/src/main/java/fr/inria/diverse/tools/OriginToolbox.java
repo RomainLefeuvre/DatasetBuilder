@@ -1,7 +1,7 @@
 package fr.inria.diverse.tools;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -29,8 +29,6 @@ import org.softwareheritage.graph.SwhType;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import org.softwareheritage.graph.maps.NodeIdMap;
 
-import com.google.gson.reflect.TypeToken;
-
 import fr.inria.diverse.Graph;
 import fr.inria.diverse.LambdaExplorer;
 import fr.inria.diverse.query.GraphQueryRunner;
@@ -43,7 +41,7 @@ to do it directly in the generation of the compressed version of the PropertyGra
 public class OriginToolbox extends SwhGraphProperties {
 	static Logger logger = LogManager.getLogger(OriginToolbox.class);
 	// The path where the results attribute will be saved in the export folder
-	static String resultFileName = "originsSnaps.json";
+	static String resultFileName = "originsSnaps.bin";
 	// The path where the list of origins will be saved in the export folder
 	private String originPath = "origins/origins";
 	// The result map containing the snapshots id and their timestamps for each
@@ -101,10 +99,7 @@ public class OriginToolbox extends SwhGraphProperties {
 		Path resultUri = Paths.get(Configuration.getInstance().getExportPath().toString(), resultFileName);
 
 		if (ToolBox.checkIfExist(resultUri.toString())) {
-			logger.info("Loading " + resultUri);
-			Type type = new TypeToken<OriginMap>() {
-			}.getType();
-			results = ToolBox.loadJsonObject(resultUri.toString(), type);
+			results = ToolBox.deserialize(resultUri.toString());
 			logger.info("Loading " + resultUri + "Over");
 
 		} else {
@@ -114,7 +109,7 @@ public class OriginToolbox extends SwhGraphProperties {
 			Dataset<Row> queryRes = getSnapshotsFromRelationalVersion();
 			populateResultFromRelationalQueryResult(queryRes);
 			logger.info("Export Result");
-			ToolBox.exportObjectToJson(results, resultUri.toString());
+			ToolBox.serialize(results, resultUri.toString());
 			logger.info("Computing " + resultUri + " over");
 			spark.close();
 		}
@@ -158,7 +153,8 @@ public class OriginToolbox extends SwhGraphProperties {
 		Path tmpUri = Paths.get(Configuration.getInstance().getExportPath().toString(), "tmp");
 		if (!ToolBox.checkIfExist(tmpUri.toString())) {
 			originVisitStatus = spark.read().format("orc")
-					.load(Configuration.getInstance().getGraphPath() + "_orc_origin_visit_status/");
+					.load(Paths.get(Configuration.getInstance().getRelationalPath().toString(), "origin_visit_status/")
+							.toString());
 			originVisitStatus.createOrReplaceTempView("originVisitStatus");
 
 			logger.info("Retrieving Origin URL");
@@ -236,7 +232,9 @@ public class OriginToolbox extends SwhGraphProperties {
 	}
 
 // **********************Inner class**********************
-	public static class OriginMap {
+	public static class OriginMap implements Serializable {
+		private static final long serialVersionUID = -1339172231823890829L;
+
 		private Map<Long, SnapTimestampMap> originSnaps;
 
 		public OriginMap(Map<Long, SnapTimestampMap> originSnaps) {
@@ -273,7 +271,11 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	}
 
-	public static class SnapTimestampMap {
+	public static class SnapTimestampMap implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -628036622945116642L;
 		private Map<Long, Long> snapTimestamp;
 
 		public SnapTimestampMap() {

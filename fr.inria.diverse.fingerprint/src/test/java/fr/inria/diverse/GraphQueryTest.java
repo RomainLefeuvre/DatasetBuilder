@@ -34,7 +34,7 @@ public class GraphQueryTest {
 	public static void init() {
 		runner = new GraphQueryRunnerTest();
 		runner.init();
-		String[] args = { "--queryTimestamp", "2021-03-23", "--exportPath", "./exportTest" };
+		String[] args = { "--queryTimestamp", "2021-03-22", "--exportPath", "./exportTest" };
 		runner.execute(args);
 		logger.info(runner);
 
