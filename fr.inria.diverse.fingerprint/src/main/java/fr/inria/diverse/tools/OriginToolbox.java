@@ -142,19 +142,16 @@ public class OriginToolbox extends SwhGraphProperties {
 				DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
 				DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
 		// Create the dataframe
-		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop().cache();
-		logger.info("originIdUrlDf " + originIdUrlDf.count());
+		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop();
 		// Filter non full snapshots
-		Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'")
-				.select("snapshot", "date", "origin").cache();
-		logger.info("fullSnap " + fullSnap.count());
+		Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
+				"origin");
 
 		// Perform join and extract the corresponding List of Row
 		Dataset<Row> queryRes = fullSnap
 				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
 				.select("snapshot", "date", "originId").groupBy("originId")
-				.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop().cache();
-		logger.info("queryRes " + queryRes.count());
+				.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop();
 
 		queryRes.collectAsList().parallelStream().forEach(row -> {
 			Long originId = row.getLong(0);
