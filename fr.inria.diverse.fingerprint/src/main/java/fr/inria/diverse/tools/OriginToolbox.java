@@ -56,13 +56,13 @@ public class OriginToolbox extends SwhGraphProperties {
 	private Graph g;
 
 	public OriginToolbox(Boolean bypass) throws IOException {
-		super(Configuration.getInstance().getGraphPath());
+		super(Configuration.getInstance().getGraphPath().toString());
 		this.bypass = bypass;
 		this.init();
 	}
 
 	public OriginToolbox(Graph g) throws IOException {
-		super(Configuration.getInstance().getGraphPath());
+		super(Configuration.getInstance().getGraphPath().toString());
 		this.init();
 	}
 
@@ -70,7 +70,8 @@ public class OriginToolbox extends SwhGraphProperties {
 		int totalThread = Configuration.getInstance().getThreadNumber();
 
 		SparkConf conf = new SparkConf().setMaster("local[" + (totalThread - 2) + "]").setAppName("dataSetBuilder")
-				.set("spark.driver.memory", "" + Runtime.getRuntime().freeMemory()).set("spark.driver.cores", "" + 2);
+				.set("spark.driver.memory", "" + Runtime.getRuntime().freeMemory()).set("spark.driver.cores", "" + 2)
+				.set("spark.driver.maxResultSize", "" + 0);
 		spark = SparkSession.builder().config(conf).getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
 		originVisitStatus = spark.read().format("orc")
@@ -78,7 +79,7 @@ public class OriginToolbox extends SwhGraphProperties {
 		originVisitStatus.createOrReplaceTempView("originVisitStatus");
 
 		logger.info("Loading NodeIdMap");
-		this.nodeIdMap = new NodeIdMap(Configuration.getInstance().getGraphPath());
+		this.nodeIdMap = new NodeIdMap(Configuration.getInstance().getGraphPath().toString());
 		logger.info("Loading NodeIdMap - over");
 		logger.info("Loading messages");
 		this.loadMessages();
