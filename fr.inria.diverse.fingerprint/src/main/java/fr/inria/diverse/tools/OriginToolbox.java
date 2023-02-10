@@ -118,7 +118,7 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	public void populateResultFromRelationalQueryResult(Dataset<Row> queryRes) {
 		long numRows = queryRes.count();
-		int chunkSize = 10000000;
+		int chunkSize = (int) (numRows / 5);
 		for (int currentRow = 0; currentRow <= numRows; currentRow = currentRow + chunkSize) {
 			long start = currentRow;
 			long end = currentRow + 1000 < numRows ? currentRow + chunkSize : numRows + 1;
