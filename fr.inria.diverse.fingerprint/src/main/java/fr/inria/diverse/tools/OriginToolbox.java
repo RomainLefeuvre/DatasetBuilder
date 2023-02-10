@@ -2,6 +2,8 @@ package fr.inria.diverse.tools;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +76,6 @@ public class OriginToolbox extends SwhGraphProperties {
 				.set("spark.driver.maxResultSize", "" + 0);
 		spark = SparkSession.builder().config(conf).getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
-		originVisitStatus = spark.read().format("orc")
-				.load(Configuration.getInstance().getGraphPath() + "_orc_origin_visit_status/");
-		originVisitStatus.createOrReplaceTempView("originVisitStatus");
 
 		logger.info("Loading NodeIdMap");
 		this.nodeIdMap = new NodeIdMap(Configuration.getInstance().getGraphPath().toString());
@@ -97,24 +96,52 @@ public class OriginToolbox extends SwhGraphProperties {
 	}
 
 	public void run() {
-		String resultUri = Configuration.getInstance().getExportPath() + resultFileName;
+		Path resultUri = Paths.get(Configuration.getInstance().getExportPath().toString(), resultFileName);
 
-		if (ToolBox.checkIfExist(resultUri)) {
+		if (ToolBox.checkIfExist(resultUri.toString())) {
 			logger.info("Loading " + resultUri);
 			Type type = new TypeToken<OriginMap>() {
 			}.getType();
-			results = ToolBox.loadJsonObject(resultUri, type);
+			results = ToolBox.loadJsonObject(resultUri.toString(), type);
 			logger.info("Loading " + resultUri + "Over");
 
 		} else {
 
 			logger.info("Computing " + resultUri);
 			logger.info("Get Snapshots information from relational version");
-			getSnapshotsFromRelationalVersion();
+			Dataset<Row> queryRes = getSnapshotsFromRelationalVersion();
+			populateResultFromRelationalQueryResult(queryRes);
 			logger.info("Export Result");
-			ToolBox.exportObjectToJson(results, Configuration.getInstance().getExportPath() + resultFileName);
+			ToolBox.exportObjectToJson(results, resultUri.toString());
 			logger.info("Computing " + resultUri + " over");
 			spark.close();
+		}
+
+	}
+
+	public void populateResultFromRelationalQueryResult(Dataset<Row> queryRes) {
+		long numRows = queryRes.count();
+		int chunkSize = 1000;
+
+		for (int currentRow = 0; currentRow <= numRows; currentRow = currentRow + 1000) {
+			long start = currentRow;
+			long end = currentRow + 1000 < numRows ? currentRow + 1000 : numRows + 1;
+
+			queryRes.where("row_id >=" + start + " AND row_id<" + end).collectAsList().parallelStream().forEach(row -> {
+				Long originId = row.getLong(0);
+				SnapTimestampMap snaps = new SnapTimestampMap();
+				NodeIdMap nodeIdMapCopy = nodeIdMap.copy(); // Populate snaps
+				row.getList(1).stream().forEach(snapRow -> {
+					SWHID snapSWHID = new SWHID("swh:1:snp:" + ((Row) snapRow).getString(0));
+					Long snapId = nodeIdMapCopy.getNodeId(snapSWHID, false);
+					Long timestamp = ((Row) snapRow).getTimestamp(1).getTime();
+					snaps.addSnap(snapId, timestamp);
+				});
+				synchronized (results) {
+					results.addSnaps(originId, snaps);
+				}
+			});
+			;
 		}
 
 	}
@@ -126,57 +153,54 @@ public class OriginToolbox extends SwhGraphProperties {
 	 * @param originIdUrlTuple A list of tuple <OriginUrl,OriginId>
 	 * @return OriginMap
 	 */
-	private OriginMap getSnapshotsFromRelationalVersion() {
-		logger.info("Retrieving Origin URL");
-		List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
-			String url = this.copy().getUrl(originId);
-			return new Tuple2<String, Long>(url, originId);
-		}).collect(Collectors.toList());
+	private Dataset<Row> getSnapshotsFromRelationalVersion() {
+		Path tmpUri = Paths.get(Configuration.getInstance().getExportPath().toString(), "tmp");
+		if (!ToolBox.checkIfExist(tmpUri.toString())) {
+			originVisitStatus = spark.read().format("orc")
+					.load(Configuration.getInstance().getGraphPath() + "_orc_origin_visit_status/");
+			originVisitStatus.createOrReplaceTempView("originVisitStatus");
 
-		logger.info("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
-		List<Row> originIdUrl = originIdUrlTuple.parallelStream().map(tuple -> RowFactory.create(tuple._1, tuple._2))
-				.collect(Collectors.toList());
+			logger.info("Retrieving Origin URL");
+			List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
+				String url = this.copy().getUrl(originId);
+				return new Tuple2<String, Long>(url, originId);
+			}).collect(Collectors.toList());
 
-		logger.info("Spark processes");
-		// The Schema of the new DF that will be created
-		StructType schema = DataTypes.createStructType(new StructField[] {
-				DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
-				DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
-		// Create the dataframe
-		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop();
-		// Filter non full snapshots
-		Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
-				"origin");
+			logger.info("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
+			List<Row> originIdUrl = originIdUrlTuple.parallelStream()
+					.map(tuple -> RowFactory.create(tuple._1, tuple._2)).collect(Collectors.toList());
 
-		// Perform join and extract the corresponding List of Row
-		Dataset<Row> queryRes = fullSnap
-				.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
-				.select("snapshot", "date", "originId").groupBy("originId")
-				.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop();
+			logger.info("Spark processes");
+			// The Schema of the new DF that will be created
+			StructType schema = DataTypes.createStructType(new StructField[] {
+					DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
+					DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
+			// Create the dataframe
+			Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop();
+			// Filter non full snapshots
+			Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
+					"origin");
 
-		queryRes.collectAsList().parallelStream().forEach(row -> {
-			Long originId = row.getLong(0);
-			SnapTimestampMap snaps = new SnapTimestampMap();
-			NodeIdMap nodeIdMapCopy = nodeIdMap.copy();
-			// Populate snaps
-			row.getList(1).stream().forEach(snapRow -> {
-				SWHID snapSWHID = new SWHID("swh:1:snp:" + ((Row) snapRow).getString(0));
-				Long snapId = nodeIdMapCopy.getNodeId(snapSWHID, false);
-				Long timestamp = ((Row) snapRow).getTimestamp(1).getTime();
-				snaps.addSnap(snapId, timestamp);
-			});
-			synchronized (results) {
-				results.addSnaps(originId, snaps);
-			}
-		});
+			// Perform join and extract the corresponding List of Row
+			Dataset<Row> queryRes = fullSnap
+					.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
+					.select("snapshot", "date", "originId").groupBy("originId")
+					.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop()
+					.withColumn("row_id", functions.monotonically_increasing_id()).cache();
+			queryRes.write().format("parquet").save(tmpUri.toString());
+			return queryRes;
+		} else {
+			logger.info("Loading temp result");
+			return spark.read().format("parquet").load(tmpUri.toString()).cache();
+		}
 
-		return results;
 	}
 
 	private void loadOrComputeOrigins() {
-		if (ToolBox.checkIfExist(Configuration.getInstance().getExportPath() + originPath) && this.bypass) {
+		Path originPathString = Paths.get(Configuration.getInstance().getExportPath().toString(), originPath);
+		if (ToolBox.checkIfExist(originPathString.toString()) && this.bypass) {
 			logger.info("Loading Origins");
-			this.origins = ToolBox.deserialize(Configuration.getInstance().getExportPath() + originPath);
+			this.origins = ToolBox.deserialize(originPathString.toString());
 			logger.info("Origins Loaded-");
 
 		} else {
@@ -197,9 +221,9 @@ public class OriginToolbox extends SwhGraphProperties {
 					}
 
 					@Override
-					protected String getExportPath() {
+					protected Path getExportPath() {
 						String uuid = UUID.randomUUID().toString();
-						return Configuration.getInstance().getExportPath() + originPath;
+						return originPathString;
 					}
 				}.explore();
 				logger.info("Computing Computed - over");
