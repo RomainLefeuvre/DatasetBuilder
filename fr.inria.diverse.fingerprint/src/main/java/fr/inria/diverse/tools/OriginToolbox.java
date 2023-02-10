@@ -118,11 +118,11 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	public void populateResultFromRelationalQueryResult(Dataset<Row> queryRes) {
 		long numRows = queryRes.count();
-		int chunkSize = 1000;
-		for (int currentRow = 0; currentRow <= numRows; currentRow = currentRow + 1000) {
+		int chunkSize = 10000000;
+		for (int currentRow = 0; currentRow <= numRows; currentRow = currentRow + chunkSize) {
 			long start = currentRow;
-			long end = currentRow + 1000 < numRows ? currentRow + 1000 : numRows + 1;
-			Dataset<Row> batch = queryRes.where("row_id >=" + start + " AND row_id<" + end).cache();
+			long end = currentRow + 1000 < numRows ? currentRow + chunkSize : numRows + 1;
+			Dataset<Row> batch = queryRes.where("row_id >=" + start + " AND row_id<" + end);
 			batch.collectAsList().parallelStream().forEach(row -> {
 				Long originId = row.getLong(0);
 				SnapTimestampMap snaps = new SnapTimestampMap();
