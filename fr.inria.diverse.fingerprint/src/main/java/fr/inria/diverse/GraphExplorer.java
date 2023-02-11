@@ -20,6 +20,7 @@ import org.softwareheritage.graph.SwhUnidirectionalGraph;
 import fr.inria.diverse.tools.Configuration;
 import fr.inria.diverse.tools.Executor;
 import fr.inria.diverse.tools.ModelInconsistencyException;
+import fr.inria.diverse.tools.ModelInconsistencyException.OriginModelInconsistencyException;
 import fr.inria.diverse.tools.ToolBox;
 
 /**
@@ -77,6 +78,8 @@ public abstract class GraphExplorer<T extends Serializable> {
 					try {
 						this.checkpointSynchro.acquire();
 						this.exploreGraphNodeAction(i, graphCopy.copy());
+					} catch (OriginModelInconsistencyException e) {
+						logger.debug("Inconsistency detected - Due to :" + e.getMessage());
 
 					} catch (ModelInconsistencyException e) {
 						logger.warn("Inconsistency detected - Due to :" + e.getMessage());

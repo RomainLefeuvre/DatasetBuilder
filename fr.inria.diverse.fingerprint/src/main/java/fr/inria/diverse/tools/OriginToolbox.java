@@ -34,8 +34,8 @@ import fr.inria.diverse.LambdaExplorer;
 import fr.inria.diverse.query.GraphQueryRunner;
 import scala.Tuple2;
 
-/*Class that contains all the different treatments, function needed to integrate
-visit of each origin. Here we will not integrate it in the most efficient manner, as it is preferable
+/*Class that contains all the different treatments, functions needed to integrate
+the visit of each origin. Here we will not integrate it in the most efficient manner, as it is preferable
 to do it directly in the generation of the compressed version of the PropertyGraphDataset.
 */
 public class OriginToolbox extends SwhGraphProperties {
@@ -65,9 +65,18 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	public OriginToolbox(Graph g) throws IOException {
 		super(Configuration.getInstance().getGraphPath().toString());
+		this.g = g;
 		this.init();
 	}
 
+	/**
+	 * Initialize the current SwhGraphProperties attribute, the spark session for
+	 * relational query ToDo migrate the SwhGraphProperties to an association
+	 * instead of inheritance in order to leverage on the existing
+	 * SwhGraphProperties when a graph is pass;
+	 * 
+	 * @throws IOException
+	 */
 	public void init() throws IOException {
 		int totalThread = Configuration.getInstance().getThreadNumber();
 
@@ -76,13 +85,12 @@ public class OriginToolbox extends SwhGraphProperties {
 				.set("spark.driver.maxResultSize", "" + 0);
 		spark = SparkSession.builder().config(conf).getOrCreate();
 		Dataset<String> logData = spark.read().textFile("./log").cache();
-
-		logger.info("Loading NodeIdMap");
+		logger.debug("Loading NodeIdMap");
 		this.nodeIdMap = new NodeIdMap(Configuration.getInstance().getGraphPath().toString());
-		logger.info("Loading NodeIdMap - over");
-		logger.info("Loading messages");
+		logger.debug("Loading NodeIdMap - over");
+		logger.debug("Loading messages");
 		this.loadMessages();
-		logger.info("Loading messages - over");
+		logger.debug("Loading messages - over");
 		results = new OriginMap();
 		this.loadOrComputeOrigins();
 	}
@@ -99,16 +107,17 @@ public class OriginToolbox extends SwhGraphProperties {
 		Path resultUri = Paths.get(Configuration.getInstance().getExportPath().toString(), resultFileName);
 
 		if (ToolBox.checkIfExist(resultUri.toString())) {
+			logger.info("Loading " + resultUri);
 			results = ToolBox.deserialize(resultUri.toString());
 			logger.info("Loading " + resultUri + "Over");
 
 		} else {
 
 			logger.info("Computing " + resultUri);
-			logger.info("Get Snapshots information from relational version");
+			logger.debug("Get Snapshots information from relational version");
 			Dataset<Row> queryRes = getSnapshotsFromRelationalVersion();
 			populateResultFromRelationalQueryResult(queryRes);
-			logger.info("Export Result");
+			logger.debug("Export Result");
 			ToolBox.serialize(results, resultUri.toString());
 			logger.info("Computing " + resultUri + " over");
 			spark.close();
@@ -116,7 +125,14 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	}
 
+	/**
+	 * Take as input a Dataset<Row> : <OriginId,List<snapshotId,timestamp>,row_id>
+	 * and populate the OriginMap
+	 * 
+	 * @param queryRes Dataset<Row>
+	 */
 	public void populateResultFromRelationalQueryResult(Dataset<Row> queryRes) {
+		// Collect the table in 5 batch
 		long numRows = queryRes.count();
 		int chunkSize = (int) (numRows / 5);
 		for (int currentRow = 0; currentRow <= numRows; currentRow = currentRow + chunkSize) {
@@ -124,7 +140,9 @@ public class OriginToolbox extends SwhGraphProperties {
 			long end = currentRow + 1000 < numRows ? currentRow + chunkSize : numRows + 1;
 			Dataset<Row> batch = queryRes.where("row_id >=" + start + " AND row_id<" + end);
 			batch.collectAsList().parallelStream().forEach(row -> {
+				// The actual originId
 				Long originId = row.getLong(0);
+				// Create the corresponding SnapTimestampMap
 				SnapTimestampMap snaps = new SnapTimestampMap();
 				NodeIdMap nodeIdMapCopy = nodeIdMap.copy(); // Populate snaps
 				row.getList(1).stream().forEach(snapRow -> {
@@ -133,6 +151,7 @@ public class OriginToolbox extends SwhGraphProperties {
 					Long timestamp = ((Row) snapRow).getTimestamp(1).getTime();
 					snaps.addSnap(snapId, timestamp);
 				});
+				// Add the current origin to the results attribute
 				synchronized (results) {
 					results.addSnaps(originId, snaps);
 				}
@@ -143,11 +162,10 @@ public class OriginToolbox extends SwhGraphProperties {
 	}
 
 	/**
-	 * Get the list of OriginIdLastSnapIdOriginUri ie. for each origin retrieve its
-	 * snapshot id and the corresponding timestamp
+	 * Query the relational table origin_visit_status with spark and return a
+	 * Dataset<Row> : <OriginId,List<snapshotId,timestamp>,row_id>
 	 * 
-	 * @param originIdUrlTuple A list of tuple <OriginUrl,OriginId>
-	 * @return OriginMap
+	 * @return Dataset<Row>
 	 */
 	private Dataset<Row> getSnapshotsFromRelationalVersion() {
 		Path tmpUri = Paths.get(Configuration.getInstance().getExportPath().toString(), "tmp");
@@ -157,17 +175,17 @@ public class OriginToolbox extends SwhGraphProperties {
 							.toString());
 			originVisitStatus.createOrReplaceTempView("originVisitStatus");
 
-			logger.info("Retrieving Origin URL");
+			logger.debug("Retrieving Origin URL");
 			List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
 				String url = this.copy().getUrl(originId);
 				return new Tuple2<String, Long>(url, originId);
 			}).collect(Collectors.toList());
 
-			logger.info("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
+			logger.debug("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
 			List<Row> originIdUrl = originIdUrlTuple.parallelStream()
 					.map(tuple -> RowFactory.create(tuple._1, tuple._2)).collect(Collectors.toList());
 
-			logger.info("Spark processes");
+			logger.debug("Spark processes");
 			// The Schema of the new DF that will be created
 			StructType schema = DataTypes.createStructType(new StructField[] {
 					DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
@@ -187,21 +205,28 @@ public class OriginToolbox extends SwhGraphProperties {
 			queryRes.write().format("parquet").save(tmpUri.toString());
 			return queryRes;
 		} else {
-			logger.info("Loading temp result");
+			logger.debug("Loading temp result");
 			return spark.read().format("parquet").load(tmpUri.toString()).cache();
 		}
 
 	}
 
+	/**
+	 * Compute the list of origins id in the graph, load it from checkpoint if it
+	 * exist.
+	 * 
+	 * A bypass mechanism has been implemented in order to avoid to load the entire
+	 * graph in standalone mode (cf main of this class) when the file already exist.
+	 */
 	private void loadOrComputeOrigins() {
 		Path originPathString = Paths.get(Configuration.getInstance().getExportPath().toString(), originPath);
 		if (ToolBox.checkIfExist(originPathString.toString()) && this.bypass) {
-			logger.info("Loading Origins");
+			logger.debug("Loading Origins");
 			this.origins = ToolBox.deserialize(originPathString.toString());
-			logger.info("Origins Loaded-");
+			logger.debug("Origins Loaded-");
 
 		} else {
-			logger.info("Computing Origins");
+			logger.debug("Computing Origins");
 
 			try {
 				if (g == null) {
@@ -223,7 +248,7 @@ public class OriginToolbox extends SwhGraphProperties {
 						return originPathString;
 					}
 				}.explore();
-				logger.info("Computing Computed - over");
+				logger.debug("Computing Origins - over");
 
 			} catch (Exception e) {
 				throw new RuntimeException("Error while retrieving origin");
@@ -311,6 +336,7 @@ public class OriginToolbox extends SwhGraphProperties {
 		public void run() {
 			logger.info("Origin Toolbox");
 			try {
+				// Bypass integrity check if origins result already exist
 				(new OriginToolbox(true)).run();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import fr.inria.diverse.Graph;
-import fr.inria.diverse.tools.ModelInconsistencyException;
+import fr.inria.diverse.tools.ModelInconsistencyException.OriginModelInconsistencyException;
 import fr.inria.diverse.tools.OriginToolbox.SnapTimestampMap;
 import it.unimi.dsi.big.webgraph.LazyLongIterator;
 
@@ -48,24 +48,24 @@ public class Origin extends NodeImpl implements Serializable {
 								&& snapTimestamp <= this.getGraph().getGraphTimestamp().toInstant().toEpochMilli()) {
 							originVisits.add(new OriginVisit(new Snapshot(snapId, this.getGraph()), snapTimestamp));
 						} else {
-							logger.info(
+							logger.debug(
 									"Skipping origin visit containing snap " + snapId + " since the query date is ");
 						}
 					} else {
-						throw new ModelInconsistencyException(
+						throw new OriginModelInconsistencyException(
 								"Snap " + snapId + " not found for origin " + this.getNodeId());
 					}
 				}
 			} else {
-				throw new ModelInconsistencyException("No full originVisit for " + this.getNodeId());
+				throw new OriginModelInconsistencyException("No full originVisit for " + this.getNodeId());
 			}
 		}
 		return originVisits;
 	}
 
 	public OriginVisit getLastOriginVisit() {
-		return this.getOriginVisits().stream().max(Comparator.comparing(OriginVisit::getTimestamp))
-				.orElseThrow(() -> new ModelInconsistencyException("No full originVisit for " + this.getNodeId()));
+		return this.getOriginVisits().stream().max(Comparator.comparing(OriginVisit::getTimestamp)).orElseThrow(
+				() -> new OriginModelInconsistencyException("No full originVisit for " + this.getNodeId()));
 	}
 
 	public void setOriginVisit(List<OriginVisit> originVisit) {
