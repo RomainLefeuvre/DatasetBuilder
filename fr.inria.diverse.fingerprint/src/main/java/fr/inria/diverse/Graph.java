@@ -86,7 +86,7 @@ public class Graph {
 		return graphTimestamp;
 	}
 
-	public List<Long> getOriginsList() {
+	public List<Long> getOrigins() {
 		return originsList;
 	}
 

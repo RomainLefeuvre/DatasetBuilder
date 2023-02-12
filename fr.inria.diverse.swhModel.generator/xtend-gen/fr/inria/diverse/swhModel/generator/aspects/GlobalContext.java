@@ -9,11 +9,15 @@ import org.eclipse.xtext.xbase.lib.Pure;
 public class GlobalContext {
   private HashMap<String, String> staticMethods;
   
+  private HashMap<String, String> contextMethods;
+  
   private int varIndex;
   
   public GlobalContext() {
     HashMap<String, String> _hashMap = new HashMap<String, String>();
     this.staticMethods = _hashMap;
+    HashMap<String, String> _hashMap_1 = new HashMap<String, String>();
+    this.contextMethods = _hashMap_1;
     this.varIndex = 0;
   }
   
@@ -33,6 +37,15 @@ public class GlobalContext {
   
   public void setStaticMethods(final HashMap<String, String> staticMethods) {
     this.staticMethods = staticMethods;
+  }
+  
+  @Pure
+  public HashMap<String, String> getContextMethods() {
+    return this.contextMethods;
+  }
+  
+  public void setContextMethods(final HashMap<String, String> contextMethods) {
+    this.contextMethods = contextMethods;
   }
   
   @Pure

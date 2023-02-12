@@ -224,6 +224,15 @@ public class SwhModelPackageImpl extends EPackageImpl implements SwhModelPackage
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EOperation getGraph__Query() {
+		return graphEClass.getEOperations().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getNode() {
 		return nodeEClass;
 	}
@@ -602,6 +611,7 @@ public class SwhModelPackageImpl extends EPackageImpl implements SwhModelPackage
 		graphEClass = createEClass(GRAPH);
 		createEReference(graphEClass, GRAPH__ORIGINS);
 		createEAttribute(graphEClass, GRAPH__TIMESTAMP);
+		createEOperation(graphEClass, GRAPH___QUERY);
 
 		nodeEClass = createEClass(NODE);
 		createEAttribute(nodeEClass, NODE__SWHID);
@@ -706,6 +716,8 @@ public class SwhModelPackageImpl extends EPackageImpl implements SwhModelPackage
 		initEAttribute(getGraph_Timestamp(), theXMLTypePackage.getDateTime(), "timestamp", null, 0, 1, Graph.class,
 				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
+		initEOperation(getGraph__Query(), this.getGraph(), "query", 0, 1, IS_UNIQUE, IS_ORDERED);
+
 		initEClass(nodeEClass, Node.class, "Node", IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getNode_Swhid(), theXMLTypePackage.getString(), "swhid", null, 0, 1, Node.class, !IS_TRANSIENT,
 				!IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -763,7 +775,7 @@ public class SwhModelPackageImpl extends EPackageImpl implements SwhModelPackage
 				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRevision_Commiter(), theXMLTypePackage.getString(), "commiter", null, 0, 1, Revision.class,
 				!IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getRevision_CommiterTimestamp(), theXMLTypePackage.getDate(), "commiterTimestamp", null, 0, 1,
+		initEAttribute(getRevision_CommiterTimestamp(), theXMLTypePackage.getLong(), "commiterTimestamp", null, 0, 1,
 				Revision.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE,
 				!IS_DERIVED, IS_ORDERED);
 		initEReference(getRevision_Parent(), this.getRevision(), null, "parent", null, 0, 1, Revision.class,

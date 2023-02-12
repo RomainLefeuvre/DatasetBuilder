@@ -95,13 +95,22 @@ public interface SwhModelPackage extends EPackage {
 	int GRAPH_FEATURE_COUNT = 2;
 
 	/**
+	 * The operation id for the '<em>Query</em>' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int GRAPH___QUERY = 0;
+
+	/**
 	 * The number of operations of the '<em>Graph</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int GRAPH_OPERATION_COUNT = 0;
+	int GRAPH_OPERATION_COUNT = 1;
 
 	/**
 	 * The meta object id for the '{@link fr.inria.diverse.swhModel.impl.NodeImpl <em>Node</em>}' class.
@@ -787,6 +796,16 @@ public interface SwhModelPackage extends EPackage {
 	EAttribute getGraph_Timestamp();
 
 	/**
+	 * Returns the meta object for the '{@link fr.inria.diverse.swhModel.Graph#query() <em>Query</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the '<em>Query</em>' operation.
+	 * @see fr.inria.diverse.swhModel.Graph#query()
+	 * @generated
+	 */
+	EOperation getGraph__Query();
+
+	/**
 	 * Returns the meta object for class '{@link fr.inria.diverse.swhModel.Node <em>Node</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1249,6 +1268,14 @@ public interface SwhModelPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute GRAPH__TIMESTAMP = eINSTANCE.getGraph_Timestamp();
+
+		/**
+		 * The meta object literal for the '<em><b>Query</b></em>' operation.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EOperation GRAPH___QUERY = eINSTANCE.getGraph__Query();
 
 		/**
 		 * The meta object literal for the '{@link fr.inria.diverse.swhModel.impl.NodeImpl <em>Node</em>}' class.

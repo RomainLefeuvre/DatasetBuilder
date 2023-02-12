@@ -12,9 +12,9 @@
         </File>
     </Appenders>
 	<Loggers>
-        <AsyncRoot level="INFO">
-            <AppenderRef ref="STDOUT"/>
-            <AppenderRef ref="FileLogging"/>
+        <AsyncRoot level="DEBUG">
+            <AppenderRef ref="STDOUT" level="INFO"/>
+            <AppenderRef ref="FileLogging" />
         </AsyncRoot>
     </Loggers>
 </Configuration>

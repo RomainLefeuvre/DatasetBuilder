@@ -22,12 +22,13 @@ import fr.inria.diverse.model.Directory;
 import fr.inria.diverse.model.DirectoryEntry;
 import fr.inria.diverse.model.Origin;
 import fr.inria.diverse.model.Revision;
-import fr.inria.diverse.model.SnapshotBranch;
+import fr.inria.diverse.tools.ModelInconsistencyException;
 
 public class GraphQueryTest {
 	static Logger logger = LogManager.getLogger(GraphQueryTest.class);
 	private static GraphQueryRunnerTest runner;
 	private Graph g;
+	static String id = "test";
 	private boolean restoreCheckpoint = false;
 
 	@BeforeClass
@@ -52,46 +53,67 @@ public class GraphQueryTest {
 		g.loadExternalInfo();
 	}
 
+	public static Revision getRootRevision(Revision self) {
+		if (self == null) {
+			throw new ModelInconsistencyException("r");
+		}
+		return (self.getParent() == null) ? (self) : (getRootRevision(self.getParent()));
+
+	}
+
 	public Set<Long> runQuery() throws IOException, InterruptedException {
 		Set<Long> results = new HashSet<>();
-		String id = "05b860db-1362-45af-989f-e53847c9b1db";
 		logger.info("------Executing query " + id + "------");
-		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOriginsList(), id) {
+		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins(), id) {
 			@Override
 			public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 				Origin origin = new Origin(currentElement, this.graph);
-				boolean predicateResult = false;
-
-				predicateResult = origin.getLastOriginVisit().getSnapshot().getBranches().stream()
-						.anyMatch(branche -> ((branche.getName().equals("refs/heads/master")
+				boolean predicateResult = origin.getLastSnapshot().getBranches().stream()
+						.anyMatch(branche -> ((((branche.getName().equals("refs/heads/master")
 								|| branche.getName().equals("refs/heads/main"))
-								&& optimizationPredicate1_3(branche)
-								&& DirectoryEntryClosure5(branche.getRevision().getTree().getEntries().stream()
+								&& RevisionClosure2((new HashSet<Revision>(Arrays.asList(branche.getRevision())))
+										.stream().collect(Collectors.toSet())).size() > (1000))
+								&& getRootRevision(branche.getRevision()).getCommiterTimestamp() > (1420066800))
+								&& DirectoryEntryClosure3(branche.getRevision().getTree().getEntries().stream()
 										.collect(Collectors.toSet())).stream()
-												.anyMatch(e -> e.getName().equals("README.md"))));
-
+												.anyMatch(e -> e.getName().equals("AndroidManifest.xml"))));
 				if (predicateResult) {
 					result.add(currentElement);
 				}
 			}
-		}.explore(restoreCheckpoint);
+		}.explore();
 		results.addAll(selectResult);
 		return results;
 	}
 
-	public static boolean optimizationPredicate1_3(SnapshotBranch b) {
-		Revision current = b.getRevision();
-		Revision parent = current != null ? current.getParent() : null;
-		int count = 1;
-		while (parent != null) {
-			current = parent;
-			parent = parent.getParent();
-			count++;
+	public static Set<Revision> RevisionClosure2(Set<Revision> param) {
+		Stack<Revision> stack = new Stack<>();
+		HashSet<Revision> res = new HashSet<>();
+		stack.addAll(param);
+		res.addAll(param);
+
+		while (!stack.isEmpty()) {
+			Set<Revision> children = new HashSet<Revision>();
+
+			Revision var_1 = stack.pop();
+			try {
+				children = new HashSet<Revision>(Arrays.asList(var_1.getParent()));
+			} catch (Exception e) {
+				logger.warn("Error during closure for" + param);
+				logger.debug("Error during closure for" + param, e);
+			}
+			for (Revision child : children) {
+				if (child != null && !res.contains(child)) {
+					res.add(child);
+					stack.add(child);
+				}
+			}
+
 		}
-		return (current.getCommiterTimestamp() > 1420066800) && (count > 1000);
+		return res;
 	}
 
-	public static Set<DirectoryEntry> DirectoryEntryClosure5(Set<DirectoryEntry> param) {
+	public static Set<DirectoryEntry> DirectoryEntryClosure3(Set<DirectoryEntry> param) {
 		Stack<DirectoryEntry> stack = new Stack<>();
 		HashSet<DirectoryEntry> res = new HashSet<>();
 		stack.addAll(param);

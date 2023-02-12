@@ -6,6 +6,7 @@ import fr.inria.diverse.swhModel.Graph;
 import fr.inria.diverse.swhModel.Origin;
 import fr.inria.diverse.swhModel.SwhModelPackage;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -120,6 +121,17 @@ public class GraphImpl extends MinimalEObjectImpl.Container implements Graph {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public Graph query() {
+		// TODO: implement this method
+		// Ensure that you remove @generated or mark it @generated NOT
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
@@ -183,6 +195,20 @@ public class GraphImpl extends MinimalEObjectImpl.Container implements Graph {
 			return TIMESTAMP_EDEFAULT == null ? timestamp != null : !TIMESTAMP_EDEFAULT.equals(timestamp);
 		}
 		return super.eIsSet(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Object eInvoke(int operationID, EList<?> arguments) throws InvocationTargetException {
+		switch (operationID) {
+		case SwhModelPackage.GRAPH___QUERY:
+			return query();
+		}
+		return super.eInvoke(operationID, arguments);
 	}
 
 	/**

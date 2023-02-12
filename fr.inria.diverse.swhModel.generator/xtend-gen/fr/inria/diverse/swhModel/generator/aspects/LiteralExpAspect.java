@@ -19,6 +19,11 @@ public abstract class LiteralExpAspect extends OCLExpressionAspect {
     			result = fr.inria.diverse.swhModel.generator.aspects.BooleanLiteralExpAspect.generate((org.eclipse.ocl.pivot.BooleanLiteralExp)_self,context);
     		} else
     		// EndInjectInto fr.inria.diverse.swhModel.generator.aspects.LiteralExpAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.BooleanLiteralExpAspect
+    	// BeginInjectInto fr.inria.diverse.swhModel.generator.aspects.LiteralExpAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.NullLiteralExpAspect
+    		if (_self instanceof org.eclipse.ocl.pivot.NullLiteralExp){
+    			result = fr.inria.diverse.swhModel.generator.aspects.NullLiteralExpAspect.generate((org.eclipse.ocl.pivot.NullLiteralExp)_self,context);
+    		} else
+    		// EndInjectInto fr.inria.diverse.swhModel.generator.aspects.LiteralExpAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.NullLiteralExpAspect
     	// BeginInjectInto fr.inria.diverse.swhModel.generator.aspects.LiteralExpAspect#String generate(Context) from fr.inria.diverse.swhModel.generator.aspects.IntegerLiteralExpAspect
     		if (_self instanceof org.eclipse.ocl.pivot.IntegerLiteralExp){
     			result = fr.inria.diverse.swhModel.generator.aspects.IntegerLiteralExpAspect.generate((org.eclipse.ocl.pivot.IntegerLiteralExp)_self,context);
