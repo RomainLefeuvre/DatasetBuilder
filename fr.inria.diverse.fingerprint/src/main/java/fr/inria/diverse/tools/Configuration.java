@@ -38,7 +38,7 @@ public abstract class Configuration {
 
 	public ZonedDateTime getGraphTimestamp() {
 		ZonedDateTime graphDate = ToolBox.extractDate(this.getGraphFolderPath().getFileName().toString());
-		// Take 7 days of guarentee;
+		// Take 1 days of guarentee;
 		return graphDate.minusDays(1);
 	};
 
