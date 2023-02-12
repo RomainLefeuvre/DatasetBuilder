@@ -21,13 +21,11 @@ public class GraphQuery implements IGraphQuery{
     }
 		
 	public static Revision getRootRevision( Revision self){
-		return 	((self.getParent().equals(null))?
-			(self):
-			(getRootRevision(self.getParent()))
-		)		
-		;
-		
-	} 
+		while(!(self.getParent() == null){
+			self=self.getParent();
+		}
+		return self;
+	}
 	public Set<Long> runQuery() throws IOException, InterruptedException {
 		Set<Long> results = new HashSet<>();
 		logger.info("------Executing query "+id+"------");

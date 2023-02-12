@@ -3,6 +3,8 @@ package fr.inria.diverse.swhModel.generator.aspects;
 import fr.inria.diverse.k3.al.annotationprocessor.Aspect;
 import org.eclipse.ocl.pivot.OCLExpression;
 import org.eclipse.ocl.pivot.OperationCallExp;
+import org.eclipse.ocl.pivot.PrimitiveType;
+import org.eclipse.ocl.pivot.Type;
 import org.eclipse.xtend2.lib.StringConcatenation;
 
 @Aspect(className = OperationCallExp.class)
@@ -77,13 +79,25 @@ public class OperationCallExpAspect extends FeatureCallExpAspect {
             {
               OCLExpression _get = _self.getOwnedArguments().get(0);
               final OCLExpression value = ((OCLExpression) _get);
-              StringConcatenation _builder_5 = new StringConcatenation();
-              _builder_5.append(source);
-              _builder_5.append(".equals(");
-              String _generate_2 = OCLExpressionAspect.generate(value, context);
-              _builder_5.append(_generate_2);
-              _builder_5.append(")");
-              _xblockexpression_1 = _builder_5.toString();
+              String _xifexpression = null;
+              Type _type = _self.getOwnedSource().getType();
+              if ((_type instanceof PrimitiveType)) {
+                StringConcatenation _builder_5 = new StringConcatenation();
+                _builder_5.append(source);
+                _builder_5.append(".equals(");
+                String _generate_2 = OCLExpressionAspect.generate(value, context);
+                _builder_5.append(_generate_2);
+                _builder_5.append(")");
+                _xifexpression = _builder_5.toString();
+              } else {
+                StringConcatenation _builder_6 = new StringConcatenation();
+                _builder_6.append(source);
+                _builder_6.append(" == ");
+                String _generate_3 = OCLExpressionAspect.generate(value, context);
+                _builder_6.append(_generate_3);
+                _xifexpression = _builder_6.toString();
+              }
+              _xblockexpression_1 = _xifexpression;
             }
             _switchResult = _xblockexpression_1;
             break;

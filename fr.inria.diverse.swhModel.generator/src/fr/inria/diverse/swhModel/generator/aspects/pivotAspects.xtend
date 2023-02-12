@@ -265,6 +265,7 @@ import java.util.Map
 import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.HashMap
 import java.util.UUID
+import org.eclipse.ocl.pivot.internal.PrimitiveTypeImpl
 
 @Aspect(className=Model)
 class Pivot_ModelAspect extends NamespaceAspect {
@@ -351,6 +352,26 @@ class OperationAspect extends FeatureAspect {
 			}
 			default: {
 				context.globalContext.contextMethods.put(_self.name, _self.owningClass.name);
+				//ToDo improve this optimization and add check
+				//Detect direct Recusion, on else and do iterative optimization
+				if((_self.bodyExpression as ExpressionInOCL).ownedBody instanceof IfExp ){
+					val IfExp ifExp =(_self.bodyExpression as ExpressionInOCL).ownedBody as IfExp
+					//If the else is a recursive call
+					if(ifExp.ownedElse instanceof OperationCallExp && ifExp.ownedElse.name.equals(_self.name)){
+						val OperationCallExp ownedElse = ifExp.ownedElse as OperationCallExp
+						val elseSource = ownedElse.ownedSource.generate(context)
+						return
+						'''
+						public static «_self.type.name» «_self.name»( «_self.owningClass.name» self){
+							while(!(«ifExp.ownedCondition.generate(context)»)){
+								self=«elseSource»;
+							}
+							return self;
+						}
+						'''
+					}
+				}				
+				
 				'''
 					public static «_self.type.name» «_self.name»( «_self.owningClass.name» self){
 						return 	«_self.bodyExpression.generate(context)»;
@@ -445,7 +466,13 @@ class OperationCallExpAspect extends FeatureCallExpAspect {
 			}
 			case '=': {
 				val value = _self.ownedArguments.get(0) as OCLExpression
-				'''«source».equals(«value.generate(context)»)'''
+				if (_self.ownedSource.type instanceof PrimitiveType){
+					'''«source».equals(«value.generate(context)»)'''	
+				}else{
+					'''«source» == «value.generate(context)»'''	
+					
+				}
+				
 			}
 			case '>': {
 				val value = _self.ownedArguments.get(0) as OCLExpression

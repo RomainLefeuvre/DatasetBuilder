@@ -1,7 +1,12 @@
 package fr.inria.diverse.swhModel.generator.aspects;
 
 import fr.inria.diverse.k3.al.annotationprocessor.Aspect;
+import org.eclipse.ocl.pivot.ExpressionInOCL;
+import org.eclipse.ocl.pivot.IfExp;
+import org.eclipse.ocl.pivot.LanguageExpression;
+import org.eclipse.ocl.pivot.OCLExpression;
 import org.eclipse.ocl.pivot.Operation;
+import org.eclipse.ocl.pivot.OperationCallExp;
 import org.eclipse.xtend2.lib.StringConcatenation;
 
 @Aspect(className = Operation.class)
@@ -50,6 +55,91 @@ public class OperationAspect extends FeatureAspect {
             String _xblockexpression_1 = null;
             {
               context.getGlobalContext().getContextMethods().put(_self.getName(), _self.getOwningClass().getName());
+              LanguageExpression _bodyExpression = _self.getBodyExpression();
+              OCLExpression _ownedBody = ((ExpressionInOCL) _bodyExpression).getOwnedBody();
+              if ((_ownedBody instanceof IfExp)) {
+                LanguageExpression _bodyExpression_1 = _self.getBodyExpression();
+                OCLExpression _ownedBody_1 = ((ExpressionInOCL) _bodyExpression_1).getOwnedBody();
+                final IfExp ifExp = ((IfExp) _ownedBody_1);
+                if (((ifExp.getOwnedElse() instanceof OperationCallExp) && ifExp.getOwnedElse().getName().equals(_self.getName()))) {
+                  OCLExpression _ownedElse = ifExp.getOwnedElse();
+                  final OperationCallExp ownedElse = ((OperationCallExp) _ownedElse);
+                  final String elseSource = OCLExpressionAspect.generate(ownedElse.getOwnedSource(), context);
+                  StringConcatenation _builder_1 = new StringConcatenation();
+                  _builder_1.append("public static ");
+                  String _name_1 = _self.getType().getName();
+                  _builder_1.append(_name_1);
+                  _builder_1.append(" ");
+                  String _name_2 = _self.getName();
+                  _builder_1.append(_name_2);
+                  _builder_1.append("( ");
+                  String _name_3 = _self.getOwningClass().getName();
+                  _builder_1.append(_name_3);
+                  _builder_1.append(" self){");
+                  _builder_1.newLineIfNotEmpty();
+                  _builder_1.append("\t");
+                  _builder_1.append("while(!(");
+                  String _generate_1 = OCLExpressionAspect.generate(ifExp.getOwnedCondition(), context);
+                  _builder_1.append(_generate_1, "\t");
+                  _builder_1.append(")){");
+                  _builder_1.newLineIfNotEmpty();
+                  _builder_1.append("\t\t");
+                  _builder_1.append("self=");
+                  _builder_1.append(elseSource, "\t\t");
+                  _builder_1.append(";");
+                  _builder_1.newLineIfNotEmpty();
+                  _builder_1.append("\t");
+                  _builder_1.append("}");
+                  _builder_1.newLine();
+                  _builder_1.append("\t");
+                  _builder_1.append("return self;");
+                  _builder_1.newLine();
+                  _builder_1.append("}");
+                  _builder_1.newLine();
+                  return _builder_1.toString();
+                }
+              }
+              StringConcatenation _builder_2 = new StringConcatenation();
+              _builder_2.append("public static ");
+              String _name_4 = _self.getType().getName();
+              _builder_2.append(_name_4);
+              _builder_2.append(" ");
+              String _name_5 = _self.getName();
+              _builder_2.append(_name_5);
+              _builder_2.append("( ");
+              String _name_6 = _self.getOwningClass().getName();
+              _builder_2.append(_name_6);
+              _builder_2.append(" self){");
+              _builder_2.newLineIfNotEmpty();
+              _builder_2.append("\t");
+              _builder_2.append("return \t");
+              String _generate_2 = LanguageExpressionAspect.generate(_self.getBodyExpression(), context);
+              _builder_2.append(_generate_2, "\t");
+              _builder_2.append(";");
+              _builder_2.newLineIfNotEmpty();
+              _builder_2.append("\t");
+              _builder_2.newLine();
+              _builder_2.append("} ");
+              _builder_2.newLine();
+              _xblockexpression_1 = _builder_2.toString();
+            }
+            _switchResult = _xblockexpression_1;
+            break;
+        }
+      } else {
+        String _xblockexpression_1 = null;
+        {
+          context.getGlobalContext().getContextMethods().put(_self.getName(), _self.getOwningClass().getName());
+          LanguageExpression _bodyExpression = _self.getBodyExpression();
+          OCLExpression _ownedBody = ((ExpressionInOCL) _bodyExpression).getOwnedBody();
+          if ((_ownedBody instanceof IfExp)) {
+            LanguageExpression _bodyExpression_1 = _self.getBodyExpression();
+            OCLExpression _ownedBody_1 = ((ExpressionInOCL) _bodyExpression_1).getOwnedBody();
+            final IfExp ifExp = ((IfExp) _ownedBody_1);
+            if (((ifExp.getOwnedElse() instanceof OperationCallExp) && ifExp.getOwnedElse().getName().equals(_self.getName()))) {
+              OCLExpression _ownedElse = ifExp.getOwnedElse();
+              final OperationCallExp ownedElse = ((OperationCallExp) _ownedElse);
+              final String elseSource = OCLExpressionAspect.generate(ownedElse.getOwnedSource(), context);
               StringConcatenation _builder_1 = new StringConcatenation();
               _builder_1.append("public static ");
               String _name_1 = _self.getType().getName();
@@ -63,47 +153,50 @@ public class OperationAspect extends FeatureAspect {
               _builder_1.append(" self){");
               _builder_1.newLineIfNotEmpty();
               _builder_1.append("\t");
-              _builder_1.append("return \t");
-              String _generate_1 = LanguageExpressionAspect.generate(_self.getBodyExpression(), context);
+              _builder_1.append("while(!(");
+              String _generate_1 = OCLExpressionAspect.generate(ifExp.getOwnedCondition(), context);
               _builder_1.append(_generate_1, "\t");
+              _builder_1.append(")){");
+              _builder_1.newLineIfNotEmpty();
+              _builder_1.append("\t\t");
+              _builder_1.append("self=");
+              _builder_1.append(elseSource, "\t\t");
               _builder_1.append(";");
               _builder_1.newLineIfNotEmpty();
               _builder_1.append("\t");
+              _builder_1.append("}");
               _builder_1.newLine();
-              _builder_1.append("} ");
+              _builder_1.append("\t");
+              _builder_1.append("return self;");
               _builder_1.newLine();
-              _xblockexpression_1 = _builder_1.toString();
+              _builder_1.append("}");
+              _builder_1.newLine();
+              return _builder_1.toString();
             }
-            _switchResult = _xblockexpression_1;
-            break;
-        }
-      } else {
-        String _xblockexpression_1 = null;
-        {
-          context.getGlobalContext().getContextMethods().put(_self.getName(), _self.getOwningClass().getName());
-          StringConcatenation _builder_1 = new StringConcatenation();
-          _builder_1.append("public static ");
-          String _name_1 = _self.getType().getName();
-          _builder_1.append(_name_1);
-          _builder_1.append(" ");
-          String _name_2 = _self.getName();
-          _builder_1.append(_name_2);
-          _builder_1.append("( ");
-          String _name_3 = _self.getOwningClass().getName();
-          _builder_1.append(_name_3);
-          _builder_1.append(" self){");
-          _builder_1.newLineIfNotEmpty();
-          _builder_1.append("\t");
-          _builder_1.append("return \t");
-          String _generate_1 = LanguageExpressionAspect.generate(_self.getBodyExpression(), context);
-          _builder_1.append(_generate_1, "\t");
-          _builder_1.append(";");
-          _builder_1.newLineIfNotEmpty();
-          _builder_1.append("\t");
-          _builder_1.newLine();
-          _builder_1.append("} ");
-          _builder_1.newLine();
-          _xblockexpression_1 = _builder_1.toString();
+          }
+          StringConcatenation _builder_2 = new StringConcatenation();
+          _builder_2.append("public static ");
+          String _name_4 = _self.getType().getName();
+          _builder_2.append(_name_4);
+          _builder_2.append(" ");
+          String _name_5 = _self.getName();
+          _builder_2.append(_name_5);
+          _builder_2.append("( ");
+          String _name_6 = _self.getOwningClass().getName();
+          _builder_2.append(_name_6);
+          _builder_2.append(" self){");
+          _builder_2.newLineIfNotEmpty();
+          _builder_2.append("\t");
+          _builder_2.append("return \t");
+          String _generate_2 = LanguageExpressionAspect.generate(_self.getBodyExpression(), context);
+          _builder_2.append(_generate_2, "\t");
+          _builder_2.append(";");
+          _builder_2.newLineIfNotEmpty();
+          _builder_2.append("\t");
+          _builder_2.newLine();
+          _builder_2.append("} ");
+          _builder_2.newLine();
+          _xblockexpression_1 = _builder_2.toString();
         }
         _switchResult = _xblockexpression_1;
       }

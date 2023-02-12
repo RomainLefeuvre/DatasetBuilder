@@ -22,7 +22,6 @@ import fr.inria.diverse.model.Directory;
 import fr.inria.diverse.model.DirectoryEntry;
 import fr.inria.diverse.model.Origin;
 import fr.inria.diverse.model.Revision;
-import fr.inria.diverse.tools.ModelInconsistencyException;
 
 public class GraphQueryTest {
 	static Logger logger = LogManager.getLogger(GraphQueryTest.class);
@@ -54,11 +53,10 @@ public class GraphQueryTest {
 	}
 
 	public static Revision getRootRevision(Revision self) {
-		if (self == null) {
-			throw new ModelInconsistencyException("r");
+		while (!(self.getParent() == null)) {
+			self = self.getParent();
 		}
-		return (self.getParent() == null) ? (self) : (getRootRevision(self.getParent()));
-
+		return self;
 	}
 
 	public Set<Long> runQuery() throws IOException, InterruptedException {
@@ -76,7 +74,7 @@ public class GraphQueryTest {
 								&& getRootRevision(branche.getRevision()).getCommiterTimestamp() > (1420066800))
 								&& DirectoryEntryClosure3(branche.getRevision().getTree().getEntries().stream()
 										.collect(Collectors.toSet())).stream()
-												.anyMatch(e -> e.getName().equals("AndroidManifest.xml"))));
+												.anyMatch(e -> e.getName().equals("README.md"))));
 				if (predicateResult) {
 					result.add(currentElement);
 				}
