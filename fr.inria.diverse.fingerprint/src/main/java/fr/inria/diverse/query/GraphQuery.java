@@ -21,7 +21,7 @@ import fr.inria.diverse.model.Revision;
 
 public class GraphQuery implements IGraphQuery {
 	static Logger logger = LogManager.getLogger(GraphQuery.class);
-	static String id = "query";
+	static String id = "QUERY_1000";
 	private Graph g;
 
 	public GraphQuery() throws IOException {
@@ -30,8 +30,10 @@ public class GraphQuery implements IGraphQuery {
 	}
 
 	public static Revision getRootRevision(Revision self) {
-		return ((self.getParent().equals(null)) ? (self) : (getRootRevision(self.getParent())));
-
+		while (!(self.getParent() == null)) {
+			self = self.getParent();
+		}
+		return self;
 	}
 
 	public Set<Long> runQuery() throws IOException, InterruptedException {
@@ -41,7 +43,7 @@ public class GraphQuery implements IGraphQuery {
 			@Override
 			public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 				Origin origin = new Origin(currentElement, this.graph);
-				boolean predicateResult = origin.getOriginVisits().get(0).getSnapshot().getBranches().stream()
+				boolean predicateResult = origin.getLastSnapshot().getBranches().stream()
 						.anyMatch(branche -> ((((branche.getName().equals("refs/heads/master")
 								|| branche.getName().equals("refs/heads/main"))
 								&& RevisionClosure2((new HashSet<Revision>(Arrays.asList(branche.getRevision())))
@@ -67,6 +69,7 @@ public class GraphQuery implements IGraphQuery {
 
 		while (!stack.isEmpty()) {
 			Set<Revision> children = new HashSet<Revision>();
+
 			Revision var_1 = stack.pop();
 			try {
 				children = new HashSet<Revision>(Arrays.asList(var_1.getParent()));
@@ -90,8 +93,10 @@ public class GraphQuery implements IGraphQuery {
 		HashSet<DirectoryEntry> res = new HashSet<>();
 		stack.addAll(param);
 		res.addAll(param);
+
 		while (!stack.isEmpty()) {
 			Set<DirectoryEntry> children = new HashSet<DirectoryEntry>();
+
 			DirectoryEntry entry = stack.pop();
 			try {
 				children = (((entry.getChild() instanceof Directory))

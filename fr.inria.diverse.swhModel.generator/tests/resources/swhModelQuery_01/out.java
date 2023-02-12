@@ -21,7 +21,7 @@ public class GraphQuery implements IGraphQuery{
     }
 		
 	public static Revision getRootRevision( Revision self){
-		while(!(self.getParent() == null){
+		while(!(self.getParent() == null)){
 			self=self.getParent();
 		}
 		return self;

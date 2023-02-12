@@ -2,7 +2,6 @@ import swhModel : 'platform:/resource/fr.inria.diverse.swhModel/model/swhModel.e
 package swhModel
 context Graph
 def : query():Set(Origin) = origins->select(
-	/*For the moment the sort iterator is not implemented, so the defautl order, implem order is kept */
 	 getLastSnapshot().branches->exists(
 	 				(name= 'refs/heads/master' or name= 'refs/heads/main')
 					and
