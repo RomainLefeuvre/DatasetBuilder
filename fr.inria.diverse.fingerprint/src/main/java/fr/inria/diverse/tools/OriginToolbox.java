@@ -17,6 +17,9 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions;
+import org.apache.spark.sql.expressions.Window;
+import org.apache.spark.sql.expressions.WindowSpec;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -40,19 +43,19 @@ public class OriginToolbox extends SwhGraphProperties {
 	// The path where the results attribute will be saved in the export folder
 	static String resultFileName = "originsSnaps.bin";
 	// The path where the list of origins will be saved in the export folder
-	protected String originPath = "origins/origins";
+	private String originPath = "origins/origins";
 	// The result map containing the snapshots id and their timestamps for each
 	// origins
-	protected OriginMap results = new OriginMap();
+	private OriginMap results = new OriginMap();
 	// Spark attribute
-	protected SparkSession spark;
+	private SparkSession spark;
 	// The originVisitStatus dataframe
-	protected Dataset<Row> originVisitStatus;
+	private Dataset<Row> originVisitStatus;
 	// The origin List
-	protected List<Long> origins;
+	private List<Long> origins;
 	// Bypass origin termination check to avoid graph loading
-	protected Boolean bypass = false;
-	protected Graph g;
+	private Boolean bypass = false;
+	private Graph g;
 
 	public OriginToolbox(Boolean bypass) throws IOException {
 		super(Configuration.getInstance().getGraphPath().toString());
@@ -102,23 +105,23 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	public void run() {
 		Path resultUri = Paths.get(Configuration.getInstance().getExportPath().toString(), resultFileName);
-		/*
-		 * if (ToolBox.checkIfExist(resultUri.toString())) { logger.info("Loading " +
-		 * resultUri); results = ToolBox.deserialize(resultUri.toString());
-		 * logger.info("Loading " + resultUri + "Over");
-		 * 
-		 * } else {
-		 */
-		logger.info("Computing " + resultUri);
-		logger.debug("Get Snapshots information from relational version");
-		Dataset<Row> queryRes = getSnapshotsFromRelationalVersion();
-		/*
-		 * populateResultFromRelationalQueryResult(queryRes);
-		 * logger.debug("Export Result"); ToolBox.serialize(results,
-		 * resultUri.toString()); logger.info("Computing " + resultUri + " over");
-		 */
-		spark.close();
-		// }
+
+		if (ToolBox.checkIfExist(resultUri.toString())) {
+			logger.info("Loading " + resultUri);
+			results = ToolBox.deserialize(resultUri.toString());
+			logger.info("Loading " + resultUri + "Over");
+
+		} else {
+
+			logger.info("Computing " + resultUri);
+			logger.debug("Get Snapshots information from relational version");
+			Dataset<Row> queryRes = getSnapshotsFromRelationalVersion();
+			populateResultFromRelationalQueryResult(queryRes);
+			logger.debug("Export Result");
+			ToolBox.serialize(results, resultUri.toString());
+			logger.info("Computing " + resultUri + " over");
+			spark.close();
+		}
 
 	}
 
@@ -168,52 +171,51 @@ public class OriginToolbox extends SwhGraphProperties {
 		Path tmpPath = Paths.get(Configuration.getInstance().getExportPath().toString(), "tmp");
 		Path urlIdPath = Paths.get(Configuration.getInstance().getExportPath().toString(), "origin_url_id");
 
-		// if (!ToolBox.checkIfExist(tmpPath.toString())) {
-		/**** First we construct the Dataframe<OriginUrl,OriginId> ***/
-		logger.debug("Retrieving Origin URL");
-		List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
-			String url = this.copy().getUrl(originId);
-			return new Tuple2<String, Long>(url, originId);
-		}).collect(Collectors.toList());
+		if (!ToolBox.checkIfExist(tmpPath.toString())) {
+			/**** First we construct the Dataframe<OriginUrl,OriginId> ***/
+			logger.debug("Retrieving Origin URL");
+			List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
+				String url = this.copy().getUrl(originId);
+				return new Tuple2<String, Long>(url, originId);
+			}).collect(Collectors.toList());
 
-		logger.debug("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
-		List<Row> originIdUrl = originIdUrlTuple.parallelStream().map(tuple -> RowFactory.create(tuple._1, tuple._2))
-				.collect(Collectors.toList());
-		originIdUrlTuple = null;
-		logger.debug("Spark processes");
-		// The Schema of the new DF that will be created
-		StructType schema = DataTypes.createStructType(new StructField[] {
-				DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
-				DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
-		// Create the dataframe
-		Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop().cache();
-		originIdUrlDf.write().mode("overwrite").format("parquet").save(urlIdPath.toString());
+			logger.debug("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
+			List<Row> originIdUrl = originIdUrlTuple.parallelStream()
+					.map(tuple -> RowFactory.create(tuple._1, tuple._2)).collect(Collectors.toList());
 
-		/****
-		 * Then we load the origin_visit_status orc file an do computations on it
-		 ****/
-		/****
-		 * originVisitStatus = spark.read().format("orc")
-		 * .load(Paths.get(Configuration.getInstance().getRelationalPath().toString(),
-		 * "origin_visit_status/") .toString());
-		 * originVisitStatus.createOrReplaceTempView("originVisitStatus"); // Filter non
-		 * full snapshots Dataset<Row> fullSnap =
-		 * originVisitStatus.na().drop().where("status='full'").select("snapshot",
-		 * "date", "origin"); // Perform Join and add row_id column for batch processing
-		 * WindowSpec window = Window.orderBy(functions.col("originId")); Dataset<Row>
-		 * queryRes = fullSnap .join(originIdUrlDf,
-		 * originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
-		 * .select("snapshot", "date", "originId").groupBy("originId")
-		 * .agg(functions.collect_list(functions.struct("snapshot",
-		 * "date")).as("snapshot")).na().drop() .withColumn("row_id",
-		 * functions.row_number().over(window)).cache();
-		 * queryRes.write().mode("overwrite").format("parquet").save(tmpPath.toString());
-		 * return queryRes; } else { logger.debug("Loading temp result"); return
-		 * spark.read().format("parquet").load(tmpPath.toString()).cache();
-		 * 
-		 * }
-		 ***/
-		return null;
+			logger.debug("Spark processes");
+			// The Schema of the new DF that will be created
+			StructType schema = DataTypes.createStructType(new StructField[] {
+					DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
+					DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
+			// Create the dataframe
+			Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop().cache();
+			originIdUrlDf.write().mode("overwrite").format("parquet").save(urlIdPath.toString());
+
+			/****
+			 * Then we load the origin_visit_status orc file an do computations on it
+			 ****/
+			originVisitStatus = spark.read().format("orc")
+					.load(Paths.get(Configuration.getInstance().getRelationalPath().toString(), "origin_visit_status/")
+							.toString());
+			originVisitStatus.createOrReplaceTempView("originVisitStatus");
+			// Filter non full snapshots
+			Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
+					"origin");
+			// Perform Join and add row_id column for batch processing
+			WindowSpec window = Window.orderBy(functions.col("originId"));
+			Dataset<Row> queryRes = fullSnap
+					.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
+					.select("snapshot", "date", "originId").groupBy("originId")
+					.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop()
+					.withColumn("row_id", functions.row_number().over(window)).cache();
+			queryRes.write().mode("overwrite").format("parquet").save(tmpPath.toString());
+			return queryRes;
+		} else {
+			logger.debug("Loading temp result");
+			return spark.read().format("parquet").load(tmpPath.toString()).cache();
+		}
+
 	}
 
 	/**

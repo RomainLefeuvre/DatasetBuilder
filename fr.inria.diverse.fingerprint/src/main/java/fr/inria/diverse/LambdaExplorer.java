@@ -5,16 +5,11 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
 
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
 import fr.inria.diverse.tools.Configuration;
-import it.unimi.dsi.big.webgraph.ImmutableGraph;
-import it.unimi.dsi.big.webgraph.LazyLongIterator;
 
 public abstract class LambdaExplorer<Input, Output extends Serializable> extends GraphExplorer<Output> {
 	protected List<Input> inputs;
@@ -82,27 +77,5 @@ public abstract class LambdaExplorer<Input, Output extends Serializable> extends
 		logger.info("found " + result.size() + " results");
 		return result;
 	}
-
-	public static void visitNodesBFS(ImmutableGraph graph, long srcNodeId) {
-		Queue<Long> queue = new ArrayDeque<>();
-		HashSet<Long> visited = new HashSet<Long>();
-		queue.add(srcNodeId);
-		visited.add(srcNodeId);
-
-		while (!queue.isEmpty()) {
-			long currentNodeId = queue.poll();
-			System.out.println(currentNodeId);
-
-			LazyLongIterator it = graph.successors(currentNodeId);
-			for (long neighborNodeId; (neighborNodeId = it.nextLong()) != -1;) {
-				if (!visited.contains(neighborNodeId)) {
-					queue.add(neighborNodeId);
-					visited.add(neighborNodeId);
-				}
-			}
-		}
-	}
-
-	;
 
 }
