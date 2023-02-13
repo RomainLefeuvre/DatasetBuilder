@@ -179,7 +179,7 @@ public class OriginToolbox extends SwhGraphProperties {
 		logger.debug("Convert  List<Tuple2<OriginUrl, originId>> to a list of Row");
 		List<Row> originIdUrl = originIdUrlTuple.parallelStream().map(tuple -> RowFactory.create(tuple._1, tuple._2))
 				.collect(Collectors.toList());
-
+		originIdUrlTuple = null;
 		logger.debug("Spark processes");
 		// The Schema of the new DF that will be created
 		StructType schema = DataTypes.createStructType(new StructField[] {
