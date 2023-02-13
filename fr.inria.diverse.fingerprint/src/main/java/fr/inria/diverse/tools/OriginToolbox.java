@@ -168,13 +168,11 @@ public class OriginToolbox extends SwhGraphProperties {
 	 * @return Dataset<Row>
 	 */
 	private Dataset<Row> getSnapshotsFromRelationalVersion() {
-		Path tmpUri = Paths.get(Configuration.getInstance().getExportPath().toString(), "tmp");
-		if (!ToolBox.checkIfExist(tmpUri.toString())) {
-			originVisitStatus = spark.read().format("orc")
-					.load(Paths.get(Configuration.getInstance().getRelationalPath().toString(), "origin_visit_status/")
-							.toString());
-			originVisitStatus.createOrReplaceTempView("originVisitStatus");
+		Path tmpPath = Paths.get(Configuration.getInstance().getExportPath().toString(), "tmp");
+		Path urlIdPath = Paths.get(Configuration.getInstance().getExportPath().toString(), "origin_url_id");
 
+		if (!ToolBox.checkIfExist(tmpPath.toString())) {
+			/**** First we construct the Dataframe<OriginUrl,OriginId> ***/
 			logger.debug("Retrieving Origin URL");
 			List<Tuple2<String, Long>> originIdUrlTuple = origins.parallelStream().map(originId -> {
 				String url = this.copy().getUrl(originId);
@@ -191,22 +189,31 @@ public class OriginToolbox extends SwhGraphProperties {
 					DataTypes.createStructField("originUrl", DataTypes.StringType, true, Metadata.empty()),
 					DataTypes.createStructField("originId", DataTypes.LongType, true, Metadata.empty()) });
 			// Create the dataframe
-			Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop();
+			Dataset<Row> originIdUrlDf = spark.createDataFrame(originIdUrl, schema).na().drop().cache();
+			originIdUrlDf.write().mode("overwrite").format("parquet").save(urlIdPath.toString());
+
+			/****
+			 * Then we load the origin_visit_status orc file an do computations on it
+			 ****/
+			originVisitStatus = spark.read().format("orc")
+					.load(Paths.get(Configuration.getInstance().getRelationalPath().toString(), "origin_visit_status/")
+							.toString());
+			originVisitStatus.createOrReplaceTempView("originVisitStatus");
 			// Filter non full snapshots
 			Dataset<Row> fullSnap = originVisitStatus.na().drop().where("status='full'").select("snapshot", "date",
 					"origin");
+			// Perform Join and add row_id column for batch processing
 			WindowSpec window = Window.orderBy(functions.col("originId"));
-			// Perform join and extract the corresponding List of Row
 			Dataset<Row> queryRes = fullSnap
 					.join(originIdUrlDf, originIdUrlDf.col("originUrl").equalTo(fullSnap.col("origin")))
 					.select("snapshot", "date", "originId").groupBy("originId")
 					.agg(functions.collect_list(functions.struct("snapshot", "date")).as("snapshot")).na().drop()
 					.withColumn("row_id", functions.row_number().over(window)).cache();
-			queryRes.write().format("parquet").save(tmpUri.toString());
+			queryRes.write().mode("overwrite").format("parquet").save(tmpPath.toString());
 			return queryRes;
 		} else {
 			logger.debug("Loading temp result");
-			return spark.read().format("parquet").load(tmpUri.toString()).cache();
+			return spark.read().format("parquet").load(tmpPath.toString()).cache();
 		}
 
 	}
