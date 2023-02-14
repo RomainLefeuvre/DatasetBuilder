@@ -8,71 +8,48 @@
 <pivot:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pivot="http://www.eclipse.org/ocl/2015/Pivot"
     xsi:schemaLocation="http://www.eclipse.org/ocl/2015/Pivot java://org.eclipse.ocl.pivot.PivotPackage" xmi:id="AAAAA" name="swhModelQuery.ocl" externalURI="platform:/resource/fr.inria.diverse.swhModel.generator/tests/resources/swhModelQuery_01/swhModelQuery.ocl"
     xmiidVersion="1">
-  <ownedImports name="swhModel" importedNamespace="pivot:Model &_0;#AAAAA" xmiidVersion="1">
-    <ownedComments body="******************************************************Graph***********************&#xA;Copyright (c) 2012 Willink Transformations and others.&#xA;All rights reserved.   This program and the accompanying materials&#xA;are made available under the terms of the Eclipse Public License v2.0&#xA;which accompanies this distribution, and is available at&#xA;http://www.eclipse.org/legal/epl-v20.html&#xA;&#xA;Contributors:&#xA;E.D.Willink - Initial API and implementation&#xA;&#xA;This file provides additional validation constraints for use of OCL embedded in Ecore.&#xA;*****************************************************************************"/>
-  </ownedImports>
+  <ownedImports name="swhModel" importedNamespace="pivot:Model &_0;#AAAAA" xmiidVersion="1"/>
   <ownedPackages xmi:id=",B98," name="swhModel" URI="http://www.example.org/swhModel">
     <ownedClasses xmi:id="2xgR0" name="Graph">
       <ownedOperations xmi:id="bmp7D" name="query" type="#3JTCa">
-        <bodyExpression xsi:type="pivot:ExpressionInOCL" type="#KMKP+" body="origins->select(&#xA;&#x9;/*All the revision have been created since 2015*/&#xA;&#x9;originVisits->forAll(&#xA;&#x9;&#x9;&#x9;&#x9;snapshot.branches->closure(name)->forAll(timestamp=1420066800)&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;)&#xA;&#x9;&#x9;&#x9;&#x9;&#xA;&#x9;and&#xA;&#x9;/*The main branch contain at least 1000 revisions */&#xA;&#x9;originVisits->exists(&#xA;&#x9;&#x9;&#x9;&#x9;snapshot.branches->exists(&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;(name= 'refs/heads/master'&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;or &#xA;&#x9;&#x9;&#x9;&#x9;&#x9;name= 'refs/heads/main')&#xA;&#x9;&#x9;&#x9;&#x9;&#x9; and&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;getRevision()->asSet()->closure(parent)-> size() >100&#xA;&#x9;&#x9;&#x9;&#x9;)&#xA;&#x9;&#x9;&#xA;&#x9;)&#xA;&#x9;)&#xA;&#x9;&#xA;&#x9;&#xA;&#x9;&#x9;&#xA;&#x9;&#xA;&#x9;&#xA;&#x9;&#xA;&#x9;&#xA;&#x9;&#xA;&#x9;&#xA;&#xA;&#xA;">
+        <bodyExpression xsi:type="pivot:ExpressionInOCL" type="#KMKP+" body="origins->select(&#xA;&#x9;/*For the moment the sort iterator is not implemented, so the defautl order, implem order is kept */&#xA;&#x9; originVisits->sortedBy(timestamp)->first().snapshot.branches->exists(&#xA;&#x9; &#x9;&#x9;&#x9;&#x9;(name= 'refs/heads/master' or name= 'refs/heads/main')&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;and&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;/*The main branch contains at least 1000 revisions */&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;getRevision()->closure(parent)-> size() >1000&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;and&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;/*The first revision have been created since 2015 */&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;getRevision().getRootRevision().timestamp>1420066800&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;and&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;/*The main branch contains a file 'AndroidManifest.xml'*/&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;getRevision().tree.entries->closure(entry:DirectoryEntry |&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;if entry.child.oclIsKindOf(Directory) then&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;entry.child.oclAsType(Directory).entries.oclAsSet()&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;else &#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;entry.oclAsSet()&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;endif&#x9;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;)->exists(e:DirectoryEntry | e.name='AndroidManifest.xml')&#x9;&#xA;&#x9;)&#xA;)&#xA;&#xA;">
           <ownedBody xsi:type="pivot:IteratorExp" name="select" type="#KMKP+" referredIteration="&_1;#1ky8V">
             <ownedSource xsi:type="pivot:PropertyCallExp" name="origins" type="#KMKP+" referredProperty="&_0;#DFEmg">
               <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#2xgR0" isImplicit="true" referredVariable="#fMr+Z"/>
             </ownedSource>
-            <ownedBody xsi:type="pivot:OperationCallExp" name="and" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#8sfYU">
-              <ownedSource xsi:type="pivot:IteratorExp" name="forAll" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#WqmML">
-                <ownedSource xsi:type="pivot:PropertyCallExp" name="originVisits" type="#RY7rb" referredProperty="&_0;#8A5fc">
-                  <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#Oatb9" isImplicit="true" referredVariable="#eDdw2"/>
-                </ownedSource>
-                <ownedBody xsi:type="pivot:IteratorExp" name="forAll" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#WqmML">
-                  <ownedSource xsi:type="pivot:IteratorExp" name="closure" type="#lG7m8" referredIteration="&_1;#05nm,">
-                    <ownedSource xsi:type="pivot:PropertyCallExp" name="branches" type="#qF7m8" referredProperty="&_0;#krPPS">
-                      <ownedSource xsi:type="pivot:PropertyCallExp" name="snapshot" isRequired="false" type="pivot:Class &_0;#sUX,E" referredProperty="&_0;#VeZw7">
-                        <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#tjxK6" isImplicit="true" referredVariable="#ZM7Jo"/>
+            <ownedBody xsi:type="pivot:IteratorExp" name="exists" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#arQ+J">
+              <ownedSource xsi:type="pivot:PropertyCallExp" name="branches" type="#qF7m8" referredProperty="&_0;#krPPS">
+                <ownedSource xsi:type="pivot:PropertyCallExp" name="snapshot" isRequired="false" type="pivot:Class &_0;#sUX,E" referredProperty="&_0;#VeZw7">
+                  <ownedSource xsi:type="pivot:OperationCallExp" name="first" type="pivot:Class &_0;#tjxK6" referredOperation="&_1;#mCC4m">
+                    <ownedSource xsi:type="pivot:IteratorExp" name="sortedBy" type="#RY7rb" referredIteration="&_1;#tQVCv">
+                      <ownedSource xsi:type="pivot:PropertyCallExp" name="originVisits" type="#RY7rb" referredProperty="&_0;#8A5fc">
+                        <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#Oatb9" isImplicit="true" referredVariable="#eDdw2"/>
                       </ownedSource>
+                      <ownedBody xsi:type="pivot:PropertyCallExp" name="timestamp" type="pivot:DataType &_2;#FltKY" referredProperty="&_0;#nr+Du">
+                        <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#tjxK6" isImplicit="true" referredVariable="#FxjFa"/>
+                      </ownedBody>
+                      <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="FxjFa" name="1_" type="pivot:Class &_0;#tjxK6" isImplicit="true"
+                          representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.27/@ownedOperations.22/@ownedIterators.0"/>
                     </ownedSource>
-                    <ownedBody xsi:type="pivot:PropertyCallExp" name="name" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ" referredProperty="&_0;#ZdOmx">
-                      <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#s8xN7"/>
-                    </ownedBody>
-                    <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="s8xN7" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true"
-                        representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.27/@ownedOperations.17/@ownedIterators.0"/>
                   </ownedSource>
-                  <ownedBody xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#UJEtV">
-                    <ownedSource xsi:type="pivot:PropertyCallExp" name="timestamp" type="pivot:DataType &_2;#FltKY" referredProperty="&_0;#nr+Du">
-                      <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#tjxK6" isImplicit="true" referredVariable="#ZM7Jo"/>
-                    </ownedSource>
-                    <ownedArguments xsi:type="pivot:IntegerLiteralExp" type="pivot:PrimitiveType &_1;#tYtCd" integerSymbol="1420066800"/>
-                  </ownedBody>
-                  <ownedIterators xsi:type="pivot:IteratorVariable" name="1_" isRequired="false" type="pivot:Class &_0;#uv4jo" isImplicit="true"
-                      representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.35/@ownedIterators.0"/>
-                </ownedBody>
-                <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="ZM7Jo" name="1_" type="pivot:Class &_0;#tjxK6" isImplicit="true"
-                    representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.35/@ownedIterators.0"/>
-              </ownedSource>
-              <ownedArguments xsi:type="pivot:IteratorExp" name="exists" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#arQ+J">
-                <ownedSource xsi:type="pivot:PropertyCallExp" name="originVisits" type="#RY7rb" referredProperty="&_0;#8A5fc">
-                  <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#Oatb9" isImplicit="true" referredVariable="#eDdw2"/>
                 </ownedSource>
-                <ownedBody xsi:type="pivot:IteratorExp" name="exists" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#arQ+J">
-                  <ownedSource xsi:type="pivot:PropertyCallExp" name="branches" type="#qF7m8" referredProperty="&_0;#krPPS">
-                    <ownedSource xsi:type="pivot:PropertyCallExp" name="snapshot" isRequired="false" type="pivot:Class &_0;#sUX,E" referredProperty="&_0;#VeZw7">
-                      <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#tjxK6" isImplicit="true" referredVariable="#GI+bg"/>
-                    </ownedSource>
-                  </ownedSource>
-                  <ownedBody xsi:type="pivot:OperationCallExp" name="and" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#8sfYU">
+              </ownedSource>
+              <ownedBody xsi:type="pivot:OperationCallExp" name="and" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#8sfYU">
+                <ownedSource xsi:type="pivot:OperationCallExp" name="and" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#8sfYU">
+                  <ownedSource xsi:type="pivot:OperationCallExp" name="and" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#8sfYU">
                     <ownedSource xsi:type="pivot:OperationCallExp" name="or" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs"
                         referredOperation="&_1;#I9IYU">
                       <ownedSource xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#7L5cn">
                         <ownedSource xsi:type="pivot:PropertyCallExp" name="name" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ"
                             referredProperty="&_0;#ZdOmx">
-                          <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#dM4V2"/>
+                          <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#VaRH7"/>
                         </ownedSource>
                         <ownedArguments xsi:type="pivot:StringLiteralExp" type="pivot:PrimitiveType &_1;#AlwVZ" stringSymbol="refs/heads/master"/>
                       </ownedSource>
                       <ownedArguments xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#7L5cn">
                         <ownedSource xsi:type="pivot:PropertyCallExp" name="name" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ"
                             referredProperty="&_0;#ZdOmx">
-                          <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#dM4V2"/>
+                          <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#VaRH7"/>
                         </ownedSource>
                         <ownedArguments xsi:type="pivot:StringLiteralExp" type="pivot:PrimitiveType &_1;#AlwVZ" stringSymbol="refs/heads/main"/>
                       </ownedArguments>
@@ -80,29 +57,82 @@
                     <ownedArguments xsi:type="pivot:OperationCallExp" name=">" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#5+qvY">
                       <ownedSource xsi:type="pivot:OperationCallExp" name="size" type="pivot:PrimitiveType &_1;#tYtCd" referredOperation="&_1;#eYPCX">
                         <ownedSource xsi:type="pivot:IteratorExp" name="closure" type="#fGf,r" referredIteration="&_1;#tQoce">
-                          <ownedSource xsi:type="pivot:OperationCallExp" name="asSet" type="#kHf,r" referredOperation="&_1;#tj4Xc">
-                            <ownedSource xsi:type="pivot:OperationCallExp" name="oclAsSet" type="#kHf,r" isImplicit="true" referredOperation="&_1;#koUSM">
-                              <ownedSource xsi:type="pivot:OperationCallExp" name="getRevision" type="pivot:Class &_0;#Dd1dk" referredOperation="&_0;#8e97y">
-                                <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#dM4V2"/>
-                              </ownedSource>
+                          <ownedSource xsi:type="pivot:OperationCallExp" name="oclAsSet" type="#kHf,r" isImplicit="true" referredOperation="&_1;#koUSM">
+                            <ownedSource xsi:type="pivot:OperationCallExp" name="getRevision" type="pivot:Class &_0;#Dd1dk" referredOperation="&_0;#8e97y">
+                              <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#VaRH7"/>
                             </ownedSource>
                           </ownedSource>
                           <ownedBody xsi:type="pivot:PropertyCallExp" name="parent" isRequired="false" type="pivot:Class &_0;#Dd1dk" referredProperty="&_0;#5dmhh">
-                            <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#Dd1dk" isImplicit="true" referredVariable="#fm6dY"/>
+                            <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#Dd1dk" isImplicit="true" referredVariable="#nWx8b"/>
                           </ownedBody>
-                          <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="fm6dY" name="1_" type="pivot:Class &_0;#Dd1dk" isImplicit="true"
+                          <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="nWx8b" name="1_" type="pivot:Class &_0;#Dd1dk" isImplicit="true"
                               representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.29/@ownedOperations.10/@ownedIterators.0"/>
                         </ownedSource>
                       </ownedSource>
-                      <ownedArguments xsi:type="pivot:IntegerLiteralExp" type="pivot:PrimitiveType &_1;#tYtCd" integerSymbol="100"/>
+                      <ownedArguments xsi:type="pivot:IntegerLiteralExp" type="pivot:PrimitiveType &_1;#tYtCd" integerSymbol="1000"/>
                     </ownedArguments>
+                  </ownedSource>
+                  <ownedArguments xsi:type="pivot:OperationCallExp" name=">" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#5+qvY">
+                    <ownedSource xsi:type="pivot:PropertyCallExp" name="timestamp" type="pivot:DataType &_2;#FltKY" referredProperty="&_0;#lfIJg">
+                      <ownedSource xsi:type="pivot:OperationCallExp" name="getRootRevision" type="pivot:Class &_0;#Dd1dk" referredOperation="#,GAee">
+                        <ownedSource xsi:type="pivot:OperationCallExp" name="getRevision" type="pivot:Class &_0;#Dd1dk" referredOperation="&_0;#8e97y">
+                          <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#VaRH7"/>
+                        </ownedSource>
+                      </ownedSource>
+                    </ownedSource>
+                    <ownedArguments xsi:type="pivot:IntegerLiteralExp" type="pivot:PrimitiveType &_1;#tYtCd" integerSymbol="1420066800"/>
+                  </ownedArguments>
+                </ownedSource>
+                <ownedArguments xsi:type="pivot:IteratorExp" name="exists" isRequired="false" type="pivot:PrimitiveType &_1;#XEMMs" referredIteration="&_1;#arQ+J">
+                  <ownedSource xsi:type="pivot:IteratorExp" name="closure" type="#RaSFN" referredIteration="&_1;#05nm,">
+                    <ownedSource xsi:type="pivot:PropertyCallExp" name="entries" type="#RaSFN" referredProperty="&_0;#pRcPt">
+                      <ownedSource xsi:type="pivot:PropertyCallExp" name="tree" isRequired="false" type="pivot:Class &_0;#VmnOu" referredProperty="&_0;#tJdEd">
+                        <ownedSource xsi:type="pivot:OperationCallExp" name="getRevision" type="pivot:Class &_0;#Dd1dk" referredOperation="&_0;#8e97y">
+                          <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#VaRH7"/>
+                        </ownedSource>
+                      </ownedSource>
+                    </ownedSource>
+                    <ownedBody xsi:type="pivot:IfExp" type="#6x,53">
+                      <ownedCondition xsi:type="pivot:OperationCallExp" name="oclIsKindOf" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#MuzAj">
+                        <ownedSource xsi:type="pivot:PropertyCallExp" name="child" isRequired="false" type="pivot:Class &_0;#XouEB" referredProperty="&_0;#tlA62">
+                          <ownedSource xsi:type="pivot:VariableExp" name="entry" type="pivot:Class &_0;#t1fMB" referredVariable="#dCP+d"/>
+                        </ownedSource>
+                        <ownedArguments xsi:type="pivot:TypeExp" name="Directory" type="pivot:Class &_3;#pDcbe" referredType="pivot:Class &_0;#VmnOu"/>
+                      </ownedCondition>
+                      <ownedElse xsi:type="pivot:OperationCallExp" name="oclAsSet" type="#+Zb4o" referredOperation="&_1;#koUSM">
+                        <ownedSource xsi:type="pivot:VariableExp" name="entry" type="pivot:Class &_0;#t1fMB" referredVariable="#dCP+d"/>
+                      </ownedElse>
+                      <ownedThen xsi:type="pivot:IteratorExp" name="collect" type="#d20K9" isImplicit="true" referredIteration="&_1;#jV1iE">
+                        <ownedSource xsi:type="pivot:PropertyCallExp" name="entries" type="#RaSFN" referredProperty="&_0;#pRcPt">
+                          <ownedSource xsi:type="pivot:OperationCallExp" name="oclAsType" type="pivot:Class &_0;#VmnOu" referredOperation="&_1;#xOh0M">
+                            <ownedSource xsi:type="pivot:PropertyCallExp" name="child" isRequired="false" type="pivot:Class &_0;#XouEB"
+                                referredProperty="&_0;#tlA62">
+                              <ownedSource xsi:type="pivot:VariableExp" name="entry" type="pivot:Class &_0;#t1fMB" referredVariable="#dCP+d"/>
+                            </ownedSource>
+                            <ownedArguments xsi:type="pivot:TypeExp" name="Directory" type="pivot:Class &_3;#pDcbe" referredType="pivot:Class &_0;#VmnOu"/>
+                          </ownedSource>
+                        </ownedSource>
+                        <ownedBody xsi:type="pivot:OperationCallExp" name="oclAsSet" type="#+Zb4o" referredOperation="&_1;#koUSM">
+                          <ownedSource xsi:type="pivot:VariableExp" name="1_" type="pivot:Class &_0;#t1fMB" isImplicit="true" referredVariable="#uyQQg"/>
+                        </ownedBody>
+                        <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="uyQQg" name="1_" type="pivot:Class &_0;#t1fMB" isImplicit="true"
+                            representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.27/@ownedOperations.19/@ownedIterators.0"/>
+                      </ownedThen>
+                    </ownedBody>
+                    <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="dCP+d" name="entry" type="pivot:Class &_0;#t1fMB" representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.27/@ownedOperations.17/@ownedIterators.0"/>
+                  </ownedSource>
+                  <ownedBody xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#7L5cn">
+                    <ownedSource xsi:type="pivot:PropertyCallExp" name="name" isRequired="false" type="pivot:PrimitiveType &_1;#AlwVZ"
+                        referredProperty="&_0;#c74dx">
+                      <ownedSource xsi:type="pivot:VariableExp" name="e" type="pivot:Class &_0;#t1fMB" referredVariable="#MeCjU"/>
+                    </ownedSource>
+                    <ownedArguments xsi:type="pivot:StringLiteralExp" type="pivot:PrimitiveType &_1;#AlwVZ" stringSymbol="AndroidManifest.xml"/>
                   </ownedBody>
-                  <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="dM4V2" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true"
-                      representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
-                </ownedBody>
-                <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="GI+bg" name="1_" type="pivot:Class &_0;#tjxK6" isImplicit="true"
-                    representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
-              </ownedArguments>
+                  <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="MeCjU" name="e" type="pivot:Class &_0;#t1fMB" representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
+                </ownedArguments>
+              </ownedBody>
+              <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="VaRH7" name="1_" type="pivot:Class &_0;#uv4jo" isImplicit="true"
+                  representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.25/@ownedOperations.33/@ownedIterators.0"/>
             </ownedBody>
             <ownedIterators xsi:type="pivot:IteratorVariable" xmi:id="eDdw2" name="1_" type="pivot:Class &_0;#Oatb9" isImplicit="true"
                 representedParameter="&_1;#//@ownedPackages.0/@ownedClasses.27/@ownedOperations.21/@ownedIterators.0"/>
@@ -111,45 +141,26 @@
         </bodyExpression>
       </ownedOperations>
     </ownedClasses>
-    <ownedClasses xmi:id="uv4jo" name="SnapshotBranch">
-      <ownedOperations xmi:id="8e97y" name="getRevision" type="pivot:Class &_0;#Dd1dk">
-        <ownedPostconditions xmi:id="d+al1">
-          <ownedSpecification xsi:type="pivot:ExpressionInOCL" type="pivot:PrimitiveType &_1;#XEMMs" body="result = if child->oclIsKindOf(Revision) then  child->oclAsType(Revision) else child->oclAsType(Release).revision endif&#xA;&#xA;&#xA;">
-            <ownedBody xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#SYOvl">
-              <ownedSource xsi:type="pivot:VariableExp" name="result" type="pivot:Class &_0;#Dd1dk" referredVariable="#tyQ9Q"/>
-              <ownedArguments xsi:type="pivot:IfExp" isRequired="false" type="pivot:Class &_0;#Dd1dk">
-                <ownedCondition xsi:type="pivot:OperationCallExp" name="oclIsKindOf" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#MuzAj">
-                  <ownedSource xsi:type="pivot:OperationCallExp" name="oclAsSet" type="#5zFVT" isImplicit="true" referredOperation="&_1;#koUSM">
-                    <ownedSource xsi:type="pivot:PropertyCallExp" name="child" isRequired="false" type="pivot:Class &_0;#gTJol" referredProperty="&_0;#qHWC3">
-                      <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#11fAc"/>
-                    </ownedSource>
-                  </ownedSource>
-                  <ownedArguments xsi:type="pivot:TypeExp" name="Revision" type="pivot:Class &_3;#pDcbe" referredType="pivot:Class &_0;#Dd1dk"/>
-                </ownedCondition>
-                <ownedElse xsi:type="pivot:PropertyCallExp" name="revision" isRequired="false" type="pivot:Class &_0;#Dd1dk" referredProperty="&_0;#mr9Ho">
-                  <ownedSource xsi:type="pivot:OperationCallExp" name="oclAsType" type="pivot:Class &_0;#vsfYU" referredOperation="&_1;#xOh0M">
-                    <ownedSource xsi:type="pivot:OperationCallExp" name="oclAsSet" type="#5zFVT" isImplicit="true" referredOperation="&_1;#koUSM">
-                      <ownedSource xsi:type="pivot:PropertyCallExp" name="child" isRequired="false" type="pivot:Class &_0;#gTJol" referredProperty="&_0;#qHWC3">
-                        <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#11fAc"/>
-                      </ownedSource>
-                    </ownedSource>
-                    <ownedArguments xsi:type="pivot:TypeExp" name="Release" type="pivot:Class &_3;#pDcbe" referredType="pivot:Class &_0;#vsfYU"/>
-                  </ownedSource>
-                </ownedElse>
-                <ownedThen xsi:type="pivot:OperationCallExp" name="oclAsType" type="pivot:Class &_0;#Dd1dk" referredOperation="&_1;#xOh0M">
-                  <ownedSource xsi:type="pivot:OperationCallExp" name="oclAsSet" type="#5zFVT" isImplicit="true" referredOperation="&_1;#koUSM">
-                    <ownedSource xsi:type="pivot:PropertyCallExp" name="child" isRequired="false" type="pivot:Class &_0;#gTJol" referredProperty="&_0;#qHWC3">
-                      <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#uv4jo" isImplicit="true" referredVariable="#11fAc"/>
-                    </ownedSource>
-                  </ownedSource>
-                  <ownedArguments xsi:type="pivot:TypeExp" name="Revision" type="pivot:Class &_3;#pDcbe" referredType="pivot:Class &_0;#Dd1dk"/>
-                </ownedThen>
-              </ownedArguments>
-            </ownedBody>
-            <ownedContext xsi:type="pivot:ParameterVariable" xmi:id="11fAc" name="self" type="pivot:Class &_0;#uv4jo"/>
-            <ownedResult xsi:type="pivot:ParameterVariable" xmi:id="tyQ9Q" name="result" type="pivot:Class &_0;#Dd1dk"/>
-          </ownedSpecification>
-        </ownedPostconditions>
+    <ownedClasses xmi:id="Dd1dk" name="Revision">
+      <ownedOperations xmi:id=",GAee" name="getRootRevision" type="pivot:Class &_0;#Dd1dk">
+        <ownedComments body="Get the first Revision transitively, in case of merge commit only one of the commit are handle"/>
+        <bodyExpression xsi:type="pivot:ExpressionInOCL" type="pivot:Class &_0;#Dd1dk" body="&#xA;&#x9;&#x9;if parent = null then&#xA;&#x9;&#x9;&#x9;self&#xA;&#x9;&#x9;else &#xA;&#x9;&#x9;&#x9;parent.getRootRevision()&#xA;&#x9;&#x9;endif&#xA;">
+          <ownedBody xsi:type="pivot:IfExp" type="pivot:Class &_0;#Dd1dk">
+            <ownedCondition xsi:type="pivot:OperationCallExp" name="=" type="pivot:PrimitiveType &_1;#XEMMs" referredOperation="&_1;#SYOvl">
+              <ownedSource xsi:type="pivot:PropertyCallExp" name="parent" isRequired="false" type="pivot:Class &_0;#Dd1dk" referredProperty="&_0;#5dmhh">
+                <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#Dd1dk" isImplicit="true" referredVariable="#jx,Sp"/>
+              </ownedSource>
+              <ownedArguments xsi:type="pivot:NullLiteralExp" isRequired="false" type="pivot:VoidType &_1;#7u3MH"/>
+            </ownedCondition>
+            <ownedElse xsi:type="pivot:OperationCallExp" name="getRootRevision" type="pivot:Class &_0;#Dd1dk" referredOperation="#,GAee">
+              <ownedSource xsi:type="pivot:PropertyCallExp" name="parent" isRequired="false" type="pivot:Class &_0;#Dd1dk" referredProperty="&_0;#5dmhh">
+                <ownedSource xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#Dd1dk" isImplicit="true" referredVariable="#jx,Sp"/>
+              </ownedSource>
+            </ownedElse>
+            <ownedThen xsi:type="pivot:VariableExp" name="self" type="pivot:Class &_0;#Dd1dk" referredVariable="#jx,Sp"/>
+          </ownedBody>
+          <ownedContext xsi:type="pivot:ParameterVariable" xmi:id="jx,Sp" name="self" type="pivot:Class &_0;#Dd1dk"/>
+        </bodyExpression>
       </ownedOperations>
     </ownedClasses>
   </ownedPackages>
@@ -164,19 +175,14 @@
         <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#53+C2"/>
       </ownedBindings>
     </ownedClasses>
-    <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="RY7rb" name="OrderedSet" superClasses="#CBe38 #mrYc2" isNullFree="true">
-      <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#53+C2"/>
-      </ownedBindings>
-    </ownedClasses>
-    <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="lG7m8" name="OrderedSet" superClasses="#budyd #,YYXX">
-      <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#53+C2"/>
-      </ownedBindings>
-    </ownedClasses>
     <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="qF7m8" name="OrderedSet" superClasses="#budyd #,YYXX" isNullFree="true">
       <ownedBindings>
         <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#53+C2"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="RY7rb" name="OrderedSet" superClasses="#CBe38 #mrYc2" isNullFree="true">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#53+C2"/>
       </ownedBindings>
     </ownedClasses>
     <ownedClasses xsi:type="pivot:SetType" xmi:id="fGf,r" name="Set" superClasses="#Mbz8q">
@@ -189,9 +195,24 @@
         <ownedSubstitutions actual="pivot:Class &_0;#Dd1dk" formal="&_1;#ODsm5"/>
       </ownedBindings>
     </ownedClasses>
-    <ownedClasses xsi:type="pivot:SetType" xmi:id="5zFVT" name="Set" superClasses="#hJaSS" isNullFree="true" upper="0">
+    <ownedClasses xsi:type="pivot:OrderedSetType" xmi:id="RaSFN" name="OrderedSet" superClasses="#CD1Qu #mtv1n" isNullFree="true">
       <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#gTJol" formal="&_1;#ODsm5"/>
+        <ownedSubstitutions actual="pivot:Class &_0;#t1fMB" formal="&_1;#53+C2"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="6x,53" name="Collection" superClasses="&_1;#jbMkR" isNullFree="true">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#t1fMB" formal="&_1;#qs59R"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:SetType" xmi:id="+Zb4o" name="Set" superClasses="#mtv1n" isNullFree="true" lower="1" upper="1">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#t1fMB" formal="&_1;#ODsm5"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:SequenceType" xmi:id="d20K9" name="Sequence" superClasses="#CD1Qu" isNullFree="true">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#t1fMB" formal="&_1;#l1i6D"/>
       </ownedBindings>
     </ownedClasses>
     <ownedClasses xsi:type="pivot:CollectionType" xmi:id="ffn,Y" name="UniqueCollection" superClasses="#uk3Dp">
@@ -204,16 +225,6 @@
         <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#feFHs"/>
       </ownedBindings>
     </ownedClasses>
-    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="CBe38" name="OrderedCollection" superClasses="#1wogG">
-      <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#feFHs"/>
-      </ownedBindings>
-    </ownedClasses>
-    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="mrYc2" name="UniqueCollection" superClasses="#1wogG">
-      <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#jdfjE"/>
-      </ownedBindings>
-    </ownedClasses>
     <ownedClasses xsi:type="pivot:CollectionType" xmi:id="budyd" name="OrderedCollection" superClasses="#Oeobn">
       <ownedBindings>
         <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#feFHs"/>
@@ -224,14 +235,29 @@
         <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#jdfjE"/>
       </ownedBindings>
     </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="CBe38" name="OrderedCollection" superClasses="#1wogG">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#feFHs"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="mrYc2" name="UniqueCollection" superClasses="#1wogG">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#jdfjE"/>
+      </ownedBindings>
+    </ownedClasses>
     <ownedClasses xsi:type="pivot:CollectionType" xmi:id="Mbz8q" name="UniqueCollection" superClasses="#bgDB7">
       <ownedBindings>
         <ownedSubstitutions actual="pivot:Class &_0;#Dd1dk" formal="&_1;#jdfjE"/>
       </ownedBindings>
     </ownedClasses>
-    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="hJaSS" name="UniqueCollection" superClasses="#wOqWi">
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="CD1Qu" name="OrderedCollection" superClasses="#1y,53">
       <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#gTJol" formal="&_1;#jdfjE"/>
+        <ownedSubstitutions actual="pivot:Class &_0;#t1fMB" formal="&_1;#feFHs"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="mtv1n" name="UniqueCollection" superClasses="#1y,53">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#t1fMB" formal="&_1;#jdfjE"/>
       </ownedBindings>
     </ownedClasses>
     <ownedClasses xsi:type="pivot:CollectionType" xmi:id="uk3Dp" name="Collection" superClasses="&_1;#jbMkR">
@@ -239,14 +265,14 @@
         <ownedSubstitutions actual="pivot:Class &_0;#Oatb9" formal="&_1;#qs59R"/>
       </ownedBindings>
     </ownedClasses>
-    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="1wogG" name="Collection" superClasses="&_1;#jbMkR">
-      <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#qs59R"/>
-      </ownedBindings>
-    </ownedClasses>
     <ownedClasses xsi:type="pivot:CollectionType" xmi:id="Oeobn" name="Collection" superClasses="&_1;#jbMkR">
       <ownedBindings>
         <ownedSubstitutions actual="pivot:Class &_0;#uv4jo" formal="&_1;#qs59R"/>
+      </ownedBindings>
+    </ownedClasses>
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="1wogG" name="Collection" superClasses="&_1;#jbMkR">
+      <ownedBindings>
+        <ownedSubstitutions actual="pivot:Class &_0;#tjxK6" formal="&_1;#qs59R"/>
       </ownedBindings>
     </ownedClasses>
     <ownedClasses xsi:type="pivot:CollectionType" xmi:id="bgDB7" name="Collection" superClasses="&_1;#jbMkR">
@@ -254,9 +280,9 @@
         <ownedSubstitutions actual="pivot:Class &_0;#Dd1dk" formal="&_1;#qs59R"/>
       </ownedBindings>
     </ownedClasses>
-    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="wOqWi" name="Collection" superClasses="&_1;#jbMkR">
+    <ownedClasses xsi:type="pivot:CollectionType" xmi:id="1y,53" name="Collection" superClasses="&_1;#jbMkR">
       <ownedBindings>
-        <ownedSubstitutions actual="pivot:Class &_0;#gTJol" formal="&_1;#qs59R"/>
+        <ownedSubstitutions actual="pivot:Class &_0;#t1fMB" formal="&_1;#qs59R"/>
       </ownedBindings>
     </ownedClasses>
   </ownedPackages>

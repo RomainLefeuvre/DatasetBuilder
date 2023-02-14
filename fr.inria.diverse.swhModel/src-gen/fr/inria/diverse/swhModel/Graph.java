@@ -59,4 +59,12 @@ public interface Graph extends EObject {
 	 */
 	void setTimestamp(XMLGregorianCalendar value);
 
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	Graph query();
+
 } // Graph

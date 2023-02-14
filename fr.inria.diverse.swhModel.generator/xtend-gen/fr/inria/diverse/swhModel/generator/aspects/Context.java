@@ -14,6 +14,8 @@ public class Context {
   
   private String iteratorVariable;
   
+  private String currentClass;
+  
   private GlobalContext globalContext;
   
   public Context(final String indent) {
@@ -42,6 +44,7 @@ public class Context {
     context.globalContext = this.globalContext;
     context.returnType = this.returnType;
     context.returnVariable = this.returnVariable;
+    context.currentClass = this.currentClass;
     return context;
   }
   
@@ -79,6 +82,15 @@ public class Context {
   
   public void setIteratorVariable(final String iteratorVariable) {
     this.iteratorVariable = iteratorVariable;
+  }
+  
+  @Pure
+  public String getCurrentClass() {
+    return this.currentClass;
+  }
+  
+  public void setCurrentClass(final String currentClass) {
+    this.currentClass = currentClass;
   }
   
   @Pure

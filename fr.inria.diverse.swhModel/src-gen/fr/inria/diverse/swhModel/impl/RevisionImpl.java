@@ -5,9 +5,6 @@ package fr.inria.diverse.swhModel.impl;
 import fr.inria.diverse.swhModel.Directory;
 import fr.inria.diverse.swhModel.Revision;
 import fr.inria.diverse.swhModel.SwhModelPackage;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.eclipse.emf.common.notify.Notification;
 
 import org.eclipse.emf.ecore.EClass;
@@ -133,7 +130,7 @@ public class RevisionImpl extends SnapshotChildImpl implements Revision {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final XMLGregorianCalendar COMMITER_TIMESTAMP_EDEFAULT = null;
+	protected static final long COMMITER_TIMESTAMP_EDEFAULT = 0L;
 
 	/**
 	 * The cached value of the '{@link #getCommiterTimestamp() <em>Commiter Timestamp</em>}' attribute.
@@ -143,7 +140,7 @@ public class RevisionImpl extends SnapshotChildImpl implements Revision {
 	 * @generated
 	 * @ordered
 	 */
-	protected XMLGregorianCalendar commiterTimestamp = COMMITER_TIMESTAMP_EDEFAULT;
+	protected long commiterTimestamp = COMMITER_TIMESTAMP_EDEFAULT;
 
 	/**
 	 * The cached value of the '{@link #getParent() <em>Parent</em>}' reference.
@@ -305,7 +302,7 @@ public class RevisionImpl extends SnapshotChildImpl implements Revision {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public XMLGregorianCalendar getCommiterTimestamp() {
+	public long getCommiterTimestamp() {
 		return commiterTimestamp;
 	}
 
@@ -314,8 +311,8 @@ public class RevisionImpl extends SnapshotChildImpl implements Revision {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setCommiterTimestamp(XMLGregorianCalendar newCommiterTimestamp) {
-		XMLGregorianCalendar oldCommiterTimestamp = commiterTimestamp;
+	public void setCommiterTimestamp(long newCommiterTimestamp) {
+		long oldCommiterTimestamp = commiterTimestamp;
 		commiterTimestamp = newCommiterTimestamp;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, SwhModelPackage.REVISION__COMMITER_TIMESTAMP,
@@ -415,7 +412,7 @@ public class RevisionImpl extends SnapshotChildImpl implements Revision {
 			setCommiter((String) newValue);
 			return;
 		case SwhModelPackage.REVISION__COMMITER_TIMESTAMP:
-			setCommiterTimestamp((XMLGregorianCalendar) newValue);
+			setCommiterTimestamp((Long) newValue);
 			return;
 		case SwhModelPackage.REVISION__PARENT:
 			setParent((Revision) newValue);
@@ -476,8 +473,7 @@ public class RevisionImpl extends SnapshotChildImpl implements Revision {
 		case SwhModelPackage.REVISION__COMMITER:
 			return COMMITER_EDEFAULT == null ? commiter != null : !COMMITER_EDEFAULT.equals(commiter);
 		case SwhModelPackage.REVISION__COMMITER_TIMESTAMP:
-			return COMMITER_TIMESTAMP_EDEFAULT == null ? commiterTimestamp != null
-					: !COMMITER_TIMESTAMP_EDEFAULT.equals(commiterTimestamp);
+			return commiterTimestamp != COMMITER_TIMESTAMP_EDEFAULT;
 		case SwhModelPackage.REVISION__PARENT:
 			return parent != null;
 		}

@@ -8,12 +8,6 @@ import org.eclipse.xtext.xbase.lib.StringExtensions;
 @Aspect(className = PropertyCallExp.class)
 @SuppressWarnings("all")
 public class PropertyCallExpAspect extends NavigationCallExpAspect {
-  /**
-   * BE CAREFUL :
-   * 
-   * This class has more than one superclass
-   * please specify which parent you want with the 'super' expected calling
-   */
   public static String generate(final PropertyCallExp _self, final Context context) {
     final fr.inria.diverse.swhModel.generator.aspects.PropertyCallExpAspectPropertyCallExpAspectProperties _self_ = fr.inria.diverse.swhModel.generator.aspects.PropertyCallExpAspectPropertyCallExpAspectContext.getSelf(_self);
     Object result = null;
@@ -35,33 +29,44 @@ public class PropertyCallExpAspect extends NavigationCallExpAspect {
       if (sourceAttribute != null) {
         switch (sourceAttribute) {
           case "self":
-            StringConcatenation _builder = new StringConcatenation();
-            _builder.append("this.g.");
-            _builder.append(getter);
-            _switchResult = _builder.toString();
+            String _xifexpression = null;
+            boolean _equals = context.getCurrentClass().equals("Graph");
+            if (_equals) {
+              StringConcatenation _builder = new StringConcatenation();
+              _builder.append("this.g.");
+              _builder.append(getter);
+              _xifexpression = _builder.toString();
+            } else {
+              StringConcatenation _builder_1 = new StringConcatenation();
+              _builder_1.append(sourceAttribute);
+              _builder_1.append(".");
+              _builder_1.append(getter);
+              _xifexpression = _builder_1.toString();
+            }
+            _switchResult = _xifexpression;
             break;
           case "1_":
-            StringConcatenation _builder_1 = new StringConcatenation();
-            String _iteratorVariable = context.getIteratorVariable();
-            _builder_1.append(_iteratorVariable);
-            _builder_1.append(".");
-            _builder_1.append(getter);
-            _switchResult = _builder_1.toString();
-            break;
-          default:
             StringConcatenation _builder_2 = new StringConcatenation();
-            _builder_2.append(sourceAttribute);
+            String _iteratorVariable = context.getIteratorVariable();
+            _builder_2.append(_iteratorVariable);
             _builder_2.append(".");
             _builder_2.append(getter);
             _switchResult = _builder_2.toString();
             break;
+          default:
+            StringConcatenation _builder_3 = new StringConcatenation();
+            _builder_3.append(sourceAttribute);
+            _builder_3.append(".");
+            _builder_3.append(getter);
+            _switchResult = _builder_3.toString();
+            break;
         }
       } else {
-        StringConcatenation _builder_2 = new StringConcatenation();
-        _builder_2.append(sourceAttribute);
-        _builder_2.append(".");
-        _builder_2.append(getter);
-        _switchResult = _builder_2.toString();
+        StringConcatenation _builder_3 = new StringConcatenation();
+        _builder_3.append(sourceAttribute);
+        _builder_3.append(".");
+        _builder_3.append(getter);
+        _switchResult = _builder_3.toString();
       }
       _xblockexpression = _switchResult;
     }

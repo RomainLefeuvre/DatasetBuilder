@@ -2,19 +2,14 @@ import swhModel : 'platform:/resource/fr.inria.diverse.swhModel/model/swhModel.e
 package swhModel
 context Graph
 def : query():Set(Origin) = origins->select(
-	/*All the revision have been created since 2015*/
-	/*Optimize it by looking for the timestamp of the first commit */
-	originVisits->exists(
-				snapshot.branches->forAll(
-					getRevision()->closure(parent)->forAll(timestamp>1420066800)
-				)
-	)and
-	/*For the moment the sort iterator is not implemented, so the defautl order, implem order is kept */
-	 originVisits->sortedBy(timestamp)->first().snapshot.branches->exists(
+	 getLastSnapshot().branches->exists(
 	 				(name= 'refs/heads/master' or name= 'refs/heads/main')
 					and
 					/*The main branch contains at least 1000 revisions */
 					getRevision()->closure(parent)-> size() >1000
+					and
+					/*The first revision have been created since 2015 */
+					getRevision().getRootRevision().commiterTimestamp>1420066800
 					and
 					/*The main branch contains a file 'AndroidManifest.xml'*/
 					getRevision().tree.entries->closure(entry:DirectoryEntry |
@@ -26,4 +21,15 @@ def : query():Set(Origin) = origins->select(
 					)->exists(e:DirectoryEntry | e.name='AndroidManifest.xml')	
 	)
 )
+
+context Revision
+/**
+ * Get the first Revision transitively, in case of merge commit only one of the commit are handle 
+  */
+ def : getRootRevision() : Revision =
+		if parent = null then
+			self
+		else 
+			parent.getRootRevision()
+		endif
 endpackage

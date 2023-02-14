@@ -1,0 +1,4 @@
+threadNumber=1
+exportPath=export/
+loadingMode=MAPPED
+checkPointIntervalInMinutes=30

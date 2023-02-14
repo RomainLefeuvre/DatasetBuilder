@@ -6,12 +6,6 @@ import org.eclipse.ocl.pivot.VariableExp;
 @Aspect(className = VariableExp.class)
 @SuppressWarnings("all")
 public class VariableExpAspect extends OCLExpressionAspect {
-  /**
-   * BE CAREFUL :
-   * 
-   * This class has more than one superclass
-   * please specify which parent you want with the 'super' expected calling
-   */
   public static String generate(final VariableExp _self, final Context context) {
     final fr.inria.diverse.swhModel.generator.aspects.VariableExpAspectVariableExpAspectProperties _self_ = fr.inria.diverse.swhModel.generator.aspects.VariableExpAspectVariableExpAspectContext.getSelf(_self);
     Object result = null;

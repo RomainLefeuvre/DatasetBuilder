@@ -3,17 +3,13 @@ package fr.inria.diverse.swhModel.generator.aspects;
 import fr.inria.diverse.k3.al.annotationprocessor.Aspect;
 import org.eclipse.ocl.pivot.OCLExpression;
 import org.eclipse.ocl.pivot.OperationCallExp;
+import org.eclipse.ocl.pivot.PrimitiveType;
+import org.eclipse.ocl.pivot.Type;
 import org.eclipse.xtend2.lib.StringConcatenation;
 
 @Aspect(className = OperationCallExp.class)
 @SuppressWarnings("all")
 public class OperationCallExpAspect extends FeatureCallExpAspect {
-  /**
-   * BE CAREFUL :
-   * 
-   * This class has more than one superclass
-   * please specify which parent you want with the 'super' expected calling
-   */
   public static String generate(final OperationCallExp _self, final Context context) {
     final fr.inria.diverse.swhModel.generator.aspects.OperationCallExpAspectOperationCallExpAspectProperties _self_ = fr.inria.diverse.swhModel.generator.aspects.OperationCallExpAspectOperationCallExpAspectContext.getSelf(_self);
     Object result = null;
@@ -83,13 +79,25 @@ public class OperationCallExpAspect extends FeatureCallExpAspect {
             {
               OCLExpression _get = _self.getOwnedArguments().get(0);
               final OCLExpression value = ((OCLExpression) _get);
-              StringConcatenation _builder_5 = new StringConcatenation();
-              _builder_5.append(source);
-              _builder_5.append(".equals(");
-              String _generate_2 = OCLExpressionAspect.generate(value, context);
-              _builder_5.append(_generate_2);
-              _builder_5.append(")");
-              _xblockexpression_1 = _builder_5.toString();
+              String _xifexpression = null;
+              Type _type = _self.getOwnedSource().getType();
+              if ((_type instanceof PrimitiveType)) {
+                StringConcatenation _builder_5 = new StringConcatenation();
+                _builder_5.append(source);
+                _builder_5.append(".equals(");
+                String _generate_2 = OCLExpressionAspect.generate(value, context);
+                _builder_5.append(_generate_2);
+                _builder_5.append(")");
+                _xifexpression = _builder_5.toString();
+              } else {
+                StringConcatenation _builder_6 = new StringConcatenation();
+                _builder_6.append(source);
+                _builder_6.append(" == ");
+                String _generate_3 = OCLExpressionAspect.generate(value, context);
+                _builder_6.append(_generate_3);
+                _xifexpression = _builder_6.toString();
+              }
+              _xblockexpression_1 = _xifexpression;
             }
             _switchResult = _xblockexpression_1;
             break;
@@ -162,73 +170,149 @@ public class OperationCallExpAspect extends FeatureCallExpAspect {
             _switchResult = _xblockexpression_5;
             break;
           default:
-            String _switchResult_1 = null;
-            int _size = _self.getOwnedArguments().size();
-            switch (_size) {
-              case 0:
-                StringConcatenation _builder_5 = new StringConcatenation();
-                _builder_5.append(source);
-                _builder_5.append(".");
-                String _name_3 = _self.getName();
-                _builder_5.append(_name_3);
-                _builder_5.append("()");
-                _switchResult_1 = _builder_5.toString();
-                break;
-              case 1:
-                String _xblockexpression_6 = null;
-                {
-                  OCLExpression _get = _self.getOwnedArguments().get(0);
-                  final OCLExpression value = ((OCLExpression) _get);
+            String _xifexpression = null;
+            boolean _containsKey = context.getGlobalContext().getContextMethods().containsKey(_self.getName());
+            if (_containsKey) {
+              String _switchResult_1 = null;
+              int _size = _self.getOwnedArguments().size();
+              switch (_size) {
+                case 0:
+                  StringConcatenation _builder_5 = new StringConcatenation();
+                  String _name_3 = _self.getName();
+                  _builder_5.append(_name_3);
+                  _builder_5.append("(");
+                  _builder_5.append(source);
+                  _builder_5.append(")");
+                  _switchResult_1 = _builder_5.toString();
+                  break;
+                case 1:
+                  String _xblockexpression_6 = null;
+                  {
+                    OCLExpression _get = _self.getOwnedArguments().get(0);
+                    final OCLExpression value = ((OCLExpression) _get);
+                    StringConcatenation _builder_6 = new StringConcatenation();
+                    String _name_4 = _self.getName();
+                    _builder_6.append(_name_4);
+                    _builder_6.append(" (");
+                    _builder_6.append(source);
+                    _builder_6.append(" ,");
+                    String _generate_2 = OCLExpressionAspect.generate(value, context);
+                    _builder_6.append(_generate_2);
+                    _builder_6.append(")");
+                    _xblockexpression_6 = _builder_6.toString();
+                  }
+                  _switchResult_1 = _xblockexpression_6;
+                  break;
+              }
+              _xifexpression = _switchResult_1;
+            } else {
+              String _switchResult_2 = null;
+              int _size_1 = _self.getOwnedArguments().size();
+              switch (_size_1) {
+                case 0:
                   StringConcatenation _builder_6 = new StringConcatenation();
                   _builder_6.append(source);
-                  _builder_6.append(" ");
+                  _builder_6.append(".");
                   String _name_4 = _self.getName();
                   _builder_6.append(_name_4);
-                  _builder_6.append(" (");
-                  String _generate_2 = OCLExpressionAspect.generate(value, context);
-                  _builder_6.append(_generate_2);
-                  _builder_6.append(")");
-                  _xblockexpression_6 = _builder_6.toString();
-                }
-                _switchResult_1 = _xblockexpression_6;
-                break;
+                  _builder_6.append("()");
+                  _switchResult_2 = _builder_6.toString();
+                  break;
+                case 1:
+                  String _xblockexpression_7 = null;
+                  {
+                    OCLExpression _get = _self.getOwnedArguments().get(0);
+                    final OCLExpression value = ((OCLExpression) _get);
+                    StringConcatenation _builder_7 = new StringConcatenation();
+                    _builder_7.append(source);
+                    _builder_7.append(" ");
+                    String _name_5 = _self.getName();
+                    _builder_7.append(_name_5);
+                    _builder_7.append(" (");
+                    String _generate_2 = OCLExpressionAspect.generate(value, context);
+                    _builder_7.append(_generate_2);
+                    _builder_7.append(")");
+                    _xblockexpression_7 = _builder_7.toString();
+                  }
+                  _switchResult_2 = _xblockexpression_7;
+                  break;
+              }
+              _xifexpression = _switchResult_2;
             }
-            _switchResult = _switchResult_1;
+            _switchResult = _xifexpression;
             break;
         }
       } else {
-        String _switchResult_1 = null;
-        int _size = _self.getOwnedArguments().size();
-        switch (_size) {
-          case 0:
-            StringConcatenation _builder_5 = new StringConcatenation();
-            _builder_5.append(source);
-            _builder_5.append(".");
-            String _name_3 = _self.getName();
-            _builder_5.append(_name_3);
-            _builder_5.append("()");
-            _switchResult_1 = _builder_5.toString();
-            break;
-          case 1:
-            String _xblockexpression_6 = null;
-            {
-              OCLExpression _get = _self.getOwnedArguments().get(0);
-              final OCLExpression value = ((OCLExpression) _get);
+        String _xifexpression = null;
+        boolean _containsKey = context.getGlobalContext().getContextMethods().containsKey(_self.getName());
+        if (_containsKey) {
+          String _switchResult_1 = null;
+          int _size = _self.getOwnedArguments().size();
+          switch (_size) {
+            case 0:
+              StringConcatenation _builder_5 = new StringConcatenation();
+              String _name_3 = _self.getName();
+              _builder_5.append(_name_3);
+              _builder_5.append("(");
+              _builder_5.append(source);
+              _builder_5.append(")");
+              _switchResult_1 = _builder_5.toString();
+              break;
+            case 1:
+              String _xblockexpression_6 = null;
+              {
+                OCLExpression _get = _self.getOwnedArguments().get(0);
+                final OCLExpression value = ((OCLExpression) _get);
+                StringConcatenation _builder_6 = new StringConcatenation();
+                String _name_4 = _self.getName();
+                _builder_6.append(_name_4);
+                _builder_6.append(" (");
+                _builder_6.append(source);
+                _builder_6.append(" ,");
+                String _generate_2 = OCLExpressionAspect.generate(value, context);
+                _builder_6.append(_generate_2);
+                _builder_6.append(")");
+                _xblockexpression_6 = _builder_6.toString();
+              }
+              _switchResult_1 = _xblockexpression_6;
+              break;
+          }
+          _xifexpression = _switchResult_1;
+        } else {
+          String _switchResult_2 = null;
+          int _size_1 = _self.getOwnedArguments().size();
+          switch (_size_1) {
+            case 0:
               StringConcatenation _builder_6 = new StringConcatenation();
               _builder_6.append(source);
-              _builder_6.append(" ");
+              _builder_6.append(".");
               String _name_4 = _self.getName();
               _builder_6.append(_name_4);
-              _builder_6.append(" (");
-              String _generate_2 = OCLExpressionAspect.generate(value, context);
-              _builder_6.append(_generate_2);
-              _builder_6.append(")");
-              _xblockexpression_6 = _builder_6.toString();
-            }
-            _switchResult_1 = _xblockexpression_6;
-            break;
+              _builder_6.append("()");
+              _switchResult_2 = _builder_6.toString();
+              break;
+            case 1:
+              String _xblockexpression_7 = null;
+              {
+                OCLExpression _get = _self.getOwnedArguments().get(0);
+                final OCLExpression value = ((OCLExpression) _get);
+                StringConcatenation _builder_7 = new StringConcatenation();
+                _builder_7.append(source);
+                _builder_7.append(" ");
+                String _name_5 = _self.getName();
+                _builder_7.append(_name_5);
+                _builder_7.append(" (");
+                String _generate_2 = OCLExpressionAspect.generate(value, context);
+                _builder_7.append(_generate_2);
+                _builder_7.append(")");
+                _xblockexpression_7 = _builder_7.toString();
+              }
+              _switchResult_2 = _xblockexpression_7;
+              break;
+          }
+          _xifexpression = _switchResult_2;
         }
-        _switchResult = _switchResult_1;
+        _switchResult = _xifexpression;
       }
       _xblockexpression = _switchResult;
     }

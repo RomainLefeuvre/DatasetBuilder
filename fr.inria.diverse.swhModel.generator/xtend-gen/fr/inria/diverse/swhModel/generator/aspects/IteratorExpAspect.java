@@ -60,7 +60,7 @@ public class IteratorExpAspect extends LoopExpAspect {
             _builder.append("\t    ");
             _builder.append("Origin ");
             _builder.append(iteratorVariable, "\t    ");
-            _builder.append(" = new Origin(currentElement, graphCopy);");
+            _builder.append(" = new Origin(currentElement, this.graph);");
             _builder.newLineIfNotEmpty();
             _builder.append("\t    ");
             _builder.append("boolean predicateResult = ");

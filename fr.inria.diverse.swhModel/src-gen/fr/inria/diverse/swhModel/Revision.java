@@ -2,8 +2,6 @@
  */
 package fr.inria.diverse.swhModel;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Revision</b></em>'.
@@ -142,12 +140,12 @@ public interface Revision extends SnapshotChild, DirectoryChild {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Commiter Timestamp</em>' attribute.
-	 * @see #setCommiterTimestamp(XMLGregorianCalendar)
+	 * @see #setCommiterTimestamp(long)
 	 * @see fr.inria.diverse.swhModel.SwhModelPackage#getRevision_CommiterTimestamp()
-	 * @model dataType="org.eclipse.emf.ecore.xml.type.Date"
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.Long"
 	 * @generated
 	 */
-	XMLGregorianCalendar getCommiterTimestamp();
+	long getCommiterTimestamp();
 
 	/**
 	 * Sets the value of the '{@link fr.inria.diverse.swhModel.Revision#getCommiterTimestamp <em>Commiter Timestamp</em>}' attribute.
@@ -157,7 +155,7 @@ public interface Revision extends SnapshotChild, DirectoryChild {
 	 * @see #getCommiterTimestamp()
 	 * @generated
 	 */
-	void setCommiterTimestamp(XMLGregorianCalendar value);
+	void setCommiterTimestamp(long value);
 
 	/**
 	 * Returns the value of the '<em><b>Parent</b></em>' reference.
