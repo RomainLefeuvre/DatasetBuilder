@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.LongBinaryOperator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,33 +61,24 @@ public abstract class GraphExplorer<T extends Serializable> {
 	 *
 	 * @throws InterruptedException
 	 */
-	protected List<T> exploreGraphNode(long size) throws InterruptedException {
+	protected List<T> exploreGraphNode(long size, long batchSize) throws InterruptedException {
 		Executor executor = new Executor(this.config.getThreadNumber());
 		logger.info("Num of action to do : " + size);
+		logger.debug("Batch size of :" + batchSize);
+		LongBinaryOperator binaryOperator = (x, y) -> x + y;
+
 		for (int thread = 0; thread < this.config.getThreadNumber(); thread++) {
 			long finalThread = thread;
 			SwhUnidirectionalGraph graphCopy = this.graph.getGraph().copy();
 			executor.execute(() -> {
 				Instant timestamp = Instant.now();
 				Long i;
-				while ((i = this.counter.incrementAndGet()) < size) {
+				while ((i = this.counter.accumulateAndGet(batchSize, binaryOperator)) < (size + batchSize)) {
 					if (Duration.between(timestamp, Instant.now()).toMinutes() > 5) {
 						timestamp = Instant.now();
 						logger.info("Doing action number " + i + " over " + size + " thread " + finalThread);
 					}
-
-					try {
-						this.checkpointSynchro.acquire();
-						this.exploreGraphNodeAction(i, graphCopy.copy());
-					} catch (OriginModelInconsistencyException e) {
-						logger.debug("Inconsistency detected - Due to :" + e.getMessage());
-
-					} catch (ModelInconsistencyException e) {
-						logger.warn("Inconsistency detected - Due to :" + e.getMessage());
-					} catch (Throwable e) {
-						logger.error("Error catch for index " + i, e);
-					}
-					this.checkpointSynchro.release();
+					this.exploreGraphBatchAction((i - batchSize) + 1, i, size, graphCopy);
 
 				}
 			});
@@ -109,6 +101,47 @@ public abstract class GraphExplorer<T extends Serializable> {
 	}
 
 	/**
+	 * Mitigate the synchronization cost by doing nodeAction by batch, NB: the
+	 * checkpoint will have to wait all thread to finish their batch. Do action in
+	 * [batchStart,BatchEnd]
+	 * 
+	 * @param batchStart
+	 * @param batchEnd
+	 * @param size
+	 * @param graphCopy
+	 */
+	protected void exploreGraphBatchAction(Long batchStart, Long batchEnd, Long size,
+			SwhUnidirectionalGraph graphCopy) {
+		try {
+			this.checkpointSynchro.acquire();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException("Error during checkpoint synchro");
+		}
+
+		List<T> batchResult = new ArrayList<>();
+		long currentIndex;
+		for (currentIndex = batchStart; currentIndex <= batchEnd && currentIndex < size; currentIndex++) {
+			try {
+				T actionResult = exploreGraphNodeAction(currentIndex, graphCopy.copy());
+				if (actionResult != null) {
+					batchResult.add(actionResult);
+				}
+			} catch (OriginModelInconsistencyException e) {
+				logger.debug("Inconsistency detected - Due to :" + e.getMessage());
+
+			} catch (ModelInconsistencyException e) {
+				logger.warn("Inconsistency detected - Due to :" + e.getMessage());
+			} catch (Throwable e) {
+				logger.error("Error catch for index " + currentIndex, e);
+			}
+		}
+		result.addAll(batchResult);
+		this.checkpointSynchro.release();
+
+	}
+
+	/**
 	 * Function call by exploreGraphNode at iteration This function can be used to
 	 * perform action directly on the graph, and use the index as a nodeId. It can
 	 * also be used to iterate through a side collection ( for instance an arrayList
@@ -117,7 +150,7 @@ public abstract class GraphExplorer<T extends Serializable> {
 	 * @param index     the current action index (can be a nodeId)
 	 * @param graphCopy the current graphCopy (thread safe approach)
 	 */
-	protected abstract void exploreGraphNodeAction(long index, SwhUnidirectionalGraph graphCopy);
+	protected abstract T exploreGraphNodeAction(long index, SwhUnidirectionalGraph graphCopy);
 
 	/**
 	 * Function called peridically by exploreGraphNode to perform partial backups
@@ -156,7 +189,7 @@ public abstract class GraphExplorer<T extends Serializable> {
 	public void run() throws InterruptedException, IOException {
 		try {
 			this.restoreCheckpoint();
-			this.exploreGraphNode(graph.getGraph().numNodes());
+			this.exploreGraphNode(graph.getGraph().numNodes(), 1000L);
 		} catch (Exception e) {
 			logger.error("Error while running ", e);
 			throw new RuntimeException("Error", e);

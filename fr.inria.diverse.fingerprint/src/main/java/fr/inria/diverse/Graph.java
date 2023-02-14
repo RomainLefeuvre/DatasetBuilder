@@ -31,7 +31,7 @@ public class Graph {
 	 * ToDo add all the properties, not only those used in the experiments
 	 */
 	public void loadGraph() throws IOException {
-		logger.debug("Loading graph " + (this.isMappedMemoryActivated() ? "MAPPED MODE" : ""));
+		logger.info("Loading graph " + (this.isMappedMemoryActivated() ? "MAPPED MODE" : ""));
 		graph = this.isMappedMemoryActivated()
 				? SwhUnidirectionalGraph.loadLabelledMapped(this.config.getGraphPath().toString())
 				: SwhUnidirectionalGraph.loadLabelled(this.config.getGraphPath().toString());

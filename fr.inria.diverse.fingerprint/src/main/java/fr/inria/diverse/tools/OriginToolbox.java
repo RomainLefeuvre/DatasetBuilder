@@ -242,11 +242,8 @@ public class OriginToolbox extends SwhGraphProperties {
 				}
 				this.origins = new LambdaExplorer<Long, Long>(g) {
 					@Override
-					public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
-						if (graphCopy.getNodeType(currentElement) == SwhType.ORI) {
-							result.add(currentElement);
-
-						}
+					public Long exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+						return graphCopy.getNodeType(currentElement) == SwhType.ORI ? currentElement : null;
 					}
 
 					@Override
@@ -254,7 +251,7 @@ public class OriginToolbox extends SwhGraphProperties {
 						String uuid = UUID.randomUUID().toString();
 						return originPathString;
 					}
-				}.explore();
+				}.explore(true, 10000000L);
 				logger.debug("Computing Origins - over");
 
 			} catch (Exception e) {
