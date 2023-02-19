@@ -141,7 +141,7 @@ public class GraphQueryTest {
 
 	@Test
 	public void test() throws IOException, InterruptedException {
-		Set<Long> queryResult = new GraphQueryTest().runQuery();
+		Set<Long> queryResult = this.runQuery();
 		assertEquals(28, queryResult.size());
 	}
 }

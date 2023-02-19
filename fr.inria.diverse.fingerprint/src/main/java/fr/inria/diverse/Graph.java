@@ -46,7 +46,6 @@ public class Graph {
 		logger.info("Loading label");
 		graph.properties.loadLabelNames();
 		logger.info("Label loaded");
-		logger.info("Loading Origins");
 		this.graphTimestamp = config.getGraphTimestamp();
 
 	}
@@ -59,11 +58,13 @@ public class Graph {
 	 * @throws IOException
 	 */
 	public void loadExternalInfo() throws IOException {
+		logger.info("Loading ExternalInfo");
 		OriginToolbox t = new OriginToolbox(this);
 		t.run();
 		this.originsList = t.getOrigins();
 		this.originsSnaps = t.getResults();
-		logger.info("Origins Loaded");
+		logger.info("originSnaps nb " + this.originsSnaps.getOriginSnaps().size());
+		logger.info("ExternalInfo Loaded");
 	}
 
 	public Configuration getConfig() {
