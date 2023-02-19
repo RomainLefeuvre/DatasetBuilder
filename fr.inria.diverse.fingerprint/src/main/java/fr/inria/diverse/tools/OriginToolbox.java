@@ -105,7 +105,6 @@ public class OriginToolbox extends SwhGraphProperties {
 
 	public void run() {
 		Path resultUri = Paths.get(Configuration.getInstance().getExportPath().toString(), resultFileName);
-
 		if (ToolBox.checkIfExist(resultUri.toString())) {
 			logger.info("Loading " + resultUri);
 			results = ToolBox.deserialize(resultUri.toString());
@@ -122,7 +121,6 @@ public class OriginToolbox extends SwhGraphProperties {
 			logger.info("Computing " + resultUri + " over");
 			spark.close();
 		}
-
 	}
 
 	/**
@@ -215,7 +213,6 @@ public class OriginToolbox extends SwhGraphProperties {
 			logger.debug("Loading temp result");
 			return spark.read().format("parquet").load(tmpPath.toString()).cache();
 		}
-
 	}
 
 	/**

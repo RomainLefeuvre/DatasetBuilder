@@ -76,7 +76,6 @@ public class GraphQueryTest {
 										.collect(Collectors.toSet())).stream()
 												.anyMatch(e -> e.getName().equals("README.md"))));
 				return predicateResult ? currentElement : null;
-
 			}
 		}.explore();
 		results.addAll(selectResult);

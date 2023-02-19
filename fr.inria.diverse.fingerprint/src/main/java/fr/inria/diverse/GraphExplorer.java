@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongBinaryOperator;
 
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
@@ -66,7 +67,6 @@ public abstract class GraphExplorer<T extends Serializable> {
 		logger.info("Num of action to do : " + size);
 		logger.debug("Batch size of :" + batchSize);
 		LongBinaryOperator binaryOperator = (x, y) -> x + y;
-
 		for (int thread = 0; thread < this.config.getThreadNumber(); thread++) {
 			long finalThread = thread;
 			SwhUnidirectionalGraph graphCopy = this.graph.getGraph().copy();
@@ -79,7 +79,6 @@ public abstract class GraphExplorer<T extends Serializable> {
 						logger.info("Doing action number " + i + " over " + size + " thread " + finalThread);
 					}
 					this.exploreGraphBatchAction((i - batchSize) + 1, i, size, graphCopy);
-
 				}
 			});
 		}

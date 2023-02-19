@@ -6,10 +6,9 @@ import java.lang.reflect.ParameterizedType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
-
 import fr.inria.diverse.tools.Configuration;
+
 
 public abstract class LambdaExplorer<Input, Output extends Serializable> extends GraphExplorer<Output> {
 	protected List<Input> inputs;
@@ -77,5 +76,4 @@ public abstract class LambdaExplorer<Input, Output extends Serializable> extends
 		logger.info("found " + result.size() + " results");
 		return result;
 	}
-
 }
