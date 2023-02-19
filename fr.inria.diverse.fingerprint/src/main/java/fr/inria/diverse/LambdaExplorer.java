@@ -5,16 +5,10 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
-
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
-
 import fr.inria.diverse.tools.Configuration;
-import it.unimi.dsi.big.webgraph.ImmutableGraph;
-import it.unimi.dsi.big.webgraph.LazyLongIterator;
+
 
 public abstract class LambdaExplorer<Input, Output extends Serializable> extends GraphExplorer<Output> {
 	protected List<Input> inputs;
@@ -40,17 +34,17 @@ public abstract class LambdaExplorer<Input, Output extends Serializable> extends
 	}
 
 	@Override
-	protected void exploreGraphNodeAction(long index, SwhUnidirectionalGraph graphCopy) {
+	protected Output exploreGraphNodeAction(long index, SwhUnidirectionalGraph graphCopy) {
 		if (inputs != null) {
 			// ToDo Fix it to work with big inputs, here it's cat to an int ..
-			exploreGraphNodeActionOnElement(inputs.get((int) index), graphCopy);
+			return exploreGraphNodeActionOnElement(inputs.get((int) index), graphCopy);
 		} else if (getParameterClass().equals(Long.class)) {
-			exploreGraphNodeActionOnElement((Input) new Long(index), graphCopy);
+			return exploreGraphNodeActionOnElement((Input) new Long(index), graphCopy);
 		}
-
+		throw new RuntimeException("Input error");
 	}
 
-	public abstract void exploreGraphNodeActionOnElement(Input currentElement, SwhUnidirectionalGraph graphCopy);
+	public abstract Output exploreGraphNodeActionOnElement(Input currentElement, SwhUnidirectionalGraph graphCopy);
 
 	@Override
 	protected Path getExportPath() {
@@ -59,14 +53,14 @@ public abstract class LambdaExplorer<Input, Output extends Serializable> extends
 
 	@Override
 	public void run() throws InterruptedException, IOException {
-		this.run(true);
+		this.run(true, 1000L);
 	}
 
-	public void run(boolean restoreCheckpoint) throws InterruptedException, IOException {
+	public void run(boolean restoreCheckpoint, Long batchSize) throws InterruptedException, IOException {
 		try {
 			if (restoreCheckpoint)
 				this.restoreCheckpoint();
-			this.exploreGraphNode(this.inputs != null ? inputs.size() : graph.getGraph().numNodes());
+			this.exploreGraphNode(this.inputs != null ? inputs.size() : graph.getGraph().numNodes(), batchSize);
 		} catch (Exception e) {
 			logger.error("Error while running ", e);
 			throw new RuntimeException("Error", e);
@@ -74,35 +68,12 @@ public abstract class LambdaExplorer<Input, Output extends Serializable> extends
 	}
 
 	public List<Output> explore() throws InterruptedException, IOException {
-		return this.explore(true);
+		return this.explore(true, 1000L);
 	}
 
-	public List<Output> explore(boolean restoreCheckpoint) throws InterruptedException, IOException {
-		this.run(restoreCheckpoint);
+	public List<Output> explore(boolean restoreCheckpoint, Long batchSize) throws InterruptedException, IOException {
+		this.run(restoreCheckpoint, batchSize);
 		logger.info("found " + result.size() + " results");
 		return result;
 	}
-
-	public static void visitNodesBFS(ImmutableGraph graph, long srcNodeId) {
-		Queue<Long> queue = new ArrayDeque<>();
-		HashSet<Long> visited = new HashSet<Long>();
-		queue.add(srcNodeId);
-		visited.add(srcNodeId);
-
-		while (!queue.isEmpty()) {
-			long currentNodeId = queue.poll();
-			System.out.println(currentNodeId);
-
-			LazyLongIterator it = graph.successors(currentNodeId);
-			for (long neighborNodeId; (neighborNodeId = it.nextLong()) != -1;) {
-				if (!visited.contains(neighborNodeId)) {
-					queue.add(neighborNodeId);
-					visited.add(neighborNodeId);
-				}
-			}
-		}
-	}
-
-	;
-
 }

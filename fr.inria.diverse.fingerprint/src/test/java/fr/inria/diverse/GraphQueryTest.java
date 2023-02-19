@@ -64,7 +64,7 @@ public class GraphQueryTest {
 		logger.info("------Executing query " + id + "------");
 		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins(), id) {
 			@Override
-			public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+			public Long exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 				Origin origin = new Origin(currentElement, this.graph);
 				boolean predicateResult = origin.getLastSnapshot().getBranches().stream()
 						.anyMatch(branche -> ((((branche.getName().equals("refs/heads/master")
@@ -75,9 +75,7 @@ public class GraphQueryTest {
 								&& DirectoryEntryClosure3(branche.getRevision().getTree().getEntries().stream()
 										.collect(Collectors.toSet())).stream()
 												.anyMatch(e -> e.getName().equals("README.md"))));
-				if (predicateResult) {
-					result.add(currentElement);
-				}
+				return predicateResult ? currentElement : null;
 			}
 		}.explore();
 		results.addAll(selectResult);
@@ -142,7 +140,7 @@ public class GraphQueryTest {
 
 	@Test
 	public void test() throws IOException, InterruptedException {
-		Set<Long> queryResult = new GraphQueryTest().runQuery();
+		Set<Long> queryResult = this.runQuery();
 		assertEquals(28, queryResult.size());
 	}
 }

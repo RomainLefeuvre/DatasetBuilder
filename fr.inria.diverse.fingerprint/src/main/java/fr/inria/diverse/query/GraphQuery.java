@@ -41,7 +41,7 @@ public class GraphQuery implements IGraphQuery {
 		logger.info("------Executing query " + id + "------");
 		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins(), id) {
 			@Override
-			public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+			public Long exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 				Origin origin = new Origin(currentElement, this.graph);
 				boolean predicateResult = origin.getLastSnapshot().getBranches().stream()
 						.anyMatch(branche -> ((((branche.getName().equals("refs/heads/master")
@@ -52,9 +52,7 @@ public class GraphQuery implements IGraphQuery {
 								&& DirectoryEntryClosure3(branche.getRevision().getTree().getEntries().stream()
 										.collect(Collectors.toSet())).stream()
 												.anyMatch(e -> e.getName().equals("AndroidManifest.xml"))));
-				if (predicateResult) {
-					result.add(currentElement);
-				}
+				return predicateResult ? currentElement : null;
 			}
 		}.explore();
 		results.addAll(selectResult);
