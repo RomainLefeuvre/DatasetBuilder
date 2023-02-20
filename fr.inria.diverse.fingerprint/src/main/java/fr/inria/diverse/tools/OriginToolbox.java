@@ -79,7 +79,6 @@ public class OriginToolbox extends SwhGraphProperties {
 	 */
 	public void init() throws IOException {
 		int totalThread = Configuration.getInstance().getThreadNumber();
-
 		SparkConf conf = new SparkConf().setMaster("local[" + (totalThread - 2) + "]").setAppName("dataSetBuilder")
 				.set("spark.driver.memory", "" + Runtime.getRuntime().freeMemory()).set("spark.driver.cores", "" + 2)
 				.set("spark.driver.maxResultSize", "" + 0);
@@ -111,7 +110,6 @@ public class OriginToolbox extends SwhGraphProperties {
 			logger.info("Loading " + resultUri + "Over");
 
 		} else {
-
 			logger.info("Computing " + resultUri);
 			logger.debug("Get Snapshots information from relational version");
 			Dataset<Row> queryRes = getSnapshotsFromRelationalVersion();

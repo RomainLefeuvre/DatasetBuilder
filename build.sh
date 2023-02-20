@@ -6,7 +6,7 @@ echo "----Compiling swhModelGenerator----"
 cd ../fr.inria.diverse.swhModel.generator/
 ant create_uber_jar
 echo "Installing the resulting uber jar to local .m2 (To run tests)"
-mvn install:install-file \
+../fr.inria.diverse.fingerprint/mvnw install:install-file \
    -Dfile=fr.inria.diverse.swhModel_0.1.0.jar \
    -DgroupId=fr.inria.diverse.swhModel \
    -DartifactId=fr.inria.diverse.swhModel.generator \

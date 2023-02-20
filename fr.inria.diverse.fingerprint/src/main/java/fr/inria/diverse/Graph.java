@@ -14,10 +14,16 @@ import fr.inria.diverse.tools.OriginToolbox.OriginMap;
 
 public class Graph {
 	static Logger logger = LogManager.getLogger(Graph.class);
+	// The underlying SWH-GRAPH api graph
 	protected SwhUnidirectionalGraph graph;
+	// The graph timestamp
 	protected ZonedDateTime graphTimestamp;
+	// The global configuration
 	protected Configuration config = Configuration.getInstance();
+	// The list of Origins, ie the graph root
 	protected List<Long> originsList;
+	// The external information relative to originVisit we extract from the
+	// relational version of the graph
 	protected OriginMap originsSnaps;
 
 	public void init() throws IOException {
@@ -38,7 +44,6 @@ public class Graph {
 		logger.info("Loading CommitterTimestamps");
 		graph.loadCommitterTimestamps();
 		logger.info("CommitterTimestamps Loaded");
-		// graph.loadAuthorTimestamps();
 		logger.info("Graph loaded");
 		logger.info("Loading message");
 		graph.properties.loadMessages();

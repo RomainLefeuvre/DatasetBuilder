@@ -55,7 +55,7 @@ public class IteratorExpAspect extends LoopExpAspect {
             _builder.append("@Override");
             _builder.newLine();
             _builder.append("\t");
-            _builder.append("public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {");
+            _builder.append("public Long exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {");
             _builder.newLine();
             _builder.append("\t    ");
             _builder.append("Origin ");
@@ -69,13 +69,9 @@ public class IteratorExpAspect extends LoopExpAspect {
             _builder.append(";");
             _builder.newLineIfNotEmpty();
             _builder.append("\t    ");
-            _builder.append("if (predicateResult) {");
-            _builder.newLine();
-            _builder.append("\t    \t");
-            _builder.append("result.add(currentElement);");
+            _builder.append("return predicateResult ? currentElement : null;");
             _builder.newLine();
             _builder.append("\t    ");
-            _builder.append("}");
             _builder.newLine();
             _builder.append("\t");
             _builder.append("}");

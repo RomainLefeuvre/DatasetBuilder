@@ -25,7 +25,7 @@ public class GraphQuery implements IGraphQuery{
 		logger.info("------Executing query "+id+"------");
 		List<Long> selectResult = new LambdaExplorer<Long, Long>(g, this.g.getOrigins(),id) {
 		    @Override
-			public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+			public Long exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 			    Origin o = new Origin(currentElement, this.graph);
 			    boolean predicateResult = o.getOriginVisits().stream().anyMatch(originVisit ->
 			    	originVisit.getSnapshot().getBranches().stream().anyMatch(b ->
@@ -35,9 +35,8 @@ public class GraphQuery implements IGraphQuery{
 			    			b.getChild().getSwhid().equals("test"))
 			    	)
 			    );
-			    if (predicateResult) {
-			    	result.add(currentElement);
-			    }
+			    return predicateResult ? currentElement : null;
+			    
 			}
 		}.explore();
 		results.addAll(selectResult);

@@ -65,7 +65,6 @@ public class Revision extends NodeImpl implements Serializable, SnapshotChild, D
 	 * @return
 	 */
 	public Revision getParent() {
-		// if(parent==null&& !noParent){
 		SwhUnidirectionalGraph graphCopy = this.getUnderlyingGraph().copy();
 		LazyLongIterator childIt = graphCopy.successors(this.getNodeId());
 		Revision parent = null;

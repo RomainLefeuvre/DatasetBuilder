@@ -19,12 +19,12 @@ import fr.inria.diverse.model.DirectoryEntry;
 import fr.inria.diverse.model.Origin;
 import fr.inria.diverse.model.Revision;
 
-public class GraphQuery implements IGraphQuery {
-	static Logger logger = LogManager.getLogger(GraphQuery.class);
-	static String id = "QUERY_1000";
+public class GraphQuery_ implements IGraphQuery {
+	static Logger logger = LogManager.getLogger(GraphQuery_.class);
+	static String id = "query";
 	private Graph g;
 
-	public GraphQuery() throws IOException {
+	public GraphQuery_() throws IOException {
 		g = new Graph();
 		g.init();
 	}
@@ -51,8 +51,9 @@ public class GraphQuery implements IGraphQuery {
 								&& getRootRevision(branche.getRevision()).getCommiterTimestamp() > (1420066800))
 								&& DirectoryEntryClosure3(branche.getRevision().getTree().getEntries().stream()
 										.collect(Collectors.toSet())).stream()
-												.anyMatch(e -> e.getName().equals("AndroidManifest.xml"))));
+												.anyMatch(e -> e.getName().equals("README.md"))));
 				return predicateResult ? currentElement : null;
+
 			}
 		}.explore();
 		results.addAll(selectResult);

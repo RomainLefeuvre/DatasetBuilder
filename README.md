@@ -1,23 +1,10 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+
 <a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
 
 
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
+
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -77,13 +64,16 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-This project is a companion repository containing a prototype of the fingerprint approach.
+This project is a companion repository containing a prototype of the fingerprint approach. We mention that it's a prototype since we do not guaranty any usage different than those describe in the paper. For instance the compiler do not handle all the expressivity of OCL, only the ocl concepts present on the running query are implemented. Moreover a more advanced test coverage is required to use it at large scale. 
 
 ### Structure 
 * ```fr.inria.diverse.swhModel``` : The project containing the object oriented model of the SWH graph dataset expressed as an ecore project
-* ```fr.inria.diverse.swhModel.generator``` : The project containing the generator, it generate java code that target the swh-graph api from a query expressed in OCL on the OO model
+* ```fr.inria.diverse.swhModel.generator``` : The project containing the generator, it generate java code that target the swh-graph api from a query expressed in OCL on the OO model.
+* ```fr.inria.diverse.swhModel.fingerprint``` : The project that exposes an OO oriented api of the swh-graph, allowing to execute query on an export of the property graph dataset. 
 * ```fr.inria.diverse.swhModel.generator.tests``` : The project containing the tests of the generator
 * ```fr.inria.diverse.swhModel.queryExemple``` : An example project containing ocl query template. It can be used to design OCL query while leveraging on OCL tooling.
+* ```thirdPartyLibrary``` : The third party libraries that are not available on maven central, for most of the library used by the generator are in the eclipse ecosystem and not available in m2 repo.
+* ```result``` : The experiments of the results described in the paper, NB the log cannot be laoded in this repos since they are realy huge (tens of Go), if you need it do not hesitate to e-mail me. For each fingerprint run you will find a json listing the different origin id matching the query. You can easily use it to extract metadata relative to those repository in the corresponding export. You can also extract a subdataset of the swh-graph property dataset in order to distribute it and allow your user to exploit your dataset in a laptop !
 <!--([![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
 
@@ -96,6 +86,7 @@ This project is a companion repository containing a prototype of the fingerprint
 <!-- GETTING STARTED -->
 ## Prerequisites
 * Java 11
+* (Maven : we use maven wrapper such that it's not mandatory to have mave install in you machine, facilating reproducibility)
 ### Build Prerequisites
 * Ant >= 1.10.12
 * Linux
@@ -103,14 +94,59 @@ This project is a companion repository containing a prototype of the fingerprint
 * [GemocStudio V3.5.0](https://gemoc.org/download.html)
 
 ## Usage
-### Standelone Usage
-The generator can be used through the jar package version : ```fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar ``` : 
-* run ```java -jar fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar <oclModelPath> <exportPath> <QueryName>``` where 
-  * ```<oclModelPath>``` the path of the ocl model (either .ocl or the abstract syntax saved in .oclas)
-  * ```<exportPath>``` the path were the resulting java code will be saved
-  * ```<QueryId>``` the query Id, used for saving the query results during execution
+## Context
+The fingerprint approach is decompose in two part, a query describe in ocl and a timestamp, generally the version of the property graph dataset you will execute on it. 𝐹𝑃tx = ⟨𝑡x, 𝑞⟩. A run of a fingerprint is describe as  FPtx X Gx.
 
-Exemple : **```java -jar fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar fr.inria.diverse.swhModel.generator/tests/resources/swhModelQuery_01/swhModelQuery.ocl ./query.java testQuery```**
+The prototype is decompose also in 3 steps :
+* 1- Designing your ocl query over the OO model of the swh property dataset (cf figure 2 in the paper), or use our running query
+* 2- Compile your query in java code that leverage on the swh-graph api
+* 3- Execute your code and get the repositories that match your query (You will need to download the dataset )
+###  Usage
+#### Compile your ocl query
+The generator can be used through oclQueryCompilerLaucher.sh script that automate the call of the generator and the copy/paste of the resulting java file to the fingerprint projet. In output you will obtain a fat jar of the fingerprint project containing your query :
+* run ```sh oclQueryCompilerLaucher.sh <oclModelPath>  <QueryName> <exportPath>``` where 
+  * ```<oclModelPath>``` the path of the ocl model (either .ocl or the abstract syntax saved in .oclas)
+  * ```<QueryId>``` the query Id, used for saving the query results during execution
+  *  ```<exportPath>``` the path were the resulting java code will be saved
+
+Exemple : **```sh oclQueryCompilerLauncher.sh ./result/swhModelQuery.ocl RUNNING_QUERY ./result```**
+
+#### Execute the resulting jar to run your query on the swh graph property dataset 
+##### Requirement :
+* At least 500 GB of ram + 4to ssd
+* Download a version of the property graph dataset (https://docs.softwareheritage.org/devel/swh-dataset/graph/dataset.html), you can create leverage on the ```result/dl_script.sh```  (run it from the result folder)
+* To obtain better result mount a tmpfs and put it the graph.graph file that you will symlink to the dataset/your_graph/compressed folder
+* Display help :
+```java  -jar ./result/fr.inria.diverse.fingerprint-0.1.0.jar --help```
+``` 
+[picocli WARN] defaults configuration file /home/rlefeuvr/Workspaces/SAND_BOX/SW_GRAPH/OCL_PROJECT/./config/config.properties does not exist or is not readable
+Usage: GraphQueryRunner [-h] [-c=<checkPointIntervalInMinutes>]
+                        [-e=<exportPath>] -g=<graphFolderPath>
+                        [-l=<loadingMode>] [-qt=<queryTimestamp>]
+                        [-t=<threadNumber>]
+Execute a query over the graph property dataset
+  -c, --checkPointIntervalInMinutes=<checkPointIntervalInMinutes>
+               The time in minutes after which a checkpoint will be produced
+  -e, --exportPath=<exportPath>
+               The export path, where all the queries results will be saved
+                 including checkpoints
+  -g, --graphPath=<graphFolderPath>
+               The graph Folder path
+  -h, --help   display this help and exit
+  -l, --loadingMode=<loadingMode>
+               The graph loading mode either MAPPED for memory mapped or RAM
+                 for ram loading
+      -qt, --queryTimestamp=<queryTimestamp>
+               The  query Timestamp
+  -t, --threadNumber=<threadNumber>
+               The number of thread the query will use
+Romain Lefeuvre - DIVERSE team - Inria
+```
+* Run command Exemple: 
+```
+java -ea -server -XX:PretenureSizeThreshold=512M -XX:MaxNewSize=4G -XX:+UseLargePages -XX:+UseTransparentHugePages -XX:+UseNUMA -XX:+UseTLAB -XX:+ResizeTLAB -Djava.io.tmpdir=../java-tmp-dir -Xmx600G --add-opens=java.base/sun.nio.ch=ALL-UNNAMED -jar ./result/fr.inria.diverse.fingerprint-0.1.0.jar --exportPath=./result/export/2022-04-24 --threadNumber=60 --queryTimestamp=2022-04-24 --graphPath=./result/graph/2022-04-25 --checkPointIntervalInMinutes=300
+
+ ```
 
 ### Designing ocl queries
 Queries are described as an OCL Operation named ”query” in the Graph context, returning a Set of Origin i.e. the set of repository matching the query. The following template can be used :
@@ -133,7 +169,7 @@ To define the ocl request and therefore the input model of the generator, it is 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-## Building the standalone version 
+## If you want to build it yourself : 
 As the project is based on eclipse technologies (OCL eclipse, xtext ...) the projects are eclipse plugins. A standalone build procedure is available, forming an uber-jar with all the necessary dependencies. 
 
 To build the project :
@@ -142,19 +178,11 @@ To build the project :
 
 Then you can run the test project :
 * run ```mvn test``` in ```fr.inria.diverse.swhModel.generator.tests```
+
+Note: the fingerprint project is build automatically by using the oclQueryCompilerLaucher.sh scripts 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [ ] Feature 1
-    - [ ] Nested Feature
-
-See the [open issues](https://github.com/RomainLefeuvre/OCL_QUERY_SWH-GRAPH_GEN/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -190,14 +218,10 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 romain.lefeuvre@inria.fr.com
 
-Project Link: [https://github.com/RomainLefeuvre/OCL_QUERY_SWH-GRAPH_GEN](https://github.com/RomainLefeuvre/OCL_QUERY_SWH-GRAPH_GEN)
+Project Link: [https://github.com/RomainLefeuvre/DatasetBuilder](https://github.com/RomainLefeuvre/DatasetBuilder)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 

@@ -44,12 +44,11 @@ class IteratorExpAspect extends LoopExpAspect {
 			'''		
 			List<Long> selectResult = new LambdaExplorer<Long, Long>(g, «propertyToSearchIn»,id) {
 			    @Override
-				public void exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
+				public Long exploreGraphNodeActionOnElement(Long currentElement, SwhUnidirectionalGraph graphCopy) {
 				    Origin «iteratorVariable» = new Origin(currentElement, this.graph);
 				    boolean predicateResult = «_self.ownedBody.generate(c)»;
-				    if (predicateResult) {
-				    	result.add(currentElement);
-				    }
+				    return predicateResult ? currentElement : null;
+				    
 				}
 			}.explore();
 			results.addAll(selectResult);

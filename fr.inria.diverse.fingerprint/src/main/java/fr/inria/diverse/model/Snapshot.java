@@ -33,7 +33,6 @@ public class Snapshot extends NodeImpl implements Serializable {
 				final DirEntry[] labels = (DirEntry[]) it.label().get();
 				DirEntry label = labels[0];
 				String branchName = new String(graphCopy.getLabelName(label.filenameId));
-				// String branchName = url.replace("refs/heads/", "");
 				SnapshotChild snapChild = null;
 				switch (graphCopy.getNodeType(snapChildId)) {
 				case REV: {

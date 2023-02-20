@@ -6,10 +6,17 @@ import java.lang.reflect.ParameterizedType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
+
 import fr.inria.diverse.tools.Configuration;
 
-
+/**
+ * An extension to graph explorer that handle input list properly
+ *
+ * @param <Input>  The type of input element such that inputs is an List<Input>
+ * @param <Output> The type of result element such that result is a List<Output>
+ */
 public abstract class LambdaExplorer<Input, Output extends Serializable> extends GraphExplorer<Output> {
 	protected List<Input> inputs;
 	protected String exportName = "";

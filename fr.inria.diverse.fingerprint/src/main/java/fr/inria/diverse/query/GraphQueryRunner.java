@@ -92,7 +92,7 @@ public class GraphQueryRunner extends Configuration implements Runnable {
 	public void run() {
 		logger.info(this);
 		try {
-			(new GraphQuery()).runQuery();
+			(new GraphQuery_()).runQuery();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
