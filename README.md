@@ -73,7 +73,7 @@ This project is a companion repository containing a prototype of the fingerprint
 * ```fr.inria.diverse.swhModel.generator.tests``` : The project containing the tests of the generator
 * ```fr.inria.diverse.swhModel.queryExemple``` : An example project containing ocl query template. It can be used to design OCL query while leveraging on OCL tooling.
 * ```thirdPartyLibrary``` : The third party libraries that are not available on maven central, for most of the library used by the generator are in the eclipse ecosystem and not available in m2 repo.
-* ```result``` : The experiments of the results described in the paper, NB the log cannot be laoded in this repos since they are realy huge (tens of Go), if you need it do not hesitate to e-mail me. For each fingerprint run you will find a json listing the different origin id matching the query. You can easily use it to extract metadata relative to those repository in the corresponding export. You can also extract a subdataset of the swh-graph property dataset in order to distribute it and allow your user to exploit your dataset in a laptop !
+* ```result``` : The experiments of the results described in the paper, NB the log cannot be loaded in this repos since they are really huge (tens of Go), if you need it do not hesitate to e-mail me. For each fingerprint run you will find a json listing the different origin id matching the query. You can easily use it to extract metadata relative to those repository in the corresponding export. You can also extract a subdataset of the swh-graph property dataset in order to distribute it and allow your user to exploit your dataset in a laptop !
 <!--([![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
 
