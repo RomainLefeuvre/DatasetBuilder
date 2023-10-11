@@ -87,6 +87,8 @@ This project is a companion repository containing a prototype of the fingerprint
 ## Prerequisites
 * Java 11
 * (Maven : we use maven wrapper such that it's not mandatory to have mave install in you machine, facilating reproducibility)
+* launch ./install.sh script to install custom the swh-graph fork we use 
+  
 ### Build Prerequisites
 * Ant >= 1.10.12
 * Linux
@@ -104,6 +106,7 @@ The prototype is decompose also in 3 steps :
 ###  Usage
 #### Compile your ocl query
 The generator can be used through oclQueryCompilerLaucher.sh script that automate the call of the generator and the copy/paste of the resulting java file to the fingerprint projet. In output you will obtain a fat jar of the fingerprint project containing your query :
+* be sure to have run ```sh ./install.sh``` to install the forked version of swh-graph
 * run ```sh oclQueryCompilerLaucher.sh <oclModelPath>  <QueryName> <exportPath>``` where 
   * ```<oclModelPath>``` the path of the ocl model (either .ocl or the abstract syntax saved in .oclas)
   * ```<QueryId>``` the query Id, used for saving the query results during execution
