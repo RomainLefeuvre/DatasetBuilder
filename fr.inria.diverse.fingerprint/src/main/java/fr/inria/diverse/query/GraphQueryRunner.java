@@ -20,20 +20,20 @@ import picocli.CommandLine.PropertiesDefaultProvider;
 public class GraphQueryRunner extends Configuration implements Runnable {
 	static Logger logger = LogManager.getLogger(GraphQueryRunner.class);
 	private CommandLine cmd;
-	@Option(names = { "--queryTimestamp", "-qt" }, description = "The  query Timestamp")
+	@Option(names = { "--queryTimestamp", "-qt" }, description = "The  query Timestamp",required = true)
 	private String queryTimestamp;
 	@Option(names = { "--graphPath", "-g" }, description = "The graph Folder path", required = true)
 	private String graphFolderPath;
-	@Option(names = { "--threadNumber", "-t" }, description = "The number of thread the query will use")
+	@Option(names = { "--threadNumber", "-t" }, description = "The number of thread the query will use",required = true)
 	private int threadNumber;
 	@Option(names = { "--exportPath",
-			"-e" }, description = "The export path, where all the queries results will be saved including checkpoints")
+			"-e" }, description = "The export path, where all the queries results will be saved including checkpoints",required = true)
 	private String exportPath;
 	@Option(names = { "--loadingMode",
-			"-l" }, description = "The graph loading mode either MAPPED for memory mapped or RAM for ram loading")
+			"-l" }, description = "The graph loading mode either MAPPED for memory mapped or RAM for ram loading",required = true)
 	private String loadingMode;
 	@Option(names = { "--checkPointIntervalInMinutes",
-			"-c" }, description = "The time in minutes after which a checkpoint will be produced")
+			"-c" }, description = "The time in minutes after which a checkpoint will be produced",required = true)
 	private int checkPointIntervalInMinutes;
 	@Option(names = { "--help", "-h" }, usageHelp = true, description = "display this help and exit")
 	boolean help;
@@ -92,7 +92,7 @@ public class GraphQueryRunner extends Configuration implements Runnable {
 	public void run() {
 		logger.info(this);
 		try {
-			(new GraphQuery_()).runQuery();
+			(new GraphQuery()).runQuery();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
