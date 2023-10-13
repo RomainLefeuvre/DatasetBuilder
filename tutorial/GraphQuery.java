@@ -15,10 +15,9 @@ public class GraphQuery implements IGraphQuery{
     static String id = "RUNNING_QUERY";
     private Graph g;		    
 
-    public GraphQuery() throws IOException {
-        g = new Graph();
-        g.init();
-    }
+    public GraphQuery(Graph g) throws IOException {
+    		this.g = g;
+   }
 		
 	public Set<Long> runQuery() throws IOException, InterruptedException {
 		Set<Long> results = new HashSet<>();

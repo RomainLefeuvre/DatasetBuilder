@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import fr.inria.diverse.Graph;
 import fr.inria.diverse.tools.Configuration;
 import fr.inria.diverse.tools.ToolBox;
 import picocli.CommandLine;
@@ -20,20 +22,20 @@ import picocli.CommandLine.PropertiesDefaultProvider;
 public class GraphQueryRunner extends Configuration implements Runnable {
 	static Logger logger = LogManager.getLogger(GraphQueryRunner.class);
 	private CommandLine cmd;
-	@Option(names = { "--queryTimestamp", "-qt" }, description = "The  query Timestamp",required = true)
+	@Option(names = { "--queryTimestamp", "-qt" }, description = "The  query Timestamp")
 	private String queryTimestamp;
 	@Option(names = { "--graphPath", "-g" }, description = "The graph Folder path", required = true)
 	private String graphFolderPath;
-	@Option(names = { "--threadNumber", "-t" }, description = "The number of thread the query will use",required = true)
+	@Option(names = { "--threadNumber", "-t" }, description = "The number of thread the query will use")
 	private int threadNumber;
 	@Option(names = { "--exportPath",
-			"-e" }, description = "The export path, where all the queries results will be saved including checkpoints",required = true)
+			"-e" }, description = "The export path, where all the queries results will be saved including checkpoints")
 	private String exportPath;
 	@Option(names = { "--loadingMode",
-			"-l" }, description = "The graph loading mode either MAPPED for memory mapped or RAM for ram loading",required = true)
+			"-l" }, description = "The graph loading mode either MAPPED for memory mapped or RAM for ram loading")
 	private String loadingMode;
 	@Option(names = { "--checkPointIntervalInMinutes",
-			"-c" }, description = "The time in minutes after which a checkpoint will be produced",required = true)
+			"-c" }, description = "The time in minutes after which a checkpoint will be produced")
 	private int checkPointIntervalInMinutes;
 	@Option(names = { "--help", "-h" }, usageHelp = true, description = "display this help and exit")
 	boolean help;
@@ -92,7 +94,12 @@ public class GraphQueryRunner extends Configuration implements Runnable {
 	public void run() {
 		logger.info(this);
 		try {
-			(new GraphQuery()).runQuery();
+			Graph g = new Graph();
+			g.init();
+			Set<Long> matchedOrigin = (new GraphQuery(g)).runQuery();
+			g.exportOriginUri(matchedOrigin, Paths.get(Configuration.getInstance().getExportPath().toString(),
+					GraphQuery.id, "origin_url_snap_swhid.json").toString());
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

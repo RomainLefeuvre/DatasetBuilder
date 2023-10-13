@@ -2,6 +2,7 @@ reated by https://www.toptal.com/developers/gitignore/api/xtext,eclipse,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=xtext,eclipse,java
 tutorial/graph/*
 tutorial/result/*
+*._trace
 ### Eclipse ###
 .metadata
 bin/
