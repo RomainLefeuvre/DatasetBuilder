@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import fr.inria.diverse.Graph;
 import fr.inria.diverse.tools.Configuration;
 import fr.inria.diverse.tools.ToolBox;
 import picocli.CommandLine;
@@ -92,7 +94,12 @@ public class GraphQueryRunner extends Configuration implements Runnable {
 	public void run() {
 		logger.info(this);
 		try {
-			(new GraphQuery_()).runQuery();
+			Graph g = new Graph();
+			g.init();
+			Set<Long> matchedOrigin = (new GraphQuery(g)).runQuery();
+			g.exportOriginUri(matchedOrigin, Paths.get(Configuration.getInstance().getExportPath().toString(),
+					GraphQuery.id, "origin_url_snap_swhid.json").toString());
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

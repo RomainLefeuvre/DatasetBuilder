@@ -1,3 +1,5 @@
+To test a modification on the generator, the xtend file should be compiled, we recommend you to use the gemoc studio that automatically build the xtend code in the xtend-gen folder. 
+
 The generator can be used through the jar package version : ```fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar ``` : 
 * run ```java -jar fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar <oclModelPath> <exportPath> <QueryName>``` where 
   * ```<oclModelPath>``` the path of the ocl model (either .ocl or the abstract syntax saved in .oclas)
@@ -7,3 +9,4 @@ The generator can be used through the jar package version : ```fr.inria.diverse.
 Exemple : **```java -jar fr.inria.diverse.swhModel_0.1.0.jar tests/resources/swhModelQuery_01/swhModelQuery.ocl ./query.java testQuery```**
 
 Note : only the java class is generate, use the script oclCompilerLauncher.sh to compile, copy this class to the fingerprint project and then produce a jar that will allow you to execute your query over the property graph dataset.
+

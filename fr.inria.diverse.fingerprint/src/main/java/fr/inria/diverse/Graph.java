@@ -2,15 +2,21 @@ package fr.inria.diverse;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.softwareheritage.graph.SwhUnidirectionalGraph;
 
+import fr.inria.diverse.model.Origin;
 import fr.inria.diverse.tools.Configuration;
 import fr.inria.diverse.tools.OriginToolbox;
 import fr.inria.diverse.tools.OriginToolbox.OriginMap;
+import fr.inria.diverse.tools.ToolBox;
 
 public class Graph {
 	static Logger logger = LogManager.getLogger(Graph.class);
@@ -70,6 +76,18 @@ public class Graph {
 		this.originsSnaps = t.getResults();
 		logger.info("originSnaps nb " + this.originsSnaps.getOriginSnaps().size());
 		logger.info("ExternalInfo Loaded");
+	}
+
+	public void exportOriginUri(Set<Long> origins, String uri) throws IOException {
+		Map<String, List<String>> export = new HashMap<>();
+
+		for (Long originId : origins) {
+			Origin origin = new Origin(originId, this);
+			List<String> snapSWHID = origin.getOriginVisits().stream().map(o -> o.getSnapshot().getSwhid())
+					.collect(Collectors.toList());
+			export.put(origin.getOriginUrl(), snapSWHID);
+		}
+		ToolBox.exportObjectToJson(export, uri);
 	}
 
 	public Configuration getConfig() {

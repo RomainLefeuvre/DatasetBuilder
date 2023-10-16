@@ -53,6 +53,7 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#tutorial">Tutorial</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -186,8 +187,9 @@ Note: the fingerprint project is build automatically by using the oclQueryCompil
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
-
+## Tutorial
+A jupyter notebook is available in the ```tutorial``` folder. It describe and E2E exemple of designing a dataset from a fingerprint over a reduced dataset.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 ## Contributing

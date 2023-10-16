@@ -1,0 +1,20 @@
+import swhModel : 'platform:/resource/fr.inria.diverse.swhModel/model/swhModel.ecore'
+package swhModel
+context Graph
+def : query():Set(Snapshot) = origins->select(
+	 getLastSnapshot().branches->exists(
+	 				(name= 'refs/heads/master' or name= 'refs/heads/main')
+	 				and
+					/*The main branch contains a file 'AndroidManifest.xml'*/
+					getRevision().tree.entries->closure(entry:DirectoryEntry |
+						if entry.child.oclIsKindOf(Directory) then
+							entry.child.oclAsType(Directory).entries.oclAsSet()
+						else 
+							entry.oclAsSet()
+						endif	
+					)->exists(e:DirectoryEntry | e.name='README.md')	
+	)
+)
+
+
+endpackage
