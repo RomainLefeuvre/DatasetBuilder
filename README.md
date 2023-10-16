@@ -67,6 +67,11 @@
 ## About The Project
 This project is a companion repository containing a prototype of the fingerprint approach. We mention that it's a prototype since we do not guaranty any usage different than those describe in the paper. For instance the compiler do not handle all the expressivity of OCL, only the ocl concepts present on the running query are implemented. Moreover a more advanced test coverage is required to use it at large scale. 
 
+
+>Romain Lefeuvre, Jessie Galasso, Benoit Combemale, Houari Sahraoui, and Stefano Zacchiroli. 2023. Fingerprinting and Building Large Reproducible Datasets. In Proceedings of the 2023 ACM REP '23 https://doi.org/10.1145/3589806.3600043
+
+>[Presentation Slides](https://docs.google.com/presentation/d/e/2PACX-1vS3fhkgbzncqz6K2VSffvRiEvqQvcxT6mnZkVeldALseUWtwTNGN9mK2GEnzlVr-snlr8z9VTs-QCUI/pub?start=false&loop=false&delayms=3000)
+
 ### Structure 
 * ```fr.inria.diverse.swhModel``` : The project containing the object oriented model of the SWH graph dataset expressed as an ecore project
 * ```fr.inria.diverse.swhModel.generator``` : The project containing the generator, it generate java code that target the swh-graph api from a query expressed in OCL on the OO model.
