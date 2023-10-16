@@ -189,6 +189,7 @@ Note: the fingerprint project is build automatically by using the oclQueryCompil
 
 ## Tutorial
 A jupyter notebook is available in the ```tutorial``` folder. It describe and E2E exemple of designing a dataset from a fingerprint over a reduced dataset.
+A conda environment export is in environment.yml, you can create a conda environment (conda env create -f environment.yml) and open the tutorial notebook with vscode integrated jupyter notebook.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
