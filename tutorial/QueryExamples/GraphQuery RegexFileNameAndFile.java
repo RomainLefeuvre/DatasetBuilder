@@ -92,10 +92,6 @@ public class GraphQuery implements IGraphQuery {
 		return res;
 	}
 
-
-	/**
-	 * Modified version of the closure function from the original code that gets the path of the entry at the same time
-	 */
 	public static Stack<Pair<String, DirectoryEntry>> DirectoryEntryClosure1(Set<DirectoryEntry> param) {
 		Stack<DirectoryEntry> stack = new Stack<>();
 		Stack<String> pathStack = new Stack<>();

@@ -5,7 +5,7 @@ def : query():Set(Snapshot) = origins->select(
 	 getLastSnapshot().branches->exists(
 	 				(name= 'refs/heads/master' or name= 'refs/heads/main')
 	 				and
-					/*The main branch contains a file 'AndroidManifest.xml'*/
+					/*The main branch contains a file 'README.md'*/
 					getRevision().tree.entries->closure(entry:DirectoryEntry |
 						if entry.child.oclIsKindOf(Directory) then
 							entry.child.oclAsType(Directory).entries.oclAsSet()

@@ -33,15 +33,4 @@ if [ ! -d "$dest_path" ]; then
 fi
 
 java -jar ./fr.inria.diverse.swhModel.generator/fr.inria.diverse.swhModel_0.1.0.jar "$ocl_model" "${dest_path}/GraphQuery.java" "${query_name}"
-fingerprint_dest="./fr.inria.diverse.fingerprint/src/main/java/fr/inria/diverse/query/GraphQuery.java"
-echo "Copying the produce ${dest_path}/GraphQuery.java in ${fingerprint_dest} "
 
-cp "${dest_path}/GraphQuery.java" "$fingerprint_dest"
-# Copy the file to the destination path
-
-echo "Building fr.inria.diverse.fingerprint"
-fr.inria.diverse.fingerprint/mvnw clean package -Dmaven.test.skip=true -f ./fr.inria.diverse.fingerprint/pom.xml
-echo "Copying jar in ${dest_path}"
-cp fr.inria.diverse.fingerprint/target/fr.inria.diverse.fingerprint-0.1.0.jar ${dest_path}/fr.inria.diverse.fingerprint-0.1.0.jar
-echo "Done !"
-exit 0

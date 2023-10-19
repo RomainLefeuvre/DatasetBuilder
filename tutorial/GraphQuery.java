@@ -32,7 +32,7 @@ public class GraphQuery implements IGraphQuery{
 			    	 && 
 			    		DirectoryEntryClosure1(branche.getRevision().getTree().getEntries().stream().collect(Collectors.toSet()))
 			    		.stream().anyMatch(e ->
-			    			e.getName().equals("README.md")
+			    			e.getName().contains("openapi.yaml")
 			    		))
 			    );
 			    return predicateResult ? currentElement : null;
