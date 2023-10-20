@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class Snapshot{
 
+    
     private Map<String, Branch> branches;
 
 

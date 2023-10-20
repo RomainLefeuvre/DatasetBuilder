@@ -1,12 +1,6 @@
 package fr.inria.model;
 
-import java.lang.reflect.Type;
-
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class CookingStatus {
     private int id;
@@ -15,11 +9,13 @@ public class CookingStatus {
     private String progress_message;
     private Status status;
 
-    public enum Status{
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    public enum Status {
         NEW,
         PENDING,
         DONE,
-        FAILED
+        FAILED;
+
     };
 
     public int getId() {

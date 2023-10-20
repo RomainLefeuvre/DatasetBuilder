@@ -1,14 +1,17 @@
 package fr.inria.diverse;
 
 import java.io.FileNotFoundException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import fr.inria.diverse.requests.SwhClient;
 import fr.inria.diverse.utils.FileUtils;
+import fr.inria.model.CookingStatus;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -35,6 +38,10 @@ public class App implements Runnable {
             "--delay" }, description = "delay between the requests to cook and the requests to receive in seconds", required = false)
     private int delay;
 
+    @Option(names = { "-b",
+            "--bundle" }, description = "bundle type to request (gitfast, git, flat)", required = false)
+    private String bundleType;
+
     public static void main(String[] args) {
         new CommandLine(new App()).execute(args);
 
@@ -43,6 +50,7 @@ public class App implements Runnable {
     @Override
     public void run() {
 
+        //IMPORTING THE MAP//
         logger.info("Importing from file " + inputFile);
         Map<String, List<String>> importMap;
         try {
@@ -52,55 +60,51 @@ public class App implements Runnable {
             return;
         }
 
+        //CREATING THE CLIENT//
         SwhClient swhClient = new SwhClient(token);
         logger.info("Delay = " + delay);
         logger.info("Output folder = " + outputFolder);
         logger.info("Token = " + token);
+        logger.info("Bundle type = " + bundleType);
 
-        /*
-         * logger.info("Requesting revisions from import map...");
-         * List<String> revisionsIDs =
-         * swhClient.requestRevisionsFromSwhImportMap(importMap);
-         * 
-         * logger.debug(revisionsIDs);
-         */
+        //REQUESTING THE REVISIONS//
+        logger.info("Requesting revisions from import map...");
+        List<String> revisionsIDs = swhClient.requestRevisionsFromSwhImportMap(importMap);
 
-        /*
-         * logger.info("Requesting cooking for revisions...");
-         * List<CookingStatus> status = swhClient.requestCooking("gitfast",
-         * revisionsIDs);
-         * 
-         * logger.info("downloading already cooked bundles...");
-         * 
-         * status.forEach(s -> {
-         * if (s.getStatus() == CookingStatus.Status.DONE) {
-         * swhClient.DownloadCookedIfReady("gitfast", s.getSwhid(), outputFolder);
-         * }
-         * });
-         * 
-         * LinkedList<String> remainingRevisionsToCook = status.stream().filter(s ->
-         * s.getStatus() != CookingStatus.Status.DONE)
-         * .map(s -> s.getSwhid()).collect(LinkedList::new, LinkedList::add,
-         * LinkedList::addAll);
-         * 
-         * while (!remainingRevisionsToCook.isEmpty()) {
-         * try {
-         * logger.info("Waiting for " + delay + " seconds");
-         * wait(delay * 1000);
-         * } catch (InterruptedException e) {
-         * logger.warn("program interrupted");
-         * }
-         * 
-         * remainingRevisionsToCook.forEach(rev -> {
-         * if(swhClient.DownloadCookedIfReady("gitfast", rev, outputFolder)){
-         * remainingRevisionsToCook.remove(rev);
-         * }
-         * });
-         * logger.info(remainingRevisionsToCook.size() + "bundles has been remaining");
-         * 
-         * }
-         * logger.info("All bundles have been downloaded");
-         */
+        //REQUESTING THE COOKING//
+        logger.info("Requesting cooking for revisions...");
+        List<CookingStatus> status = swhClient.requestCooking(bundleType,
+                revisionsIDs);
+
+        //DOWNLOADING THE COOKED BUNDLES//
+        logger.info("downloading already cooked bundles...");
+
+        swhClient.DownloadCookedIfReady(bundleType, status.stream()
+                .filter(s -> s.getStatus() == CookingStatus.Status.DONE)
+                .map(s -> s.getSwhid())
+                .collect(LinkedList::new, LinkedList::add, LinkedList::addAll), outputFolder);
+
+        //STARTING THE DOWNLOAD OF THE REMAINING BUNDLES//
+        LinkedList<String> remainingRevisionsToCook = status.stream()
+                .filter(s -> s.getStatus() != CookingStatus.Status.DONE)
+                .map(s -> s.getSwhid()).collect(LinkedList::new, LinkedList::add,
+                        LinkedList::addAll);
+
+        while (!remainingRevisionsToCook.isEmpty()) {
+            try {
+                logger.info("Waiting for " + delay + " seconds");
+                TimeUnit.SECONDS.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.warn("program interrupted");
+            }
+
+            remainingRevisionsToCook = (LinkedList<String>) swhClient.DownloadCookedIfReady(bundleType,
+                    remainingRevisionsToCook, outputFolder);
+            logger.info(remainingRevisionsToCook.size() + " bundles remaining");
+
+        }
+        logger.info("All bundles have been downloaded");
+        System.exit(0);
     }
 
 }

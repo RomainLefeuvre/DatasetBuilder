@@ -10,4 +10,8 @@ public class SwhUtils {
     public static String getSnapShotIdFromSwhId(String swhId){
         return swhId.split(":")[3];
     }
+
+    public static String getSwhIdFromRevId(String snapShotId){
+        return "swh:1:rev:" + snapShotId;
+    }
 }

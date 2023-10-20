@@ -23,8 +23,13 @@ public class FileUtils {
         Gson gson = new Gson();
         JsonReader reader;
         reader = new JsonReader(new FileReader(Paths.get(inputFile).toString()));
-
-        return gson.fromJson(reader, Map.class);
+        Map<String, List<String>> resMap = gson.fromJson(reader, Map.class);
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return resMap;
 
     }
 

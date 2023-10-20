@@ -5,6 +5,8 @@ import fr.inria.model.Snapshot;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
@@ -18,7 +20,7 @@ public interface SwhService {
      * @param swhId      the software heritage id
      * @return a response contianing the current state of cooking
      */
-    @POST("vault/{bundletype}/{swhId}")
+    @POST("vault/{bundletype}/{swhId}/")
     Call<CookingStatus> startCooking(@Path("bundletype") String bundleType, @Path("swhId") String swhId);
 
     /**
@@ -28,6 +30,7 @@ public interface SwhService {
      * @param swhId      the software heritage id
      */
     @GET("vault/{bundletype}/{swhId}/raw")
+    @Headers("Content-Type:application/octet-stream")
     Call<ResponseBody> receivedCooked(@Path("bundletype") String bundleType, @Path("swhId") String swhId);
 
     /**

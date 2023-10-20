@@ -1,7 +1,10 @@
 package fr.inria.diverse;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -18,14 +21,14 @@ public class BundlePropertiesDefaultProvider implements IDefaultValueProvider {
     private static Logger logger = Logger.getLogger(BundlePropertiesDefaultProvider.class.getName());
 
     @Override
-    public String defaultValue(ArgSpec argSpec){
+    public String defaultValue(ArgSpec argSpec) {
 
         if (properties == null) {
             properties = new Properties();
-            try {
 
-                File file = Paths.get("./resources", "defaultConfig.properties").toFile();
-                try (Reader reader = new FileReader(file)) {
+            try (InputStream stream = App.class.getClassLoader().getResourceAsStream("defaultConfig.properties")) {
+
+                try (Reader reader = new InputStreamReader(stream)) {
                     properties.load(reader);
                 } catch (Exception e) {
                     logger.info(e.toString());
@@ -35,11 +38,9 @@ public class BundlePropertiesDefaultProvider implements IDefaultValueProvider {
             }
 
         }
-        logger.info(properties.toString());
-        // logger.info(argSpec.toString());
-        String key = argSpec.isOption()
+        String key = (argSpec.isOption()
                 ? ((OptionSpec) argSpec).longestName()
-                : argSpec.paramLabel();
+                : argSpec.paramLabel()).replace("-", "");
         return properties.getProperty(key);
     }
 
