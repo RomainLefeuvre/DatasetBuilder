@@ -90,7 +90,12 @@ public class SwhClient {
 
                 @Override
                 public void onResponse(Call<CookingStatus> call, retrofit2.Response<CookingStatus> response) {
-                    status.add(response.body());
+                    if (response.isSuccessful()) {
+                        status.add(response.body());
+
+                    } else {
+                        logger.error("Error while requesting cooking for " + s + " " + response);
+                    }
                     latch.countDown();
                 }
 
@@ -204,9 +209,21 @@ public class SwhClient {
                             public void onResponse(Call<Snapshot> call, retrofit2.Response<Snapshot> response) {
                                 // the target of head branch is sometimes an aliases, so we have to get the id
                                 // from the url
+                                 if(response.isSuccessful()){
                                 revisions.add(response.body().getBranches()
                                         .getOrDefault("HEAD", response.body().getBranches().get("refs/heads/master"))
                                         .getTargetUrl().split("/")[6]);
+                                 }
+                                 else{
+                                    String errorBody="";
+                                    try {
+                                    errorBody = response.errorBody().string();
+                                      } catch (IOException e) {
+                                    throw new RuntimeException("Error while reading error body "+snpId);
+                                }
+                                logger.error("Error while requesting snapshot error_body:"+errorBody+" " + snpId);
+                            }
+                                 
                                 latch.countDown();
                             }
 

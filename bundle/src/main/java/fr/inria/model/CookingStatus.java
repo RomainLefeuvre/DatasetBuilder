@@ -58,4 +58,9 @@ public class CookingStatus {
         this.status = status;
     }
 
+    @Override
+    public String toString() {
+        return id+" "+status;
+    }
+
 }
