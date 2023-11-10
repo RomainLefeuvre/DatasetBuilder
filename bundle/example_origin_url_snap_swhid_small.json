@@ -1,0 +1,11 @@
+{
+    "https://github.com/feast-dev/feast": [
+        "swh:1:snp:c61e3f05d0957ca63a5658e84c1908a0d0da18db"
+    ],
+    "https://github.com/jupyterhub/jupyterhub": [
+        "swh:1:snp:948315d57f6a889d4dfc959d0630d469d9c4cf72"
+    ],
+    "https://github.com/zalando/connexion": [
+        "swh:1:snp:689196f37e53750c789711676a07a4cc2c4ce111"
+    ]
+}

@@ -1,0 +1,64 @@
+{
+    "https://github.com/encode/apistar": [
+        "swh:1:snp:7316fdd6f16d90c3e1162134c168501f1435b700",
+        "swh:1:snp:d0dd7dfe1f39fcf8b0589f9ce2b0d89e47011ff2",
+        "swh:1:snp:56fe2929ddc33b34e7af4625284da1bc004a2241"
+    ],
+    "https://github.com/feast-dev/feast": [
+        "swh:1:snp:c61e3f05d0957ca63a5658e84c1908a0d0da18db"
+    ],
+    "https://github.com/jupyterhub/jupyterhub": [
+        "swh:1:snp:948315d57f6a889d4dfc959d0630d469d9c4cf72",
+        "swh:1:snp:deb35363cef60cfac3a719e70ece3d6d7ea32d99",
+        "swh:1:snp:7deb5d3e1cd00ed69e2ea24ebbe759ea89570ca5",
+        "swh:1:snp:16412668d0e52f58e99ab82414a69a756eff3f56",
+        "swh:1:snp:804cbc397011d1cd9529575701c7557a088ac12f",
+        "swh:1:snp:3adeca91a957ce228fdac1e43225e3a5afe34b1b",
+        "swh:1:snp:4c13fa0b08b3754cbb74269f05590751462718f4",
+        "swh:1:snp:e9420290d4700421c63552b1114b796117fbb4ee",
+        "swh:1:snp:305fa132c49f947459cfb475bf1b6cfdec0170ab",
+        "swh:1:snp:4f999d793f3785d7384dbd5664fb1eb920eb1631",
+        "swh:1:snp:9852a07b9c5b72cc231a4ebb50910782376378e4",
+        "swh:1:snp:6371d5a9a981e603e2403bf09289f09cfa272446",
+        "swh:1:snp:f882c223d7e930e002167b6086ee04f830aec87b"
+    ],
+    "https://github.com/zalando/connexion": [
+        "swh:1:snp:689196f37e53750c789711676a07a4cc2c4ce111",
+        "swh:1:snp:4765f52e4d636ddca62886d06180a58333313661",
+        "swh:1:snp:f830b749fd78d19fcfc8c60c1b63283111bf1b17",
+        "swh:1:snp:68ea533bfc4788cfbe2c19223bc3aefddf6a6495",
+        "swh:1:snp:34df3b6179953cb509999eccd23799d46f41cf1f",
+        "swh:1:snp:5643d12eb619b3c6eada30131543258a7b3fa8f0",
+        "swh:1:snp:48d482b76a6d7c7df2776f37989fa1fa2786e115",
+        "swh:1:snp:2b0befa6e5d9e16abb13f94c398c92cde7eb8d09",
+        "swh:1:snp:d9d14791f9af5a4af7c4c1b23702de03dc0685d4",
+        "swh:1:snp:1f88e8e7d10b828d45100fa6ff3401db54e0f438",
+        "swh:1:snp:442dbb9af79bd38de8cfb736e2ab0f09a0f2557f",
+        "swh:1:snp:412e48c91acf62852261ce17e5260ff3ac7ceabd",
+        "swh:1:snp:45f172410a714ca2256d38fbbf5ec02ca51489bc",
+        "swh:1:snp:8402d44f73aad32f9a950cfd84b3a84f2128d405",
+        "swh:1:snp:5ad87811d811ed68749688c0e6e162c1445420cd",
+        "swh:1:snp:b75f7639de8964592c9b60919a2c5c363a70fac8",
+        "swh:1:snp:a946f633ca8a828a69cd06cadef61b41eba22a60"
+    ],
+    "https://github.com/andresriancho/w3af": [
+        "swh:1:snp:d3db46953807b22dda750c59895f890ae8a082e7",
+        "swh:1:snp:2e73f80af91b3f0df986e86b4547fe3546187d8d",
+        "swh:1:snp:1fe5e316f53ce73dee0a4587c5f6a9562aff7aec",
+        "swh:1:snp:f09bbb802165695a5c854fcffd464a2d16ec58b8",
+        "swh:1:snp:31cf6cacc5b51817ab929e87cbd7a9b87f90d4c4",
+        "swh:1:snp:8aa755493b3d737e3ead6615148154f4c7b996d3",
+        "swh:1:snp:cf1467002e8bcfea5e4bf6ca1e643c8d1bb06997",
+        "swh:1:snp:3bc33a77b7f0e0ee9b20a74f923a9ba82eb12e33",
+        "swh:1:snp:22b216ff5f1dec6746fe67cd37384141f6aa0d0f",
+        "swh:1:snp:bcf16e04c1dc2a0d2bc17c6a0d3e547481497a2a",
+        "swh:1:snp:d18df4d87859c7e30cbf4f7f70c26850637ecdf2",
+        "swh:1:snp:2b5dd1883c9e763831cd1bb83d5fc8c0a720ef65",
+        "swh:1:snp:458235ffd7d15a41e03657f7682c3020f09fe49b",
+        "swh:1:snp:0621848b04b78a01185626dbf6ffc01190c6be9d",
+        "swh:1:snp:a8d7c8ba53692bb307fc5dffcfc98e3e26505c12",
+        "swh:1:snp:774a7942125bba06002698d9572efbab241e94ee",
+        "swh:1:snp:5d8c876e9457a0585d08de71702a7b7024b03f50",
+        "swh:1:snp:dfe817765152a027807a5426fe4c4b2665ce0eaa"
+    ]
+}

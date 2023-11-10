@@ -2,6 +2,8 @@ reated by https://www.toptal.com/developers/gitignore/api/xtext,eclipse,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=xtext,eclipse,java
 tutorial/graph/*
 tutorial/result/*
+tutorial/fr.inria.diverse.fingerprint-0.1.0.jar
+
 *._trace
 ### Eclipse ###
 .metadata
