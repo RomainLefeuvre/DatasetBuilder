@@ -24,6 +24,8 @@
           # stdenv.cc.cc # jupyter lab needs
 
           # pythonPackages.python
+          pythonPackages.jupyter
+          pythonPackages.notebook
           pythonPackages.ipykernel
           pythonPackages.jupyterlab
           pythonPackages.pyzmq    # Adding pyzmq explicitly
@@ -37,9 +39,9 @@
 
         postVenvCreation = ''
           unset SOURCE_DATE_EPOCH 
-          python -m ipykernel install --user --name=myenv4 --display-name="myenv4"
           pip install -r requirements_nix.txt
           autoPatchelf ./venv
+          python -m ipykernel install --user --name=myenv4 --display-name="myenv4"
         '';# python -m ipykernel install --user --name=myenv4 --display-name="myenv4"  : to add python kernel to jupyter lab
 
         postShellHook = ''
