@@ -24,9 +24,13 @@
           # python packages
           pkgs.stdenv.cc.cc.lib # for python packages with C dependencies (jupyter lab)
           pythonPackages.pyzmq    # Adding pyzmq explicitly to avoid error in jupyter lab
+          pythonPackages.jupyter
           pythonPackages.ipykernel
           pythonPackages.jupyterlab
           pythonPackages.pip
+
+          # aws
+          pkgs.awscli
 
           # java
           jdk # for java
@@ -34,8 +38,8 @@
         ];
 
         postVenvCreation = ''
-          unset SOURCE_DATE_EPOCH
-          python -m ipykernel install --user --name=myenv4 --display-name="myenv4" 
+          unset SOURCE_DATE_EPOCH 
+          python -m ipykernel install --user --name=myenv4 --display-name="myenv4"
           pip install -r requirements_nix.txt
           autoPatchelf ./venv
         '';# python -m ipykernel install --user --name=myenv4 --display-name="myenv4"  : to add python kernel to jupyter lab
