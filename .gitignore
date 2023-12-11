@@ -106,3 +106,6 @@ generated/
 /s/
 target/
 staticdispatch-gen/
+
+.venv/
+.vscode/
