@@ -3,8 +3,7 @@
 
 
 
-    "java.jdt.ls.java.home": "/nix/store/qjcx43a8fcgybb2bnxc4vcprb42zf6hx-openjdk-17.0.7+7/lib/openjdk",
-    "jupyter.notebookFileRoot": "${workspaceFolder}"
+    
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
