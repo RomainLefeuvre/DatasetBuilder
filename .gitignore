@@ -108,3 +108,4 @@ target/
 staticdispatch-gen/
 
 .venv/
+.vscode/
