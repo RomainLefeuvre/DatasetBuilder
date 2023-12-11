@@ -10,31 +10,29 @@
         system = "x86_64-linux";
         pkgs = nixpkgs.legacyPackages.${system};
         pythonPackages = pkgs.python310Packages;
+        jdk = pkgs.jdk17;
 
       impurePythonEnv = pkgs.mkShell rec {
-        jdk = pkgs.jdk17;
         name = "impurePythonEnv";
         venvDir = "./.venv";
         buildInputs = [
-          # python env
+          pkgs.autoPatchelfHook
           pythonPackages.python
           pythonPackages.venvShellHook
-          pkgs.autoPatchelfHook
-          
-          # python packages
-          pkgs.stdenv.cc.cc.lib # for python packages with C dependencies (jupyter lab)
-          pythonPackages.pyzmq    # Adding pyzmq explicitly to avoid error in jupyter lab
-          pythonPackages.jupyter
+
+          pkgs.stdenv.cc.cc.lib
+          # stdenv.cc.cc # jupyter lab needs
+
+          # pythonPackages.python
           pythonPackages.ipykernel
           pythonPackages.jupyterlab
+          pythonPackages.pyzmq    # Adding pyzmq explicitly
+          
           pythonPackages.pip
 
-          # aws
-          pkgs.awscli
-
-          # java
+          # sometimes you might need something additional like the following - you will get some useful error if it is looking for a binary in the environment.
           jdk # for java
-          pkgs.apacheAnt
+          pkgs.apacheAnt # for ant
         ];
 
         postVenvCreation = ''
