@@ -1,7 +1,7 @@
 {
   description = "Impure Python environment flake";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
   
 
   outputs = { self, nixpkgs }:
@@ -22,19 +22,23 @@
           pkgs.autoPatchelfHook
           
           # python packages
-          pythonPackages.jupyter
-          pythonPackages.ipython
+          pkgs.stdenv.cc.cc.lib # for python packages with C dependencies (jupyter lab)
+          pythonPackages.pyzmq    # Adding pyzmq explicitly to avoid error in jupyter lab
+          pythonPackages.ipykernel
+          pythonPackages.jupyterlab
+          pythonPackages.pip
 
           # java
           jdk # for java
-          pkgs.maven
+          pkgs.apacheAnt
         ];
 
         postVenvCreation = ''
           unset SOURCE_DATE_EPOCH
+          python -m ipykernel install --user --name=myenv4 --display-name="myenv4" 
           pip install -r requirements_nix.txt
           autoPatchelf ./venv
-        '';
+        '';# python -m ipykernel install --user --name=myenv4 --display-name="myenv4"  : to add python kernel to jupyter lab
 
         postShellHook = ''
           unset SOURCE_DATE_EPOCH
